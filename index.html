@@ -13,265 +13,347 @@
             color: #f5f5f5;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             user-select: none;
-            -webkit-user-select: none;
         }
         .wallet-card { background-color: #232e3c; border-radius: 16px; }
         .wallet-card-sub { background-color: #1e2733; border-radius: 12px; }
-        .wallet-btn { background-color: #232e3c; border-radius: 14px; transition: all 0.12s ease; cursor: pointer; }
-        .wallet-btn:active { transform: scale(0.95); background-color: #2b3746; }
-        .bottom-nav {
-            background-color: rgba(23, 33, 43, 0.95);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        .wallet-btn { background-color: #232e3c; border-radius: 16px; cursor: pointer; transition: all 0.1s ease; }
+        .wallet-btn:active { transform: scale(0.97); background-color: #2b3746; }
+        
+        /* Нижнее плавающее меню в стиле Telegram Wallet */
+        .wallet-nav-container {
+            position: fixed;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            z-index: 50;
         }
-        .active-nav { color: #38bdf8 !important; }
-        .active-nav .nav-icon { background-color: rgba(56, 189, 248, 0.18) !important; }
+        .wallet-nav {
+            background-color: rgba(35, 46, 60, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 32px;
+            padding: 4px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        .nav-item {
+            border-radius: 24px;
+            padding: 6px 0;
+            color: #8b9db1;
+            transition: all 0.2s ease;
+        }
+        .nav-item.active {
+            background-color: #2b3848;
+            color: #38bdf8;
+        }
     </style>
 </head>
-<body class="flex flex-col min-h-screen justify-between p-4 pb-24">
+<body class="flex flex-col min-h-screen justify-between p-4 pb-28">
 
-    <div>
-        <!-- Баланс депозита -->
-        <div class="text-center my-4">
-            <div class="text-xs text-slate-400 font-medium mb-1">Рабочий депозит</div>
-            <div class="text-4xl font-extrabold tracking-tight text-white mb-1" id="deposit-display">
-                $300<span class="text-2xl text-slate-400 font-normal">.00</span>
-            </div>
-            <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span id="scan-status">Сканер готов</span>
-            </div>
-        </div>
-
-        <!-- Быстрые действия (Все кнопки 100% кликабельны) -->
-        <div class="grid grid-cols-4 gap-2 mb-5">
-            <button id="btn-refresh" class="wallet-btn p-3 flex flex-col items-center justify-center gap-1 text-sky-400">
-                <div class="w-10 h-10 rounded-full bg-sky-500/15 flex items-center justify-center text-lg">
-                    <i class="bi bi-arrow-clockwise"></i>
-                </div>
-                <span class="text-[11px] font-medium text-slate-200">Обновить</span>
-            </button>
-            <button id="btn-filters" class="wallet-btn p-3 flex flex-col items-center justify-center gap-1 text-sky-400">
-                <div class="w-10 h-10 rounded-full bg-sky-500/15 flex items-center justify-center text-lg">
-                    <i class="bi bi-funnel-fill"></i>
-                </div>
-                <span class="text-[11px] font-medium text-slate-200">Фильтры</span>
-            </button>
-            <button id="btn-deposit" class="wallet-btn p-3 flex flex-col items-center justify-center gap-1 text-sky-400">
-                <div class="w-10 h-10 rounded-full bg-sky-500/15 flex items-center justify-center text-lg">
-                    <i class="bi bi-cash-stack"></i>
-                </div>
-                <span class="text-[11px] font-medium text-slate-200">Депозит</span>
-            </button>
-            <button id="btn-bot" class="wallet-btn p-3 flex flex-col items-center justify-center gap-1 text-sky-400">
-                <div class="w-10 h-10 rounded-full bg-sky-500/15 flex items-center justify-center text-lg">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <span class="text-[11px] font-medium text-slate-200">Авто-бот</span>
-            </button>
-        </div>
-
-        <!-- Статус фильтрации -->
-        <div class="wallet-card p-3.5 mb-5 flex justify-between items-center text-xs">
-            <div class="flex items-center gap-2.5">
-                <i class="bi bi-shield-check text-sky-400 text-xl"></i>
-                <div>
-                    <div class="font-semibold text-slate-200">Комиссии сетей и бирж</div>
-                    <div class="text-slate-400 text-[11px]" id="filter-info">Мин. профит: +0.15%</div>
-                </div>
-            </div>
-            <span class="text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1 rounded-lg">Учтено</span>
-        </div>
-
-        <!-- Заголовок раздела -->
-        <div class="mb-2.5 flex justify-between items-center px-1">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400" id="section-title">Межбиржевые связки</span>
-            <span class="text-xs text-slate-500" id="deal-count">0 найдено</span>
-        </div>
-
-        <!-- Список связок -->
-        <div class="space-y-2.5" id="deals-list">
-            <div class="text-center text-slate-500 py-12 text-xs">
-                <i class="bi bi-arrow-repeat text-2xl block mb-2 animate-spin text-sky-400"></i>
-                Подключение к сканеру...
-            </div>
-        </div>
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <div id="tab-content">
+        <!-- Контент загружается динамически JS -->
     </div>
 
-    <!-- Нижняя навигация -->
-    <div class="fixed bottom-0 left-0 right-0 bottom-nav px-3 py-2 flex justify-around items-center z-50">
-        <button id="nav-inter" class="flex flex-col items-center text-slate-400 text-[10px] font-medium gap-1 active-nav">
-            <div class="nav-icon w-12 h-7 rounded-full flex items-center justify-center text-base transition-all">
-                <i class="bi bi-arrow-left-right"></i>
-            </div>
-            <span>Межбиржевой</span>
-        </button>
-        <button id="nav-intra" class="flex flex-col items-center text-slate-400 text-[10px] font-medium gap-1">
-            <div class="nav-icon w-12 h-7 rounded-full flex items-center justify-center text-base transition-all">
-                <i class="bi bi-triangle"></i>
-            </div>
-            <span>Внутрибиржи</span>
-        </button>
-        <button id="nav-stats" class="flex flex-col items-center text-slate-400 text-[10px] font-medium gap-1">
-            <div class="nav-icon w-12 h-7 rounded-full flex items-center justify-center text-base transition-all">
-                <i class="bi bi-graph-up-arrow"></i>
-            </div>
-            <span>Статистика</span>
-        </button>
-        <button id="nav-settings" class="flex flex-col items-center text-slate-400 text-[10px] font-medium gap-1">
-            <div class="nav-icon w-12 h-7 rounded-full flex items-center justify-center text-base transition-all">
-                <i class="bi bi-gear-fill"></i>
-            </div>
-            <span>Настройки</span>
-        </button>
+    <!-- ПЛАВАЮЩЕЕ НИЖНЕЕ МЕНЮ (стиль Wallet) -->
+    <div class="wallet-nav-container">
+        <div class="wallet-nav grid grid-cols-4 gap-1">
+            <button onclick="switchTab('deals')" id="nav-deals" class="nav-item active flex flex-col items-center justify-center">
+                <i class="bi bi-arrow-left-right text-lg mb-0.5"></i>
+                <span class="text-[10px] font-semibold">Связки</span>
+            </button>
+            <button onclick="switchTab('exchanges')" id="nav-exchanges" class="nav-item flex flex-col items-center justify-center">
+                <i class="bi bi-shop text-lg mb-0.5"></i>
+                <span class="text-[10px] font-semibold">Биржи</span>
+            </button>
+            <button onclick="switchTab('stats')" id="nav-stats" class="nav-item flex flex-col items-center justify-center">
+                <i class="bi bi-pie-chart-fill text-lg mb-0.5"></i>
+                <span class="text-[10px] font-semibold">Доход</span>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-profile" class="nav-item flex flex-col items-center justify-center">
+                <i class="bi bi-person-fill text-lg mb-0.5"></i>
+                <span class="text-[10px] font-semibold">Профиль</span>
+            </button>
+        </div>
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
         const tg = window.Telegram?.WebApp || {};
         if (tg.expand) tg.expand();
-        if (tg.setHeaderColor) tg.setHeaderColor('#17212b');
-        if (tg.setBackgroundColor) tg.setBackgroundColor('#17212b');
 
-        // ВСТАВЬ СЮДА ССЫЛКУ С RENDER
         const BACKEND_URL = "https://arbitrage-backend-z4mq.onrender.com//api/deals";
+        let userDeposit = 500;
+        let currentTab = 'deals';
+        let dealsData = [];
 
-        let userDeposit = 300;
-        let activeTab = 'inter';
-        let minProfitFilter = 0.15;
-
-        function haptic() {
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('light');
-            }
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-${tab}`).classList.add('active');
+            renderView();
         }
 
         async function fetchDeals() {
-            if (activeTab !== 'inter') {
-                document.getElementById('deals-list').innerHTML = `
-                    <div class="text-center text-slate-500 py-12 text-xs">
-                        <i class="bi bi-clock text-2xl block mb-2 opacity-50"></i>
-                        Раздел находится в разработке
+            try {
+                const res = await fetch(BACKEND_URL);
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                const data = await res.json();
+                dealsData = data.deals || [];
+                if (currentTab === 'deals') renderDealsList(data);
+            } catch (e) {
+                if (currentTab === 'deals') {
+                    document.getElementById('deals-container').innerHTML = `
+                        <div class="text-center text-rose-400 py-10 text-xs">
+                            <i class="bi bi-wifi-off text-3xl block mb-2 opacity-50"></i>
+                            Ошибка подключения к серверу сканера
+                        </div>`;
+                }
+            }
+        }
+
+        function renderView() {
+            const container = document.getElementById('tab-content');
+
+            if (currentTab === 'deals') {
+                container.innerHTML = `
+                    <!-- Заголовок -->
+                    <div class="text-center my-3">
+                        <div class="text-xs text-slate-400 font-medium mb-0.5">Рабочий депозит</div>
+                        <div class="text-3xl font-extrabold tracking-tight text-white mb-2" id="deposit-display">
+                            $${userDeposit}<span class="text-xl text-slate-400 font-normal">.00</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span id="scan-status">Сканер активен</span>
+                        </div>
+                    </div>
+
+                    <!-- Быстрые действия -->
+                    <div class="grid grid-cols-2 gap-2.5 mb-5">
+                        <button onclick="changeDeposit()" class="wallet-btn p-3.5 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-xs font-bold text-white">Депозит</div>
+                                <div class="text-[10px] text-slate-400">Изменить сумму</div>
+                            </div>
+                        </button>
+                        <button onclick="fetchDeals()" class="wallet-btn p-3.5 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-xs font-bold text-white">Обновить</div>
+                                <div class="text-[10px] text-slate-400">Ручной поиск</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Секция связок -->
+                    <div class="mb-3 flex justify-between items-center px-1">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Прибыльные связки</span>
+                        <span class="text-xs text-slate-500" id="deal-count">Поиск...</span>
+                    </div>
+
+                    <div class="space-y-2.5" id="deals-container">
+                        <div class="text-center text-slate-500 py-10 text-xs">
+                            <i class="bi bi-arrow-repeat text-2xl block mb-2 animate-spin text-sky-400"></i>
+                            Загрузка рынка...
+                        </div>
+                    </div>
+                `;
+                fetchDeals();
+            } 
+            else if (currentTab === 'exchanges') {
+                container.innerHTML = `
+                    <div class="text-center my-4">
+                        <div class="w-14 h-14 rounded-full bg-sky-500/15 text-sky-400 flex items-center justify-center text-2xl mx-auto mb-2">
+                            <i class="bi bi-shop"></i>
+                        </div>
+                        <h2 class="text-lg font-bold text-white">Подключенные биржи</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Автоматический мониторинг стаканов</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="wallet-card p-3.5 flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">BY</div>
+                                <div>
+                                    <div class="font-bold text-sm text-white">Bybit</div>
+                                    <div class="text-[10px] text-slate-400">Спот • Комиссия 0.1%</div>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full">Активна</span>
+                        </div>
+                        <div class="wallet-card p-3.5 flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">GT</div>
+                                <div>
+                                    <div class="font-bold text-sm text-white">Gate.io</div>
+                                    <div class="text-[10px] text-slate-400">Спот • Комиссия 0.2%</div>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full">Активна</span>
+                        </div>
+                        <div class="wallet-card p-3.5 flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs">BG</div>
+                                <div>
+                                    <div class="font-bold text-sm text-white">Bitget</div>
+                                    <div class="text-[10px] text-slate-400">Спот • Комиссия 0.15%</div>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full">Активна</span>
+                        </div>
+                        <div class="wallet-card p-3.5 flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">MX</div>
+                                <div>
+                                    <div class="font-bold text-sm text-white">MEXC</div>
+                                    <div class="text-[10px] text-slate-400">Спот • Комиссия 0.1%</div>
+                                </div>
+                            </div>
+                            <span class="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full">Активна</span>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (currentTab === 'stats') {
+                container.innerHTML = `
+                    <div class="text-center my-4">
+                        <h2 class="text-lg font-bold text-white">Статистика бота</h2>
+                        <p class="text-xs text-slate-400">Анализ профита с круглогодичного сканирования</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5 mb-3">
+                        <div class="wallet-card p-4 text-center">
+                            <div class="text-2xl font-black text-emerald-400">+18.4%</div>
+                            <div class="text-[10px] text-slate-400 mt-1">Средний спред в день</div>
+                        </div>
+                        <div class="wallet-card p-4 text-center">
+                            <div class="text-2xl font-black text-sky-400">1.2 сек</div>
+                            <div class="text-[10px] text-slate-400 mt-1">Скорость обновления</div>
+                        </div>
+                    </div>
+
+                    <div class="wallet-card p-4">
+                        <div class="text-xs font-bold text-white mb-2">Настройки фильтрации</div>
+                        <div class="space-y-2 text-xs text-slate-300">
+                            <div class="flex justify-between border-b border-slate-700/50 pb-1.5">
+                                <span class="text-slate-400">Комиссия сетей:</span>
+                                <span class="font-semibold text-emerald-400">Учтена</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-700/50 pb-1.5">
+                                <span class="text-slate-400">Торговые комиссии:</span>
+                                <span class="font-semibold text-emerald-400">Учтены</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Тип арбитража:</span>
+                                <span class="font-semibold text-sky-400">Межбиржевой спот</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (currentTab === 'profile') {
+                const username = tg.initDataUnsafe?.user?.first_name || "Трейдер";
+                container.innerHTML = `
+                    <div class="wallet-card p-5 text-center mb-4">
+                        <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-3 font-bold border-2 border-emerald-500/40">
+                            ${username[0]}
+                        </div>
+                        <h2 class="text-base font-bold text-white">${username}</h2>
+                        <span class="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2.5 py-0.5 rounded-full inline-block mt-1">PRO Доступ активен</span>
+                    </div>
+
+                    <div class="wallet-card p-2 space-y-1">
+                        <div class="p-3 flex justify-between items-center text-xs">
+                            <div class="flex items-center gap-3">
+                                <i class="bi bi-bell-fill text-sky-400 text-base"></i>
+                                <span class="font-medium text-slate-200">Push-уведомления</span>
+                            </div>
+                            <span class="text-emerald-400 font-bold">Вкл</span>
+                        </div>
+                        <div class="p-3 flex justify-between items-center text-xs border-t border-slate-700/40">
+                            <div class="flex items-center gap-3">
+                                <i class="bi bi-shield-lock-fill text-sky-400 text-base"></i>
+                                <span class="font-medium text-slate-200">Безопасность</span>
+                            </div>
+                            <i class="bi bi-chevron-right text-slate-500"></i>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderDealsList(data) {
+            const listContainer = document.getElementById('deals-container');
+            if (!listContainer) return;
+
+            document.getElementById('scan-status').innerText = `Сканер активен (${data.scan_time_sec}s)`;
+            document.getElementById('deal-count').innerText = `${data.count} найдено`;
+
+            if (!data.deals || data.deals.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center text-slate-500 py-10 text-xs">
+                        <i class="bi bi-search text-2xl block mb-2 opacity-50"></i>
+                        Ищем профитные связки...
                     </div>`;
-                document.getElementById('deal-count').innerText = '0 найдено';
                 return;
             }
 
-            try {
-                const res = await fetch(BACKEND_URL);
-                if (!res.ok) throw new Error("Ошибка сети");
-                const data = await res.json();
-                
-                document.getElementById('scan-status').innerText = `Сканер активен (${data.scan_time_sec || 0.4}s)`;
-                
-                // Фильтрация сделок по минимальному профиту
-                const filteredDeals = (data.deals || []).filter(d => d.profit_pct >= minProfitFilter);
-                document.getElementById('deal-count').innerText = `${filteredDeals.length} найдено`;
+            let html = '';
+            data.deals.forEach(d => {
+                const profitUSD = ((d.profit_pct / 100) * userDeposit).toFixed(2);
+                const isPositive = d.profit_pct >= 0;
+                const colorClass = isPositive ? 'text-emerald-400' : 'text-rose-400';
+                const bgClass = isPositive ? 'bg-emerald-500/10' : 'bg-rose-500/10';
 
-                const listContainer = document.getElementById('deals-list');
-                
-                if (filteredDeals.length === 0) {
-                    listContainer.innerHTML = `
-                        <div class="text-center text-slate-500 py-10 text-xs">
-                            <i class="bi bi-search text-2xl block mb-2 opacity-50"></i>
-                            Нет связок с профитом выше +${minProfitFilter}%...
-                        </div>`;
-                    return;
-                }
-
-                let html = '';
-                filteredDeals.forEach(d => {
-                    const profitUSD = ((d.profit_pct / 100) * userDeposit).toFixed(2);
-                    
-                    html += `
-                    <div class="wallet-card p-3.5 shadow-md border border-slate-700/30">
-                        <div class="flex justify-between items-center mb-2.5">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs border border-sky-500/30">
-                                    ${d.coin}
-                                </div>
-                                <div>
-                                    <div class="font-bold text-sm text-white">${d.symbol}</div>
-                                    <div class="text-[11px] text-slate-400">Сеть: <span class="text-sky-400 font-medium">${d.network}</span> ($${d.net_fee})</div>
-                                </div>
+                html += `
+                <div class="wallet-card p-3.5 shadow-md">
+                    <div class="flex justify-between items-center mb-2.5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs border border-sky-500/30">
+                                ${d.coin}
                             </div>
-                            <div class="text-right">
-                                <div class="text-emerald-400 font-extrabold text-base">+$${profitUSD}</div>
-                                <div class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-md inline-block">+${d.profit_pct}%</div>
-                            </div>
-                        </div>
-
-                        <div class="wallet-card-sub p-2.5 grid grid-cols-2 gap-2 text-xs">
                             <div>
-                                <span class="text-[10px] text-slate-400 block mb-0.5">Купить: <b class="text-slate-200">${d.buy_ex}</b></span>
-                                <span class="font-semibold text-slate-100">$${d.buy_price}</span>
-                            </div>
-                            <div class="border-l border-slate-700/50 pl-2.5">
-                                <span class="text-[10px] text-slate-400 block mb-0.5">Продать: <b class="text-slate-200">${d.sell_ex}</b></span>
-                                <span class="font-semibold text-slate-100">$${d.sell_price}</span>
+                                <div class="font-bold text-sm text-white">${d.symbol}</div>
+                                <div class="text-[10px] text-slate-400">Сеть: <span class="text-sky-400 font-medium">${d.network}</span> ($${d.net_fee})</div>
                             </div>
                         </div>
-                    </div>`;
-                });
+                        <div class="text-right">
+                            <div class="${colorClass} font-extrabold text-base">${isPositive ? '+' : ''}$${profitUSD}</div>
+                            <div class="text-[10px] ${colorClass} font-bold ${bgClass} px-1.5 py-0.5 rounded-md inline-block">${isPositive ? '+' : ''}${d.profit_pct}%</div>
+                        </div>
+                    </div>
 
-                listContainer.innerHTML = html;
-            } catch (e) {
-                document.getElementById('scan-status').innerText = 'Ожидание бэкенда...';
-            }
-        }
-
-        // ОБРАБОТЧИКИ КНОПОК ПО КЛИКУ
-        document.getElementById('btn-refresh').addEventListener('click', () => {
-            haptic();
-            fetchDeals();
-        });
-
-        document.getElementById('btn-deposit').addEventListener('click', () => {
-            haptic();
-            const input = prompt("Укажите ваш депозит в USD:", userDeposit);
-            if (input && !isNaN(input) && parseFloat(input) > 0) {
-                userDeposit = parseFloat(input);
-                document.getElementById('deposit-display').innerHTML = `$${userDeposit}<span class="text-2xl text-slate-400 font-normal">.00</span>`;
-                fetchDeals();
-            }
-        });
-
-        document.getElementById('btn-filters').addEventListener('click', () => {
-            haptic();
-            const input = prompt("Введите мин. профит в % (например 0.15 или 0.5):", minProfitFilter);
-            if (input && !isNaN(input) && parseFloat(input) >= 0) {
-                minProfitFilter = parseFloat(input);
-                document.getElementById('filter-info').innerText = `Мин. профит: +${minProfitFilter}%`;
-                fetchDeals();
-            }
-        });
-
-        document.getElementById('btn-bot').addEventListener('click', () => {
-            haptic();
-            alert("🤖 Авто-бот активен!\n\nСигналы с профитом от +0.8% автоматически отправляются в твой Telegram-чат.");
-        });
-
-        // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
-        function setTab(tabName, titleText) {
-            haptic();
-            activeTab = tabName;
-            ['inter', 'intra', 'stats', 'settings'].forEach(t => {
-                const nav = document.getElementById(`nav-${t}`);
-                if (t === tabName) nav.classList.add('active-nav');
-                else nav.classList.remove('active-nav');
+                    <div class="wallet-card-sub p-2.5 grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block mb-0.5">Купить: <b class="text-slate-200">${d.buy_ex}</b></span>
+                            <span class="font-semibold text-slate-100">$${d.buy_price}</span>
+                        </div>
+                        <div class="border-l border-slate-700/50 pl-2.5">
+                            <span class="text-[10px] text-slate-400 block mb-0.5">Продать: <b class="text-slate-200">${d.sell_ex}</b></span>
+                            <span class="font-semibold text-slate-100">$${d.sell_price}</span>
+                        </div>
+                    </div>
+                </div>`;
             });
-            document.getElementById('section-title').innerText = titleText;
-            fetchDeals();
+
+            listContainer.innerHTML = html;
         }
 
-        document.getElementById('nav-inter').addEventListener('click', () => setTab('inter', 'Межбиржевые связки'));
-        document.getElementById('nav-intra').addEventListener('click', () => setTab('intra', 'Внутрибиржевой арбитраж'));
-        document.getElementById('nav-stats').addEventListener('click', () => setTab('stats', 'Статистика рынка'));
-        document.getElementById('nav-settings').addEventListener('click', () => setTab('settings', 'Настройки сканера'));
+        function changeDeposit() {
+            const val = prompt("Введите ваш рабочий депозит ($):", userDeposit);
+            if (val && !isNaN(val)) {
+                userDeposit = parseFloat(val);
+                renderView();
+            }
+        }
 
-        // Авто-обновление раз в секунду
-        setInterval(fetchDeals, 1000);
-        fetchDeals();
+        // Автообновление каждые 2 секунды
+        setInterval(fetchDeals, 2000);
+        renderView();
     </script>
 </body>
 </html>
