@@ -3,92 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Crypto Arbitrage Scanner</title>
+    <title>Arbitrage Scanner</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: #17212b;
+            color: #f5f5f5;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             user-select: none;
             -webkit-user-select: none;
+        }
+        .wallet-card {
+            background-color: #232e3c;
+            border-radius: 16px;
+        }
+        .wallet-card-sub {
+            background-color: #1e2733;
+            border-radius: 12px;
+        }
+        .wallet-btn {
+            background-color: #232e3c;
+            border-radius: 14px;
+            transition: background 0.2s;
+        }
+        .wallet-btn:active {
+            background-color: #2b3746;
+        }
+        .bottom-nav {
+            background-color: rgba(23, 33, 43, 0.92);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen justify-between p-4 pb-24">
 
     <div>
-        <div class="flex justify-between items-center mb-4">
-            <div class="flex items-center gap-2">
-                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Live Scanner</span>
+        <!-- Заголовок и Баланс в стиле Wallet -->
+        <div class="text-center my-4">
+            <div class="text-xs text-slate-400 font-medium mb-1">Рабочий депозит</div>
+            <div class="text-4xl font-extrabold tracking-tight text-white mb-1">
+                $300<span class="text-2xl text-slate-400 font-normal">.00</span>
             </div>
-            <div class="text-xs text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-700/50">
-                Депозит: <span class="text-sky-400 font-bold">$300</span>
+            <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Сканер активен (0.4s)
             </div>
         </div>
 
-        <div class="bg-slate-800/60 p-1 rounded-xl flex border border-slate-700/50 mb-5">
-            <button id="btn-inter" onclick="switchTab('inter')" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-sky-500 text-white transition-all duration-200">
-                <i class="bi bi-arrow-left-right mr-1"></i> Межбиржевой
+        <!-- Кнопки быстрых действий -->
+        <div class="grid grid-cols-4 gap-2 mb-5">
+            <button class="wallet-btn p-3 flex flex-col items-center justify-center gap-1 text-sky-400">
+                <div class="w-10 h-10 rounded-full bg-sky-500/15 flex items-center justify-center text-lg">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+                <span class="text-[11px] font-medium text-slate-200">Скан</span>
             </button>
-            <button id="btn-intra" onclick="switchTab('intra')" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all duration-200">
-                <i class="bi bi-triangle mr-1"></i> Внутрибиржевой
+            <button class="wallet-btn p-3 flex flex-col items-center justify-center gap-1 text-sky-400">
+                <div class="w-10 h-10 rounded-full bg-sky-500/15 flex items-center justify-center text-lg">
+                    <i class="bi bi-funnel-fill"></i>
+                </div>
+                <span class="text-[11px] font-medium text-slate-200">Фильтры</span>
+            </button>
+            <button class="wallet-btn p-3 flex flex-col items-center justify-center gap-1 text-sky-400">
+                <div class="w-10 h-10 rounded-full bg-sky-500/15 flex items-center justify-center text-lg">
+                    <i class="bi bi-diagram-3-fill"></i>
+                </div>
+                <span class="text-[11px] font-medium text-slate-200">Сети</span>
+            </button>
+            <button class="wallet-btn p-3 flex flex-col items-center justify-center gap-1 text-sky-400">
+                <div class="w-10 h-10 rounded-full bg-sky-500/15 flex items-center justify-center text-lg">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <span class="text-[11px] font-medium text-slate-200">Авто-бот</span>
             </button>
         </div>
 
-        <div class="bg-slate-800/40 rounded-2xl p-3.5 border border-slate-700/40 mb-5 space-y-3">
-            <div class="flex justify-between items-center text-xs text-slate-400">
-                <span>Мин. профит: <b class="text-slate-200">+0.15%</b></span>
-                <span>Комиссии: <b class="text-emerald-400">Учтены</b></span>
+        <!-- Баннер условий -->
+        <div class="wallet-card p-3.5 mb-5 flex justify-between items-center text-xs">
+            <div class="flex items-center gap-2.5">
+                <i class="bi bi-shield-check text-sky-400 text-xl"></i>
+                <div>
+                    <div class="font-semibold text-slate-200">Минимальный профит</div>
+                    <div class="text-slate-400 text-[11px]">Учтены комиссии сетей и бирж</div>
+                </div>
             </div>
+            <span class="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-1 rounded-lg">+0.15%</span>
         </div>
 
-        <div class="space-y-3" id="deals-list">
+        <!-- Раздел сделок -->
+        <div class="mb-2 flex justify-between items-center px-1">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Доступные связки</span>
+            <span class="text-xs text-sky-400 font-medium cursor-pointer" onclick="updateDeals()">Обновить</span>
+        </div>
+
+        <div class="space-y-2.5" id="deals-list">
             <div class="text-center text-slate-500 py-12 text-xs">
-                <i class="bi bi-search text-2xl block mb-2 opacity-50"></i>
-                Поиск плюсовых связок (>0.15%)...
+                <i class="bi bi-arrow-repeat text-2xl block mb-2 animate-spin text-sky-400"></i>
+                Поиск актуальных связок...
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-3 left-4 right-4 bg-slate-900/90 backdrop-blur-md rounded-2xl p-2 flex justify-around items-center border border-slate-800 shadow-2xl z-50">
-        <button class="flex flex-col items-center text-sky-400 text-[10px] font-medium gap-0.5">
-            <i class="bi bi-lightning-charge-fill text-lg"></i> Связки
+    <!-- Нижняя навигация в стиле Telegram Wallet -->
+    <div class="fixed bottom-0 left-0 right-0 bottom-nav px-4 py-2 flex justify-around items-center z-50">
+        <button class="flex flex-col items-center text-sky-400 text-[10px] font-medium gap-1">
+            <div class="w-12 h-7 bg-sky-500/20 rounded-full flex items-center justify-center text-base">
+                <i class="bi bi-arrow-left-right"></i>
+            </div>
+            <span>Межбиржевой</span>
         </button>
-        <button class="flex flex-col items-center text-slate-400 hover:text-slate-200 text-[10px] font-medium gap-0.5">
-            <i class="bi bi-funnel text-lg"></i> Фильтры
+        <button class="flex flex-col items-center text-slate-400 hover:text-slate-200 text-[10px] font-medium gap-1">
+            <div class="w-12 h-7 rounded-full flex items-center justify-center text-base">
+                <i class="bi bi-triangle"></i>
+            </div>
+            <span>Внутрибиржи</span>
         </button>
-        <button class="flex flex-col items-center text-slate-400 hover:text-slate-200 text-[10px] font-medium gap-0.5">
-            <i class="bi bi-sliders text-lg"></i> Депозит
+        <button class="flex flex-col items-center text-slate-400 hover:text-slate-200 text-[10px] font-medium gap-1">
+            <div class="w-12 h-7 rounded-full flex items-center justify-center text-base">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <span>Статистика</span>
         </button>
-        <button class="flex flex-col items-center text-slate-400 hover:text-slate-200 text-[10px] font-medium gap-0.5">
-            <i class="bi bi-person-circle text-lg"></i> Профиль
+        <button class="flex flex-col items-center text-slate-400 hover:text-slate-200 text-[10px] font-medium gap-1">
+            <div class="w-12 h-7 rounded-full flex items-center justify-center text-base">
+                <i class="bi bi-gear-fill"></i>
+            </div>
+            <span>Настройки</span>
         </button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.setHeaderColor('#0f172a');
-        tg.setBackgroundColor('#0f172a');
+        tg.setHeaderColor('#17212b');
+        tg.setBackgroundColor('#17212b');
 
-        function switchTab(type) {
-            const btnInter = document.getElementById('btn-inter');
-            const btnIntra = document.getElementById('btn-intra');
-            if(type === 'inter') {
-                btnInter.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-sky-500 text-white transition-all duration-200";
-                btnIntra.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all duration-200";
-            } else {
-                btnIntra.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-sky-500 text-white transition-all duration-200";
-                btnInter.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all duration-200";
-            }
-        }
-
-        // Вставь сюда URL своего веб-сервиса на Render с /api/deals на конце
-        const BACKEND_URL = "https://arbitrage-backend-z4mq.onrender.com/api/deals";
+        // ВСТАВЬ СЮДА ССЫЛКУ НА СВОЙ БЭКЕНД С RENDER
+        const BACKEND_URL = "https://arbitrage-backend-z4mq.onrender.com//api/deals";
 
         async function updateDeals() {
             try {
@@ -99,9 +153,9 @@
                 
                 if(!data.deals || data.deals.length === 0) {
                     listContainer.innerHTML = `
-                        <div class="text-center text-slate-500 py-12 text-xs">
+                        <div class="text-center text-slate-500 py-10 text-xs">
                             <i class="bi bi-search text-2xl block mb-2 opacity-50"></i>
-                            Поиск плюсовых связок (>0.15%)...
+                            Плюсовых связок пока нет, сканируем...
                         </div>`;
                     return;
                 }
@@ -109,38 +163,31 @@
                 let html = '';
                 data.deals.forEach(d => {
                     html += `
-                    <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/60 shadow-lg relative">
-                        <div class="flex justify-between items-start mb-3">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs">
+                    <div class="wallet-card p-3.5 shadow-md border border-slate-700/30">
+                        <div class="flex justify-between items-center mb-2.5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs border border-sky-500/30">
                                     ${d.coin}
                                 </div>
                                 <div>
-                                    <div class="font-bold text-sm">${d.symbol}</div>
-                                    <div class="text-[10px] text-slate-400">Депозит: $300</div>
+                                    <div class="font-bold text-sm text-white">${d.symbol}</div>
+                                    <div class="text-[11px] text-slate-400">Сеть: <span class="text-sky-400 font-medium">${d.network}</span> ($${d.net_fee})</div>
                                 </div>
                             </div>
                             <div class="text-right">
                                 <div class="text-emerald-400 font-extrabold text-base">+$${d.profit_usd}</div>
-                                <div class="text-[10px] text-emerald-500 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded-md inline-block">+${d.profit_pct}% чистый</div>
+                                <div class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-md inline-block">+${d.profit_pct}%</div>
                             </div>
                         </div>
 
-                        <div class="mb-2.5 flex justify-between items-center bg-slate-900/40 px-2.5 py-1 rounded-lg text-[11px] text-slate-400 border border-slate-800">
-                            <span>Сеть вывода: <b class="text-sky-400">${d.network}</b></span>
-                            <span>Комиссия сети: <b class="text-slate-200">$${d.net_fee}</b></span>
-                        </div>
-
-                        <div class="bg-slate-900/60 rounded-xl p-2.5 grid grid-cols-2 gap-2 text-xs border border-slate-800">
+                        <div class="wallet-card-sub p-2.5 grid grid-cols-2 gap-2 text-xs">
                             <div>
-                                <span class="text-[10px] text-slate-500 block uppercase">Купить</span>
-                                <span class="font-semibold text-slate-200">${d.buy_ex}</span>
-                                <span class="text-slate-400 text-[11px] block">$${d.buy_price}</span>
+                                <span class="text-[10px] text-slate-400 block mb-0.5">Купить: <b class="text-slate-200">${d.buy_ex}</b></span>
+                                <span class="font-semibold text-slate-100">$${d.buy_price}</span>
                             </div>
-                            <div class="border-l border-slate-800 pl-2.5">
-                                <span class="text-[10px] text-slate-500 block uppercase">Продать</span>
-                                <span class="font-semibold text-slate-200">${d.sell_ex}</span>
-                                <span class="text-slate-400 text-[11px] block">$${d.sell_price}</span>
+                            <div class="border-l border-slate-700/50 pl-2.5">
+                                <span class="text-[10px] text-slate-400 block mb-0.5">Продать: <b class="text-slate-200">${d.sell_ex}</b></span>
+                                <span class="font-semibold text-slate-100">$${d.sell_price}</span>
                             </div>
                         </div>
                     </div>`;
@@ -148,7 +195,7 @@
 
                 listContainer.innerHTML = html;
             } catch (e) {
-                console.log("Ожидание бэкенда...", e);
+                console.log("Ошибка загрузки связок:", e);
             }
         }
 
