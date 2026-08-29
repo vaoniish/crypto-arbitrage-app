@@ -240,13 +240,17 @@
       position: absolute;
       top: 10px;
       left: 20px;
-      background: rgba(15, 23, 33, 0.85);
+      background: rgba(15, 23, 33, 0.9);
       border: 1px solid var(--card-border);
-      padding: 6px 10px;
+      padding: 6px 12px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
       pointer-events: none;
       display: none;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
     .info-card { margin: 0 16px 16px 16px; padding: 18px; }
@@ -536,7 +540,6 @@
       const tg = window.Telegram?.WebApp;
       if (tg) tg.expand();
 
-      // База арбитражных сделок
       const deals = [
         {
           id: 'ton',
@@ -586,7 +589,7 @@
         { id: 'xrp', title: 'XRP', ticker: 'XRP', price: '$0.58', change: '+3.1%', isUp: true, icon: 'X', bg: 'xrp-bg', vol: '$950M', cap: '$32.4B' }
       ];
 
-      // --- ДИНАМИЧЕСКИЙ ЖИВОЙ CANVAS ГРАФИК ---
+      // --- LIVE CANVAS ENGINE ---
       const canvas = document.getElementById('liveCanvas');
       const ctx = canvas.getContext('2d');
       const tooltip = document.getElementById('chartTooltip');
@@ -599,6 +602,7 @@
 
       function resizeCanvas() {
         const rect = canvas.parentElement.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
         canvas.width = rect.width * window.devicePixelRatio;
         canvas.height = rect.height * window.devicePixelRatio;
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
@@ -608,16 +612,16 @@
         chartPoints = [];
         let cur = baseVal;
         const now = Date.now();
-        for (let i = 40; i >= 0; i--) {
-          cur += (Math.random() - 0.48) * (baseVal * 0.005);
-          chartPoints.push({ time: now - i * 1500, val: cur });
+        for (let i = 30; i >= 0; i--) {
+          cur += (Math.random() - 0.48) * (baseVal * 0.004);
+          chartPoints.push({ time: now - i * 1000, val: cur });
         }
       }
 
       function updateLiveChart() {
         if (chartPoints.length === 0) return;
         const lastVal = chartPoints[chartPoints.length - 1].val;
-        const newVal = lastVal + (Math.random() - 0.48) * (currentBasePrice * 0.004);
+        const newVal = lastVal + (Math.random() - 0.48) * (currentBasePrice * 0.003);
         chartPoints.shift();
         chartPoints.push({ time: Date.now(), val: newVal });
         drawChart();
@@ -626,8 +630,9 @@
       function drawChart() {
         const w = canvas.offsetWidth;
         const h = canvas.offsetHeight;
-        ctx.clearRect(0, 0, w, h);
+        if (!w || !h) return;
 
+        ctx.clearRect(0, 0, w, h);
         if (chartPoints.length < 2) return;
 
         const vals = chartPoints.map(p => p.val);
@@ -636,14 +641,14 @@
         const range = (max - min) || 1;
 
         const getX = (idx) => (idx / (chartPoints.length - 1)) * w;
-        const getY = (val) => h - 20 - ((val - min) / range) * (h - 40);
+        const getY = (val) => h - 15 - ((val - min) / range) * (h - 30);
 
-        // Градиент фона
+        // Градиент
         const grad = ctx.createLinearGradient(0, 0, 0, h);
         grad.addColorStop(0, 'rgba(49, 180, 105, 0.35)');
         grad.addColorStop(1, 'rgba(49, 180, 105, 0.0)');
 
-        // Отрисовка закраски
+        // Закраска области
         ctx.beginPath();
         ctx.moveTo(getX(0), getY(chartPoints[0].val));
         for (let i = 1; i < chartPoints.length; i++) {
@@ -657,7 +662,7 @@
         ctx.fillStyle = grad;
         ctx.fill();
 
-        // Отрисовка основной линии
+        // Линия
         ctx.beginPath();
         ctx.moveTo(getX(0), getY(chartPoints[0].val));
         for (let i = 1; i < chartPoints.length; i++) {
@@ -669,13 +674,12 @@
         ctx.lineWidth = 3;
         ctx.stroke();
 
-        // Интерактивный hover при проведении пальцем/мышью
+        // Hover / Touch события
         if (isHovering) {
           const hoverIdx = Math.max(0, Math.min(chartPoints.length - 1, Math.round((mousePos.x / w) * (chartPoints.length - 1))));
           const px = getX(hoverIdx);
           const py = getY(chartPoints[hoverIdx].val);
 
-          // Перекрестие (Crosshair)
           ctx.beginPath();
           ctx.setLineDash([4, 4]);
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
@@ -683,7 +687,6 @@
           ctx.stroke();
           ctx.setLineDash([]);
 
-          // Точка
           ctx.beginPath();
           ctx.arc(px, py, 6, 0, Math.PI * 2);
           ctx.fillStyle = '#ffffff';
@@ -692,9 +695,8 @@
           ctx.lineWidth = 3;
           ctx.stroke();
 
-          // Тултип
           tooltip.style.display = 'block';
-          tooltip.style.left = `${Math.min(Math.max(10, px - 40), w - 100)}px`;
+          tooltip.style.left = `${Math.min(Math.max(10, px - 35), w - 90)}px`;
           tooltip.innerText = `$${chartPoints[hoverIdx].val.toFixed(2)}`;
         } else {
           tooltip.style.display = 'none';
@@ -723,16 +725,23 @@
 
       function startLiveChart(baseVal) {
         currentBasePrice = baseVal;
-        resizeCanvas();
-        initChartPoints(baseVal);
-        drawChart();
-        if (liveInterval) clearInterval(liveInterval);
-        liveInterval = setInterval(updateLiveChart, 1000);
+        setTimeout(() => {
+          resizeCanvas();
+          initChartPoints(baseVal);
+          drawChart();
+          if (liveInterval) clearInterval(liveInterval);
+          liveInterval = setInterval(updateLiveChart, 1000);
+        }, 50);
       }
 
-      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+        drawChart();
+      });
 
       // --- РЕНДЕР И НАВИГАЦИЯ ---
+      let currentFilter = 'all';
+
       function renderDeals(filterType = 'all') {
         const container = document.getElementById('dealsList');
         container.innerHTML = '';
@@ -763,7 +772,6 @@
         const container = document.getElementById('marketList');
         container.innerHTML = '';
         const query = document.getElementById('marketSearch').value.toLowerCase();
-        
         let list = marketCoins.filter(c => c.title.toLowerCase().includes(query) || c.ticker.toLowerCase().includes(query));
 
         list.forEach(c => {
@@ -787,6 +795,19 @@
         });
       }
 
+      // Фильтры сканера
+      document.querySelectorAll('.quick-actions .action-card').forEach(card => {
+        card.addEventListener('click', function() {
+          const filter = this.getAttribute('data-type');
+          if (!filter) return;
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+          document.querySelectorAll('.quick-actions .action-card').forEach(c => c.classList.remove('active-filter'));
+          this.classList.add('active-filter');
+          currentFilter = filter;
+          renderDeals(currentFilter);
+        });
+      });
+
       // Табы
       document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.addEventListener('click', function() {
@@ -800,7 +821,7 @@
         });
       });
 
-      // Детали экрана
+      // Переход к деталям
       function openDetailScreen(item) {
         if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
         document.getElementById('detailTitle').innerText = item.title;
@@ -810,6 +831,10 @@
         document.getElementById('stepSellPrice').innerText = `$${(item.basePrice * 1.0245).toFixed(2)}`;
         document.getElementById('detailSpread').innerText = item.spread;
         document.getElementById('detailProfit').innerText = `▲ ${item.profit} с $1000`;
+
+        const iconEl = document.getElementById('detailIcon');
+        iconEl.innerText = item.symbol;
+        iconEl.className = `crypto-icon ${item.bgClass}`;
         
         document.getElementById('scannerListScreen').classList.remove('active');
         document.getElementById('scannerDetailScreen').classList.add('active');
@@ -817,24 +842,30 @@
         startLiveChart(item.basePrice);
       }
 
+      // Возврат
       document.getElementById('backBtn').addEventListener('click', () => {
         if (liveInterval) clearInterval(liveInterval);
         document.getElementById('scannerDetailScreen').classList.remove('active');
-        document.getElementById('scannerListScreen').classList.activeScreen = true;
         document.getElementById('scannerListScreen').classList.add('active');
       });
 
-      // Поиск рынка
+      // Поиск
       document.getElementById('marketSearch').addEventListener('input', renderMarket);
 
       // Модалка
       function openCoinModal(coin) {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         document.getElementById('modalCoinTitle').innerText = coin.title;
         document.getElementById('modalCoinTicker').innerText = coin.ticker;
         document.getElementById('modalCoinPrice').innerText = coin.price;
         document.getElementById('modalCoinChange').innerText = `${coin.change} за 24 часа`;
         document.getElementById('modalCoinVol').innerText = coin.vol;
         document.getElementById('modalCoinCap').innerText = coin.cap;
+
+        const iconEl = document.getElementById('modalCoinIcon');
+        iconEl.innerText = coin.icon;
+        iconEl.className = `crypto-icon ${coin.bg}`;
+
         document.getElementById('coinModal').classList.add('active');
       }
 
