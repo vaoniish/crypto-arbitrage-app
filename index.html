@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Crypto Arbitrage Terminal</title>
+  <title>Arbitrage Wallet UI</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg-color: #17212b;
-      --card-bg: #202b36;
-      --card-pressed: #2b394a;
+      --bg-main: #0f1721;
+      --card-bg: rgba(28, 39, 51, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-pressed: rgba(40, 56, 74, 0.9);
       --text-main: #ffffff;
-      --text-secondary: #7f8d99;
-      --accent-blue: #3390ec;
-      --accent-green: #2bb368;
-      --accent-red: #e53935;
-      --accent-orange: #f7931a;
-      --accent-purple: #8b5cf6;
+      --text-secondary: #8c9ea8;
+      --accent-blue: #2AABEE;
+      --accent-green: #31B469;
+      --accent-red: #FF4B4B;
     }
 
     * {
@@ -28,43 +27,49 @@
     }
 
     body {
-      background-color: var(--bg-color);
+      background: var(--bg-main);
+      background-image: radial-gradient(circle at 50% -20%, #1e2c3a 0%, #0f1721 70%);
       color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
-      padding-bottom: 90px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, sans-serif;
+      padding-bottom: 96px;
+      min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* Tab & Screen Transitions */
-    .tab-content { display: none; width: 100%; animation: fadeIn 0.2s ease; }
+    /* Tab Transitions */
+    .tab-content { display: none; width: 100%; animation: fadeIn 0.25s ease; }
     .tab-content.active { display: block; }
-
-    .sub-screen { display: none; width: 100%; animation: slideIn 0.2s ease; }
+    .sub-screen { display: none; width: 100%; animation: slideIn 0.25s cubic-bezier(0.1, 0.9, 0.2, 1); }
     .sub-screen.active { display: block; }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    /* NEW ANIMATION: Premium Floating & Shimmer Effect for Coins */
-    .coin-3d-wrap { display: inline-block; }
+    /* TG Wallet Style Glass Cards */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+    }
 
+    /* Icon Animation */
     .crypto-icon {
       position: relative;
       overflow: hidden;
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 18px;
+      font-size: 19px;
       color: #fff;
-      animation: floatPulse 3s ease-in-out infinite;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      animation: floatPulse 3.5s ease-in-out infinite;
     }
 
-    /* Glare effect on coins */
     .crypto-icon::after {
       content: '';
       position: absolute;
@@ -72,262 +77,234 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: linear-gradient(
-        60deg,
-        transparent 30%,
-        rgba(255, 255, 255, 0.35) 50%,
-        transparent 70%
-      );
+      background: linear-gradient(60deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
       transform: rotate(30deg);
       animation: shimmer 4s ease-in-out infinite;
     }
 
     @keyframes floatPulse {
-      0% { transform: translateY(0px) scale(1); }
-      50% { transform: translateY(-3px) scale(1.04); }
-      100% { transform: translateY(0px) scale(1); }
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-3px) scale(1.03); }
     }
-
     @keyframes shimmer {
       0% { transform: translateX(-150%) rotate(30deg); }
-      20% { transform: translateX(150%) rotate(30deg); }
-      100% { transform: translateX(150%) rotate(30deg); }
+      20%, 100% { transform: translateX(150%) rotate(30deg); }
     }
 
-    /* Coin Neon Glows */
-    .usdt-bg { 
-      background: linear-gradient(135deg, #26a17b, #1de9b6); 
-      box-shadow: 0 0 12px rgba(38, 161, 123, 0.4); 
-    }
-    .btc-bg { 
-      background: linear-gradient(135deg, #f7931a, #ffb300); 
-      box-shadow: 0 0 12px rgba(247, 147, 26, 0.4); 
-    }
-    .ton-bg { 
-      background: linear-gradient(135deg, #0088cc, #00b0ff); 
-      box-shadow: 0 0 12px rgba(0, 136, 204, 0.4); 
-    }
-    .eth-bg { 
-      background: linear-gradient(135deg, #627eea, #8c9eff); 
-      box-shadow: 0 0 12px rgba(98, 126, 234, 0.4); 
-    }
-    .sol-bg { 
-      background: linear-gradient(135deg, #9945FF, #14F195); 
-      box-shadow: 0 0 12px rgba(153, 69, 255, 0.4); 
-    }
+    .usdt-bg { background: linear-gradient(135deg, #00B18A, #26A17B); box-shadow: 0 4px 14px rgba(0, 177, 138, 0.35); }
+    .btc-bg { background: linear-gradient(135deg, #F7931A, #FFB300); box-shadow: 0 4px 14px rgba(247, 147, 26, 0.35); }
+    .ton-bg { background: linear-gradient(135deg, #0088CC, #2AABEE); box-shadow: 0 4px 14px rgba(42, 171, 238, 0.35); }
+    .eth-bg { background: linear-gradient(135deg, #627EEA, #8C9EFF); box-shadow: 0 4px 14px rgba(98, 126, 234, 0.35); }
+    .sol-bg { background: linear-gradient(135deg, #9945FF, #14F195); box-shadow: 0 4px 14px rgba(153, 69, 255, 0.35); }
 
-    /* Header & General UI */
+    /* Header */
     .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 16px;
+      padding: 16px 20px 8px 20px;
     }
-
-    .header-title { font-size: 20px; font-weight: 700; }
-
-    .profile-avatar { 
-      width: 36px; 
-      height: 36px; 
-      border-radius: 50%; 
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); 
+    .profile-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2AABEE, #2B5278);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
+      font-weight: 700;
       font-size: 14px;
+      box-shadow: 0 2px 8px rgba(42, 171, 238, 0.3);
     }
-    
+    .header-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+
     .icon-btn, .back-btn {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       background: var(--card-bg);
+      border: 1px solid var(--card-border);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: var(--text-main);
-      transition: background 0.15s;
     }
-    .icon-btn:active, .back-btn:active { background: var(--card-pressed); }
 
-    .balance-section { text-align: center; padding: 4px 0 16px 0; }
-    .balance-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
-    .balance-amount { font-size: 36px; font-weight: 700; }
+    /* Main Balance Block */
+    .balance-section { text-align: center; padding: 20px 16px; }
+    .balance-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+    .balance-amount { font-size: 42px; font-weight: 800; letter-spacing: -1px; }
     .balance-currency { color: var(--accent-blue); }
 
-    /* Action Cards Grid */
+    /* Wallet Style Grid Actions */
     .quick-actions {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
+      gap: 10px;
       padding: 0 16px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
-
     .action-card {
       background: var(--card-bg);
-      border-radius: 14px;
-      padding: 12px 4px;
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 12px 6px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       cursor: pointer;
-      transition: transform 0.1s, background 0.15s;
+      transition: all 0.15s ease;
     }
-    .action-card:active { background: var(--card-pressed); transform: scale(0.96); }
-    .action-card.active-filter { background: var(--card-pressed); border: 1px solid var(--accent-blue); }
-
+    .action-card:active { transform: scale(0.95); background: var(--card-pressed); }
+    .action-card.active-filter {
+      border-color: var(--accent-blue);
+      background: rgba(42, 171, 238, 0.12);
+    }
     .action-icon-circle {
-      width: 34px;
-      height: 34px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.06);
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .action-icon-circle svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2; }
-    .action-title { font-size: 11px; font-weight: 500; }
+    .action-icon-circle svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; }
+    .action-title { font-size: 11px; font-weight: 600; color: var(--text-main); }
 
-    /* Common Card & List Styles */
+    /* Section Lists */
     .section-container {
-      margin: 0 16px 16px 16px;
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 4px 0;
+      margin: 0 16px 20px 16px;
+      padding: 8px 0;
     }
-
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 16px 8px 16px;
+      padding: 12px 16px 8px 16px;
     }
-
-    .section-title { font-size: 15px; font-weight: 700; color: var(--accent-blue); }
+    .section-title { font-size: 15px; font-weight: 700; color: var(--text-main); }
     .section-stat {
       font-size: 11px;
       color: var(--accent-green);
-      font-weight: 600;
-      background: rgba(43, 179, 104, 0.12);
-      padding: 3px 8px;
-      border-radius: 6px;
+      font-weight: 700;
+      background: rgba(49, 180, 105, 0.15);
+      padding: 4px 10px;
+      border-radius: 20px;
     }
 
     .list-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       cursor: pointer;
+      transition: background 0.15s;
     }
     .list-item:last-child { border-bottom: none; }
     .list-item:active { background: var(--card-pressed); }
 
-    .item-left { display: flex; align-items: center; gap: 12px; }
-    .item-title { font-size: 15px; font-weight: 600; }
-    .item-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .item-left { display: flex; align-items: center; gap: 14px; }
+    .item-title { font-size: 16px; font-weight: 600; }
+    .item-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
     .item-right { text-align: right; }
-    .val-green { font-size: 15px; font-weight: 600; color: var(--accent-green); }
-    .val-red { font-size: 15px; font-weight: 600; color: var(--accent-red); }
+    .val-green { font-size: 16px; font-weight: 700; color: var(--accent-green); }
+    .val-red { font-size: 16px; font-weight: 700; color: var(--accent-red); }
 
     /* Chart & Detail Screen */
-    .asset-header { padding: 8px 16px 16px 16px; display: flex; align-items: center; gap: 12px; }
-    .asset-icon { width: 48px; height: 48px; font-size: 20px; }
-    .asset-name { font-size: 20px; font-weight: 700; }
+    .asset-header { padding: 12px 20px; display: flex; align-items: center; gap: 14px; }
+    .asset-icon { width: 52px; height: 52px; font-size: 22px; }
+    .asset-name { font-size: 22px; font-weight: 800; }
     .asset-sub { font-size: 13px; color: var(--text-secondary); }
 
-    .price-section { padding: 0 16px 16px 16px; }
-    .price-val { font-size: 32px; font-weight: 700; }
+    .price-section { padding: 0 20px 16px 20px; }
+    .price-val { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; }
 
-    .chart-container { width: 100%; height: 150px; margin-bottom: 12px; }
+    .chart-container { width: 100%; height: 160px; margin-bottom: 16px; }
     .chart-svg { width: 100%; height: 100%; }
-    .chart-path { transition: d 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .chart-path { transition: d 0.35s ease; }
 
     .timeframe-picker {
       display: flex;
-      background: var(--card-bg);
-      border-radius: 12px;
-      margin: 0 16px 16px 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 14px;
+      margin: 0 16px 20px 16px;
       padding: 3px;
     }
-
     .tf-btn {
       flex: 1;
       text-align: center;
-      padding: 7px 0;
+      padding: 8px 0;
       font-size: 12px;
       font-weight: 600;
       color: var(--text-secondary);
-      border-radius: 9px;
+      border-radius: 11px;
       cursor: pointer;
     }
-    .tf-btn.active { background: #2b394a; color: var(--text-main); }
+    .tf-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
-    .info-card { margin: 0 16px 16px 16px; background: var(--card-bg); border-radius: 16px; padding: 16px; }
-    .info-card-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; }
-    
+    .info-card { margin: 0 16px 16px 16px; padding: 18px; }
+    .info-card-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
     .route-step {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 0;
+      padding: 10px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
     .route-step:last-child { border-bottom: none; }
     .step-action { font-size: 14px; font-weight: 600; }
     .step-exchange { font-size: 12px; color: var(--text-secondary); }
-    .step-price { font-size: 14px; font-weight: 600; text-align: right; }
+    .step-price { font-size: 15px; font-weight: 700; text-align: right; }
 
-    .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; }
+    .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
     .btn-main, .btn-secondary {
       border: none;
-      border-radius: 14px;
-      padding: 14px;
+      border-radius: 16px;
+      padding: 16px;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       text-align: center;
+      transition: transform 0.1s, opacity 0.15s;
     }
-    .btn-main { background: var(--accent-blue); color: #fff; }
-    .btn-secondary { background: var(--card-bg); color: var(--text-main); }
-    .btn-main:active, .btn-secondary:active { opacity: 0.8; }
+    .btn-main { background: var(--accent-blue); color: #fff; box-shadow: 0 4px 16px rgba(42, 171, 238, 0.3); }
+    .btn-secondary { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--card-border); }
+    .btn-main:active, .btn-secondary:active { transform: scale(0.97); opacity: 0.9; }
 
-    /* Inputs & Calculator Controls */
-    .calc-input-group { margin-bottom: 12px; }
-    .calc-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+    /* Inputs & Controls */
+    .calc-input-group { margin-bottom: 14px; }
+    .calc-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block; font-weight: 500; }
     .calc-input {
       width: 100%;
-      background: var(--bg-color);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px;
       color: #fff;
       font-size: 15px;
       outline: none;
     }
     .calc-input:focus { border-color: var(--accent-blue); }
 
-    /* Search Bar */
+    /* Search Box */
     .search-box {
-      margin: 0 16px 12px 16px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 8px 12px;
+      margin: 0 16px 14px 16px;
+      border-radius: 14px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
     .search-box input {
       background: transparent;
       border: none;
       outline: none;
       color: #fff;
-      font-size: 14px;
+      font-size: 15px;
       width: 100%;
     }
 
@@ -335,35 +312,38 @@
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
       display: none;
       align-items: flex-end;
       z-index: 2000;
     }
     .modal-overlay.active { display: flex; }
-
     .modal-sheet {
-      background: var(--card-bg);
+      background: #17212b;
+      border: 1px solid var(--card-border);
       width: 100%;
-      border-radius: 20px 20px 0 0;
-      padding: 20px;
+      border-radius: 24px 24px 0 0;
+      padding: 24px;
       animation: slideUp 0.25s ease;
     }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-    /* Navbar */
+    /* Bottom Navigation Bar (Telegram Wallet Style) */
     .navbar {
       position: fixed;
-      bottom: 12px;
+      bottom: 16px;
       left: 16px;
       right: 16px;
-      background: #19232d;
-      border-radius: 24px;
-      padding: 4px;
+      background: rgba(23, 33, 43, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 6px;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--card-border);
       z-index: 1000;
     }
 
@@ -373,27 +353,29 @@
       align-items: center;
       justify-content: center;
       padding: 8px 0;
-      border-radius: 18px;
+      border-radius: 22px;
       color: var(--text-secondary);
       font-size: 10px;
-      font-weight: 500;
+      font-weight: 600;
       gap: 4px;
       cursor: pointer;
+      transition: all 0.2s;
     }
-    .nav-tab.active { background: #2b394a; color: #ffffff; }
-    .nav-tab svg { width: 20px; height: 20px; fill: currentColor; }
+    .nav-tab.active { background: rgba(255, 255, 255, 0.08); color: #ffffff; }
+    .nav-tab svg { width: 22px; height: 22px; fill: currentColor; }
   </style>
 </head>
 <body>
 
   <div id="app">
+    <!-- TAB 1: SCANNER -->
     <div id="tab-scanner" class="tab-content active">
       <div id="scannerListScreen" class="sub-screen active">
         <div class="header-bar">
           <div class="profile-avatar">TG</div>
-          <div class="header-title">Арбитраж</div>
+          <div class="header-title">Wallet Arbitrage</div>
           <div class="icon-btn" id="notifBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
           </div>
         </div>
 
@@ -421,7 +403,7 @@
           </div>
         </div>
 
-        <div class="section-container">
+        <div class="section-container glass-card">
           <div class="section-header">
             <span class="section-title">Активные связки</span>
             <span class="section-stat">LIVE SCAN</span>
@@ -430,15 +412,16 @@
         </div>
       </div>
 
+      <!-- Detail View -->
       <div id="scannerDetailScreen" class="sub-screen">
         <div class="header-bar">
-          <div class="back-btn" id="backBtn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
-          <div style="font-weight: 600;">Детали связки</div>
+          <div class="back-btn" id="backBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+          <div style="font-weight: 700; font-size: 16px;">Детали связки</div>
           <div></div>
         </div>
 
         <div class="asset-header">
-          <div class="coin-3d-wrap"><div id="detailIcon" class="crypto-icon asset-icon ton-bg">💎</div></div>
+          <div id="detailIcon" class="crypto-icon asset-icon ton-bg">💎</div>
           <div class="asset-title-block">
             <div id="detailTitle" class="asset-name">TON / USDT</div>
             <div class="asset-sub" id="detailType">Межбиржевой спот</div>
@@ -456,12 +439,12 @@
           <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
             <defs>
               <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#2bb368" stop-opacity="0.4"/>
-                <stop offset="100%" stop-color="#2bb368" stop-opacity="0.0"/>
+                <stop offset="0%" stop-color="#31B469" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#31B469" stop-opacity="0.0"/>
               </linearGradient>
             </defs>
             <path id="chartArea" class="chart-path" fill="url(#chartGradient)"/>
-            <path id="chartLine" class="chart-path" fill="none" stroke="#2bb368" stroke-width="3"/>
+            <path id="chartLine" class="chart-path" fill="none" stroke="#31B469" stroke-width="3.5"/>
           </svg>
         </div>
 
@@ -473,7 +456,7 @@
           <div class="tf-btn" data-tf="ALL">Все</div>
         </div>
 
-        <div class="info-card">
+        <div class="info-card glass-card">
           <div class="info-card-title">Маршрут исполнения</div>
           <div class="route-step">
             <div>
@@ -505,33 +488,35 @@
       </div>
     </div>
 
+    <!-- TAB 2: MARKET -->
     <div id="tab-market" class="tab-content">
       <div class="header-bar">
         <div class="header-title">Рынок монет</div>
       </div>
 
-      <div class="search-box">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7f8d99" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <div class="search-box glass-card">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="marketSearch" placeholder="Поиск монеты (напр. BTC, TON)...">
       </div>
 
-      <div class="timeframe-picker" style="margin-top: 0;">
+      <div class="timeframe-picker">
         <div class="tf-btn active" id="filterMarketAll">Все</div>
         <div class="tf-btn" id="filterMarketGainers">Gainers (▲)</div>
         <div class="tf-btn" id="filterMarketLosers">Losers (▼)</div>
       </div>
 
-      <div class="section-container">
+      <div class="section-container glass-card">
         <div id="marketList"></div>
       </div>
     </div>
 
+    <!-- TAB 3: INCOME -->
     <div id="tab-income" class="tab-content">
       <div class="header-bar">
         <div class="header-title">Калькулятор и Учёт</div>
       </div>
 
-      <div class="info-card">
+      <div class="info-card glass-card">
         <div class="info-card-title">Симулятор спреда</div>
         <div class="calc-input-group">
           <label class="calc-label">Депозит ($)</label>
@@ -552,15 +537,15 @@
           <input type="number" id="calcFee" class="calc-input" value="0.3" step="0.1">
         </div>
         
-        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center;">
           <span style="font-size: 14px; color: var(--text-secondary);">Чистая прибыль:</span>
-          <span id="calcResult" style="font-size: 20px; font-weight: 700; color: var(--accent-green);">+$25.68 (+2.57%)</span>
+          <span id="calcResult" style="font-size: 22px; font-weight: 800; color: var(--accent-green);">+$25.68 (+2.57%)</span>
         </div>
       </div>
 
-      <div class="section-container">
+      <div class="section-container glass-card">
         <div class="section-header">
-          <span class="section-title">История исполненных кругов</span>
+          <span class="section-title">История кругов</span>
         </div>
         <div class="list-item">
           <div>
@@ -585,6 +570,7 @@
       </div>
     </div>
 
+    <!-- TAB 4: BONUSES -->
     <div id="tab-bonuses" class="tab-content">
       <div class="header-bar">
         <div class="header-title">Партнёрство & VIP</div>
@@ -595,47 +581,49 @@
         <div class="balance-amount">$142.50</div>
       </div>
 
-      <div class="info-card">
+      <div class="info-card glass-card">
         <div class="info-card-title">Ваша реферальная ссылка</div>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 10px;">
           <input type="text" id="refLink" class="calc-input" value="https://t.me/ArbitrageBot?start=ref_849201" readonly>
-          <button id="copyRefBtn" class="btn-main" style="width: auto; padding: 0 16px;">Копировать</button>
+          <button id="copyRefBtn" class="btn-main" style="width: auto; padding: 0 18px;">Копировать</button>
         </div>
-        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 10px;">
+        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 12px; line-height: 1.4;">
           Получайте 30% от каждой оплаты подписки вашими рефералами.
         </div>
       </div>
 
-      <div class="section-container">
+      <div class="section-container glass-card">
         <div class="section-header">
           <span class="section-title">Статистика</span>
         </div>
         <div class="list-item">
           <div class="item-title">Приглашено пользователей</div>
-          <div class="item-right" style="font-weight: 700;">14 чел.</div>
+          <div class="item-right" style="font-weight: 700; font-size: 16px;">14 чел.</div>
         </div>
         <div class="list-item">
           <div class="item-title">Активных VIP-подписчиков</div>
-          <div class="item-right" style="font-weight: 700; color: var(--accent-blue);">5 чел.</div>
+          <div class="item-right" style="font-weight: 700; font-size: 16px; color: var(--accent-blue);">5 чел.</div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- MODAL FILTERS -->
   <div class="modal-overlay" id="filterModal">
     <div class="modal-sheet">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div style="font-weight: 700; font-size: 18px;">Фильтры сканера</div>
-        <div id="closeFilterModal" style="cursor: pointer; color: var(--text-secondary);">✕</div>
+        <div id="closeFilterModal" style="cursor: pointer; color: var(--text-secondary); font-size: 20px;">✕</div>
       </div>
       <div class="calc-input-group">
         <label class="calc-label">Минимальный спред (%)</label>
         <input type="number" id="minSpreadInput" class="calc-input" value="0.5" step="0.1">
       </div>
-      <button class="btn-main" id="applyFilterBtn" style="width: 100%; margin-top: 10px;">Применить</button>
+      <button class="btn-main" id="applyFilterBtn" style="width: 100%; margin-top: 12px;">Применить</button>
     </div>
   </div>
 
+  <!-- NAVBAR -->
   <div class="navbar">
     <div class="nav-tab active" data-tab="tab-scanner">
       <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
@@ -744,10 +732,9 @@
         filtered.forEach(item => {
           const el = document.createElement('div');
           el.className = 'list-item';
-          el.setAttribute('data-coin', item.id);
           el.innerHTML = `
             <div class="item-left">
-              <div class="coin-3d-wrap"><div class="crypto-icon ${item.bgClass}">${item.symbol}</div></div>
+              <div class="crypto-icon ${item.bgClass}">${item.symbol}</div>
               <div>
                 <div class="item-title">${item.title}</div>
                 <div class="item-subtitle">${item.buyEx} ➔ ${item.sellEx}</div>
