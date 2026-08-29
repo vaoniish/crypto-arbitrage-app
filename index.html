@@ -110,7 +110,7 @@
     /* Quick Filter Actions */
     .quick-actions {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 10px;
       padding: 0 16px;
       margin-bottom: 20px;
@@ -399,10 +399,6 @@
         <div class="action-card" data-type="spot">
           <div class="action-icon-circle"><svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
           <div class="action-title">Быстрые</div>
-        </div>
-        <div class="action-card" id="filterHighSpread">
-          <div class="action-icon-circle"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          <div class="action-title">> 2% спред</div>
         </div>
       </div>
 
@@ -948,7 +944,6 @@
 
         let filtered = deals.filter(d => {
           if (currentFilter === 'all') return true;
-          if (currentFilter === 'high') return d.spreadPct >= 2.0;
           return d.type === currentFilter;
         });
 
@@ -1013,7 +1008,7 @@
           if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
           document.querySelectorAll('.quick-actions .action-card').forEach(c => c.classList.remove('active-filter'));
           this.classList.add('active-filter');
-          currentFilter = this.id === 'filterHighSpread' ? 'high' : (this.getAttribute('data-type') || 'all');
+          currentFilter = this.getAttribute('data-type') || 'all';
           renderDeals();
         });
       });
