@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Arbitrage Scanner</title>
+  <title>Arbitrage Scanner WebApp</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -14,6 +14,8 @@
       --text-secondary: #7f8d99;
       --accent-blue: #3390ec;
       --accent-green: #2bb368;
+      --accent-orange: #f7931a;
+      --accent-purple: #8b5cf6;
     }
 
     * {
@@ -29,10 +31,57 @@
       color: var(--text-main);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
       padding-bottom: 90px;
+      overflow-x: hidden;
     }
 
-    .screen { display: none; width: 100%; }
-    .screen.active { display: block; }
+    /* Screens Navigation */
+    .tab-content { display: none; width: 100%; animation: fadeIn 0.2s ease; }
+    .tab-content.active { display: block; }
+
+    .sub-screen { display: none; width: 100%; animation: slideIn 0.25s ease; }
+    .sub-screen.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* 3D Spin Animation like Telegram Wallet */
+    .coin-3d-wrap {
+      perspective: 1000px;
+      display: inline-block;
+    }
+
+    .crypto-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: spin3D 8s infinite linear;
+      transform-style: preserve-3d;
+    }
+
+    @keyframes spin3D {
+      0% { transform: rotateY(0deg); }
+      50% { transform: rotateY(180deg); }
+      100% { transform: rotateY(360deg); }
+    }
+
+    .usdt-bg { background: linear-gradient(135deg, #26a17b, #1de9b6); }
+    .btc-bg { background: linear-gradient(135deg, #f7931a, #ffb300); }
+    .ton-bg { background: linear-gradient(135deg, #0088cc, #00b0ff); }
+    .eth-bg { background: linear-gradient(135deg, #627eea, #8c9eff); }
 
     /* Header */
     .header-bar {
@@ -42,7 +91,17 @@
       padding: 14px 16px;
     }
 
-    .profile-avatar { width: 36px; height: 36px; border-radius: 50%; background: #243140; }
+    .profile-avatar { 
+      width: 36px; 
+      height: 36px; 
+      border-radius: 50%; 
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
     
     .icon-btn, .back-btn {
       width: 36px;
@@ -54,13 +113,14 @@
       justify-content: center;
       cursor: pointer;
       color: var(--text-main);
+      transition: background 0.15s;
     }
     .icon-btn:active, .back-btn:active { background: var(--card-pressed); }
 
     /* Counter */
     .balance-section { text-align: center; padding: 4px 0 18px 0; }
     .balance-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
-    .balance-amount { font-size: 40px; font-weight: 700; letter-spacing: -0.8px; line-height: 1; }
+    .balance-amount { font-size: 38px; font-weight: 700; letter-spacing: -0.8px; line-height: 1; }
     .balance-currency { color: var(--accent-blue); }
 
     /* Quick Action Grid */
@@ -81,8 +141,9 @@
       align-items: center;
       gap: 8px;
       cursor: pointer;
+      transition: transform 0.1s, background 0.15s;
     }
-    .action-card:active { background: var(--card-pressed); }
+    .action-card:active { background: var(--card-pressed); transform: scale(0.96); }
 
     .action-icon-circle {
       width: 36px;
@@ -139,28 +200,12 @@
       padding: 12px 16px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       cursor: pointer;
+      transition: background 0.15s;
     }
     .deal-item:last-child { border-bottom: none; }
     .deal-item:active { background: var(--card-pressed); }
 
     .deal-left { display: flex; align-items: center; gap: 12px; }
-    .crypto-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 15px;
-      color: #fff;
-    }
-
-    .usdt-bg { background: #26a17b; }
-    .btc-bg { background: #f7931a; }
-    .ton-bg { background: #0088cc; }
-    .eth-bg { background: #627eea; }
-
     .coin-title { font-size: 15px; font-weight: 600; }
     .route-subtitle { font-size: 13px; color: var(--text-secondary); }
     .deal-right { text-align: right; }
@@ -169,7 +214,7 @@
 
     /* Details View */
     .asset-header { padding: 8px 16px 16px 16px; display: flex; align-items: center; gap: 12px; }
-    .asset-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #fff; }
+    .asset-icon { width: 52px; height: 52px; font-size: 22px; }
     .asset-name { font-size: 20px; font-weight: 700; }
     .asset-sub { font-size: 13px; color: var(--text-secondary); }
 
@@ -188,10 +233,10 @@
       margin-top: 6px;
     }
 
-    /* SVG Chart */
-    .chart-container { width: 100%; height: 150px; margin-bottom: 12px; }
+    /* SVG Animated Chart */
+    .chart-container { width: 100%; height: 160px; margin-bottom: 12px; }
     .chart-svg { width: 100%; height: 100%; }
-    .chart-path { transition: d 0.3s ease; }
+    .chart-path { transition: d 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
     /* Timeframe Selector */
     .timeframe-picker {
@@ -211,6 +256,7 @@
       color: var(--text-secondary);
       border-radius: 9px;
       cursor: pointer;
+      transition: all 0.2s;
     }
     .tf-btn.active { background: #2b394a; color: var(--text-main); }
 
@@ -241,8 +287,9 @@
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
+      transition: opacity 0.15s;
     }
-    .btn-main:active { opacity: 0.85; }
+    .btn-main:active { opacity: 0.8; }
 
     .btn-secondary {
       background: var(--card-bg);
@@ -253,8 +300,21 @@
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
+      transition: background 0.15s;
     }
     .btn-secondary:active { background: var(--card-pressed); }
+
+    /* Generic Placeholder Card for Tabs */
+    .placeholder-card {
+      margin: 16px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 24px 16px;
+      text-align: center;
+    }
+    .placeholder-icon { font-size: 40px; margin-bottom: 12px; }
+    .placeholder-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .placeholder-text { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
 
     /* Bottom Navbar */
     .navbar {
@@ -284,6 +344,7 @@
       font-weight: 500;
       gap: 4px;
       cursor: pointer;
+      transition: background 0.15s, color 0.15s;
     }
     .nav-tab.active { background: #2b394a; color: #ffffff; }
     .nav-tab svg { width: 20px; height: 20px; fill: currentColor; }
@@ -291,155 +352,230 @@
 </head>
 <body>
 
-  <!-- MAIN SCREEN -->
-  <div id="mainScreen" class="screen active">
-    <div class="header-bar">
-      <div class="profile-avatar"></div>
-      <div class="icon-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-      </div>
-    </div>
+  <!-- MAIN WRAPPER -->
+  <div id="app">
+    
+    <!-- TAB 1: SCANNER -->
+    <div id="tab-scanner" class="tab-content active">
+      <!-- Main List View -->
+      <div id="scannerListScreen" class="sub-screen active">
+        <div class="header-bar">
+          <div class="profile-avatar">TG</div>
+          <div class="icon-btn" id="notifBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          </div>
+        </div>
 
-    <div class="balance-section">
-      <div class="balance-label">Максимальный спред 24h</div>
-      <div class="balance-amount">+3,84 <span class="balance-currency">%</span></div>
-    </div>
+        <div class="balance-section">
+          <div class="balance-label">Максимальный спред 24h</div>
+          <div class="balance-amount">+3,84 <span class="balance-currency">%</span></div>
+        </div>
 
-    <div class="quick-actions">
-      <div class="action-card">
-        <div class="action-icon-circle"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></div>
-        <div class="action-title">Все связки</div>
-      </div>
-      <div class="action-card">
-        <div class="action-icon-circle"><svg viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg></div>
-        <div class="action-title">Межбиржевой</div>
-      </div>
-      <div class="action-card">
-        <div class="action-icon-circle"><svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
-        <div class="action-title">Спот</div>
-      </div>
-      <div class="action-card">
-        <div class="action-icon-circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-        <div class="action-title">Фильтры</div>
-      </div>
-    </div>
+        <div class="quick-actions">
+          <div class="action-card" id="filterAll">
+            <div class="action-icon-circle"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></div>
+            <div class="action-title">Все</div>
+          </div>
+          <div class="action-card" id="filterInter">
+            <div class="action-icon-circle"><svg viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg></div>
+            <div class="action-title">Межбиржевой</div>
+          </div>
+          <div class="action-card" id="filterSpot">
+            <div class="action-icon-circle"><svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
+            <div class="action-title">Спот</div>
+          </div>
+          <div class="action-card" id="filterSettings">
+            <div class="action-icon-circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+            <div class="action-title">Фильтры</div>
+          </div>
+        </div>
 
-    <div class="section-container">
-      <div class="section-header">
-        <span class="section-title">Горячие связки</span>
-        <span class="section-stat">LIVE SCAN</span>
-      </div>
+        <div class="section-container">
+          <div class="section-header">
+            <span class="section-title">Горячие связки</span>
+            <span class="section-stat">LIVE SCAN</span>
+          </div>
 
-      <div id="dealsList">
-        <div class="deal-item" id="deal-ton">
-          <div class="deal-left">
-            <div class="crypto-icon ton-bg">💎</div>
-            <div class="deal-names">
-              <div class="coin-title">TON / USDT</div>
-              <div class="route-subtitle">OKX Spot ➔ MEXC Spot</div>
+          <div id="dealsList">
+            <!-- TON ITEM -->
+            <div class="deal-item" data-coin="ton">
+              <div class="deal-left">
+                <div class="coin-3d-wrap"><div class="crypto-icon ton-bg">💎</div></div>
+                <div class="deal-names">
+                  <div class="coin-title">TON / USDT</div>
+                  <div class="route-subtitle">OKX Spot ➔ MEXC Spot</div>
+                </div>
+              </div>
+              <div class="deal-right">
+                <div class="profit-val">+2.45%</div>
+                <div class="spread-percent">+$24.50</div>
+              </div>
+            </div>
+
+            <!-- BTC ITEM -->
+            <div class="deal-item" data-coin="btc">
+              <div class="deal-left">
+                <div class="coin-3d-wrap"><div class="crypto-icon btc-bg">₿</div></div>
+                <div class="deal-names">
+                  <div class="coin-title">BTC / USDT</div>
+                  <div class="route-subtitle">Bybit ➔ KuCoin</div>
+                </div>
+              </div>
+              <div class="deal-right">
+                <div class="profit-val">+1.82%</div>
+                <div class="spread-percent">+$18.20</div>
+              </div>
+            </div>
+
+            <!-- ETH ITEM -->
+            <div class="deal-item" data-coin="eth">
+              <div class="deal-left">
+                <div class="coin-3d-wrap"><div class="crypto-icon eth-bg">Ξ</div></div>
+                <div class="deal-names">
+                  <div class="coin-title">ETH / USDT</div>
+                  <div class="route-subtitle">Binance ➔ Gate.io</div>
+                </div>
+              </div>
+              <div class="deal-right">
+                <div class="profit-val">+3.15%</div>
+                <div class="spread-percent">+$31.50</div>
+              </div>
             </div>
           </div>
-          <div class="deal-right">
-            <div class="profit-val">+2.45%</div>
-            <div class="spread-percent">+$24.50</div>
+        </div>
+      </div>
+
+      <!-- Coin Details View -->
+      <div id="scannerDetailScreen" class="sub-screen">
+        <div class="header-bar">
+          <div class="back-btn" id="backBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </div>
+          <div></div>
+        </div>
+
+        <div class="asset-header">
+          <div class="coin-3d-wrap"><div id="detailIcon" class="crypto-icon asset-icon ton-bg">💎</div></div>
+          <div class="asset-title-block">
+            <div id="detailTitle" class="asset-name">TON / USDT</div>
+            <div class="asset-sub">Межбиржевой спот</div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- DETAILS SCREEN -->
-  <div id="detailsScreen" class="screen">
-    <div class="header-bar">
-      <div class="back-btn" id="backBtn">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      </div>
-      <div></div>
-    </div>
-
-    <div class="asset-header">
-      <div id="detailIcon" class="asset-icon ton-bg">💎</div>
-      <div class="asset-title-block">
-        <div id="detailTitle" class="asset-name">TON / USDT</div>
-        <div class="asset-sub">Межбиржевой спот</div>
-      </div>
-    </div>
-
-    <div class="price-section">
-      <div id="detailSpread" class="price-val">+2.45%</div>
-      <div class="spread-tag">
-        <span id="detailProfit">▲ +$24.50</span>
-        <span style="color: var(--text-secondary); opacity: 0.7;">(на 1 000$)</span>
-      </div>
-    </div>
-
-    <div class="chart-container">
-      <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#2bb368" stop-opacity="0.35"/>
-            <stop offset="100%" stop-color="#2bb368" stop-opacity="0.0"/>
-          </linearGradient>
-        </defs>
-        <path id="chartArea" d="M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20 L400,150 L0,150 Z" fill="url(#chartGradient)" />
-        <path id="chartLine" class="chart-path" d="M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20" fill="none" stroke="#2bb368" stroke-width="3" />
-      </svg>
-    </div>
-
-    <div class="timeframe-picker">
-      <div class="tf-btn active" data-tf="1D">1Д</div>
-      <div class="tf-btn" data-tf="7D">7Д</div>
-      <div class="tf-btn" data-tf="1M">1М</div>
-      <div class="tf-btn" data-tf="1Y">1Г</div>
-      <div class="tf-btn" data-tf="ALL">Все</div>
-    </div>
-
-    <div class="info-card">
-      <div class="info-card-title">Маршрут арбитража</div>
-      <div class="route-step">
-        <div class="step-left">
-          <div class="step-action">1. Покупка</div>
-          <div class="step-exchange">OKX Spot</div>
+        <div class="price-section">
+          <div id="detailSpread" class="price-val">+2.45%</div>
+          <div class="spread-tag">
+            <span id="detailProfit">▲ +$24.50</span>
+            <span style="color: var(--text-secondary); opacity: 0.7;">(на 1 000$)</span>
+          </div>
         </div>
-        <div class="step-price">$5.20</div>
-      </div>
-      <div class="route-step">
-        <div class="step-left">
-          <div class="step-action">2. Перевод</div>
-          <div class="step-exchange">Сеть TON</div>
+
+        <div class="chart-container">
+          <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2bb368" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#2bb368" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+            <path id="chartArea" class="chart-path" d="M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20 L400,150 L0,150 Z" fill="url(#chartGradient)" />
+            <path id="chartLine" class="chart-path" d="M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20" fill="none" stroke="#2bb368" stroke-width="3" />
+          </svg>
         </div>
-        <div class="step-price">~2 мин</div>
-      </div>
-      <div class="route-step">
-        <div class="step-left">
-          <div class="step-action">3. Продажа</div>
-          <div class="step-exchange">MEXC Spot</div>
+
+        <div class="timeframe-picker">
+          <div class="tf-btn active" data-tf="1D">1Д</div>
+          <div class="tf-btn" data-tf="7D">7Д</div>
+          <div class="tf-btn" data-tf="1M">1М</div>
+          <div class="tf-btn" data-tf="1Y">1Г</div>
+          <div class="tf-btn" data-tf="ALL">Все</div>
         </div>
-        <div class="step-price" style="color: var(--accent-green);">$5.32</div>
+
+        <div class="info-card">
+          <div class="info-card-title">Маршрут арбитража</div>
+          <div class="route-step">
+            <div class="step-left">
+              <div class="step-action">1. Покупка</div>
+              <div id="stepBuyEx" class="step-exchange">OKX Spot</div>
+            </div>
+            <div id="stepBuyPrice" class="step-price">$5.20</div>
+          </div>
+          <div class="route-step">
+            <div class="step-left">
+              <div class="step-action">2. Перевод</div>
+              <div id="stepNetwork" class="step-exchange">Сеть TON</div>
+            </div>
+            <div class="step-price">~2 мин</div>
+          </div>
+          <div class="route-step">
+            <div class="step-left">
+              <div class="step-action">3. Продажа</div>
+              <div id="stepSellEx" class="step-exchange">MEXC Spot</div>
+            </div>
+            <div id="stepSellPrice" class="step-price" style="color: var(--accent-green);">$5.32</div>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button id="btnBuy" class="btn-main">Купить</button>
+          <button id="btnSell" class="btn-secondary">Продать</button>
+        </div>
       </div>
     </div>
 
-    <div class="action-buttons">
-      <button id="btnBuy" class="btn-main">Купить</button>
-      <button id="btnSell" class="btn-secondary">Продать</button>
+    <!-- TAB 2: MARKET -->
+    <div id="tab-market" class="tab-content">
+      <div class="header-bar">
+        <h2 style="font-size: 20px;">Рынок криптовалют</h2>
+      </div>
+      <div class="placeholder-card">
+        <div class="placeholder-icon">📈</div>
+        <div class="placeholder-title">Мониторинг котировок</div>
+        <div class="placeholder-text">Здесь отображаются живые курсы топ-100 монет и глубина стакана в режиме реального времени.</div>
+      </div>
     </div>
+
+    <!-- TAB 3: INCOME -->
+    <div id="tab-income" class="tab-content">
+      <div class="header-bar">
+        <h2 style="font-size: 20px;">Ваш Доход</h2>
+      </div>
+      <div class="placeholder-card">
+        <div class="placeholder-icon">💰</div>
+        <div class="placeholder-title">Статистика сделок</div>
+        <div class="placeholder-text">Подключите API ключи бирж для автоматического подсчёта чистой прибыли.</div>
+      </div>
+    </div>
+
+    <!-- TAB 4: BONUSES -->
+    <div id="tab-bonuses" class="tab-content">
+      <div class="header-bar">
+        <h2 style="font-size: 20px;">Бонусы и VIP</h2>
+      </div>
+      <div class="placeholder-card">
+        <div class="placeholder-icon">🎁</div>
+        <div class="placeholder-title">Партнёрская программа</div>
+        <div class="placeholder-text">Приглашайте друзей и получайте до 30% от их подписок на сигналы арбитража.</div>
+      </div>
+    </div>
+
   </div>
 
   <!-- NAVBAR -->
   <div class="navbar">
-    <div class="nav-tab active">
+    <div class="nav-tab active" data-tab="tab-scanner">
       <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
       <span>Сканер</span>
     </div>
-    <div class="nav-tab">
+    <div class="nav-tab" data-tab="tab-market">
       <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 17.08l1.5 1.41z"/></svg>
       <span>Рынок</span>
     </div>
-    <div class="nav-tab">
+    <div class="nav-tab" data-tab="tab-income">
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
       <span>Доход</span>
     </div>
-    <div class="nav-tab">
+    <div class="nav-tab" data-tab="tab-bonuses">
       <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
       <span>Бонусы</span>
     </div>
@@ -450,30 +586,121 @@
       const tg = window.Telegram?.WebApp;
       if (tg) tg.expand();
 
-      // Данные графиков
-      const chartPaths = {
-        '1D': { line: "M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20", area: "M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20 L400,150 L0,150 Z" },
-        '7D': { line: "M0,90 Q50,140 100,80 T200,100 T300,40 T400,60", area: "M0,90 Q50,140 100,80 T200,100 T300,40 T400,60 L400,150 L0,150 Z" },
-        '1M': { line: "M0,60 Q60,20 120,90 T240,40 T320,110 T400,30", area: "M0,60 Q60,20 120,90 T240,40 T320,110 T400,30 L400,150 L0,150 Z" },
-        '1Y': { line: "M0,110 Q80,50 160,100 T280,30 T400,80", area: "M0,110 Q80,50 160,100 T280,30 T400,80 L400,150 L0,150 Z" },
-        'ALL': { line: "M0,140 Q100,10 200,130 T300,20 T400,90", area: "M0,140 Q100,10 200,130 T300,20 T400,90 L400,150 L0,150 Z" }
+      // Данные монет
+      const coinsData = {
+        ton: {
+          title: 'TON / USDT',
+          symbol: '💎',
+          bgClass: 'ton-bg',
+          buyEx: 'OKX Spot',
+          sellEx: 'MEXC Spot',
+          buyPrice: '$5.20',
+          sellPrice: '$5.32',
+          buyUrl: 'https://www.okx.com',
+          sellUrl: 'https://www.mexc.com',
+          network: 'Сеть TON',
+          tfs: {
+            '1D': { spread: '+2.45%', profit: '+$24.50', line: "M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20", area: "M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20 L400,150 L0,150 Z" },
+            '7D': { spread: '+4.12%', profit: '+$41.20', line: "M0,100 Q60,140 120,50 T240,90 T320,20 T400,40", area: "M0,100 Q60,140 120,50 T240,90 T320,20 T400,40 L400,150 L0,150 Z" },
+            '1M': { spread: '+6.80%', profit: '+$68.00', line: "M0,140 Q80,20 160,110 T280,30 T400,70", area: "M0,140 Q80,20 160,110 T280,30 T400,70 L400,150 L0,150 Z" },
+            '1Y': { spread: '+12.30%', profit: '+$123.00', line: "M0,90 Q50,30 150,120 T300,10 T400,50", area: "M0,90 Q50,30 150,120 T300,10 T400,50 L400,150 L0,150 Z" },
+            'ALL': { spread: '+18.50%', profit: '+$185.00', line: "M0,120 Q100,10 200,130 T300,40 T400,10", area: "M0,120 Q100,10 200,130 T300,40 T400,10 L400,150 L0,150 Z" }
+          }
+        },
+        btc: {
+          title: 'BTC / USDT',
+          symbol: '₿',
+          bgClass: 'btc-bg',
+          buyEx: 'Bybit Spot',
+          sellEx: 'KuCoin Spot',
+          buyPrice: '$64,100',
+          sellPrice: '$65,265',
+          buyUrl: 'https://www.bybit.com',
+          sellUrl: 'https://www.kucoin.com',
+          network: 'Bitcoin',
+          tfs: {
+            '1D': { spread: '+1.82%', profit: '+$18.20', line: "M0,100 Q50,60 120,110 T240,40 T320,80 T400,30", area: "M0,100 Q50,60 120,110 T240,40 T320,80 T400,30 L400,150 L0,150 Z" },
+            '7D': { spread: '+2.90%', profit: '+$29.00', line: "M0,80 Q40,120 140,40 T260,100 T400,20", area: "M0,80 Q40,120 140,40 T260,100 T400,20 L400,150 L0,150 Z" },
+            '1M': { spread: '+5.10%', profit: '+$51.00', line: "M0,120 Q90,30 180,100 T300,20 T400,60", area: "M0,120 Q90,30 180,100 T300,20 T400,60 L400,150 L0,150 Z" },
+            '1Y': { spread: '+9.40%', profit: '+$94.00', line: "M0,140 Q60,50 160,130 T280,20 T400,40", area: "M0,140 Q60,50 160,130 T280,20 T400,40 L400,150 L0,150 Z" },
+            'ALL': { spread: '+15.20%', profit: '+$152.00', line: "M0,110 Q100,30 200,120 T300,10 T400,30", area: "M0,110 Q100,30 200,120 T300,10 T400,30 L400,150 L0,150 Z" }
+          }
+        },
+        eth: {
+          title: 'ETH / USDT',
+          symbol: 'Ξ',
+          bgClass: 'eth-bg',
+          buyEx: 'Binance Spot',
+          sellEx: 'Gate.io Spot',
+          buyPrice: '$2,640',
+          sellPrice: '$2,723',
+          buyUrl: 'https://www.binance.com',
+          sellUrl: 'https://www.gate.io',
+          network: 'ERC-20',
+          tfs: {
+            '1D': { spread: '+3.15%', profit: '+$31.50', line: "M0,140 Q60,90 120,40 T240,80 T320,10 T400,30", area: "M0,140 Q60,90 120,40 T240,80 T320,10 T400,30 L400,150 L0,150 Z" },
+            '7D': { spread: '+5.20%', profit: '+$52.00', line: "M0,110 Q70,130 150,30 T270,90 T400,10", area: "M0,110 Q70,130 150,30 T270,90 T400,10 L400,150 L0,150 Z" },
+            '1M': { spread: '+8.40%', profit: '+$84.00', line: "M0,90 Q50,10 130,120 T260,30 T400,50", area: "M0,90 Q50,10 130,120 T260,30 T400,50 L400,150 L0,150 Z" },
+            '1Y': { spread: '+14.10%', profit: '+$141.00', line: "M0,130 Q80,40 180,110 T300,20 T400,60", area: "M0,130 Q80,40 180,110 T300,20 T400,60 L400,150 L0,150 Z" },
+            'ALL': { spread: '+22.00%', profit: '+$220.00', line: "M0,100 Q90,20 200,140 T300,30 T400,10", area: "M0,100 Q90,20 200,140 T300,30 T400,10 L400,150 L0,150 Z" }
+          }
+        }
       };
 
-      // Клик по TON / USDT
-      document.getElementById('deal-ton').addEventListener('click', () => {
-        if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
-        document.getElementById('mainScreen').classList.remove('active');
-        document.getElementById('detailsScreen').classList.add('active');
+      let activeCoinKey = 'ton';
+
+      // Переключение закладок снизу
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+          if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+          
+          document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+          this.classList.add('active');
+          const targetTabId = this.getAttribute('data-tab');
+          document.getElementById(targetTabId).classList.add('active');
+        });
       });
 
-      // Кнопка Назад
+      // Клик по монете из списка
+      document.querySelectorAll('.deal-item').forEach(item => {
+        item.addEventListener('click', function() {
+          if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+          activeCoinKey = this.getAttribute('data-coin');
+          const data = coinsData[activeCoinKey];
+
+          // Заполнение деталей
+          document.getElementById('detailTitle').innerText = data.title;
+          const icon = document.getElementById('detailIcon');
+          icon.innerText = data.symbol;
+          icon.className = `crypto-icon asset-icon ${data.bgClass}`;
+
+          document.getElementById('stepBuyEx').innerText = data.buyEx;
+          document.getElementById('stepSellEx').innerText = data.sellEx;
+          document.getElementById('stepBuyPrice').innerText = data.buyPrice;
+          document.getElementById('stepSellPrice').innerText = data.sellPrice;
+          document.getElementById('stepNetwork').innerText = data.network;
+
+          // Сброс на 1Д
+          document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+          document.querySelector('.tf-btn[data-tf="1D"]').classList.add('active');
+          updateChart('1D');
+
+          // Показ экрана
+          document.getElementById('scannerListScreen').classList.remove('active');
+          document.getElementById('scannerDetailScreen').classList.add('active');
+        });
+      });
+
+      // Назад
       document.getElementById('backBtn').addEventListener('click', () => {
         if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
-        document.getElementById('detailsScreen').classList.remove('active');
-        document.getElementById('mainScreen').classList.add('active');
+        document.getElementById('scannerDetailScreen').classList.remove('active');
+        document.getElementById('scannerListScreen').classList.add('active');
       });
 
-      // Переключение графиков (1Д, 7Д, 1М...)
+      // Переключатель графика
       document.querySelectorAll('.tf-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
@@ -481,31 +708,40 @@
           this.classList.add('active');
           
           const tf = this.getAttribute('data-tf');
-          if (chartPaths[tf]) {
-            document.getElementById('chartLine').setAttribute('d', chartPaths[tf].line);
-            document.getElementById('chartArea').setAttribute('d', chartPaths[tf].area);
-          }
+          updateChart(tf);
         });
       });
 
-      // Кнопка Купить
+      function updateChart(tf) {
+        const coinData = coinsData[activeCoinKey];
+        const tfData = coinData.tfs[tf];
+
+        if (tfData) {
+          document.getElementById('detailSpread').innerText = tfData.spread;
+          document.getElementById('detailProfit').innerText = '▲ ' + tfData.profit;
+          document.getElementById('chartLine').setAttribute('d', tfData.line);
+          document.getElementById('chartArea').setAttribute('d', tfData.area);
+        }
+      }
+
+      // Переходы по ссылкам
       document.getElementById('btnBuy').addEventListener('click', () => {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        if (tg) tg.openLink('https://www.okx.com');
+        const url = coinsData[activeCoinKey].buyUrl;
+        if (tg) tg.openLink(url); else window.open(url, '_blank');
       });
 
-      // Кнопка Продать
       document.getElementById('btnSell').addEventListener('click', () => {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        if (tg) tg.openLink('https://www.mexc.com');
+        const url = coinsData[activeCoinKey].sellUrl;
+        if (tg) tg.openLink(url); else window.open(url, '_blank');
       });
 
-      // Табы нижнего меню
-      document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-          if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
-          document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
+      // Кнопки быстрой фильтрации
+      ['filterAll', 'filterInter', 'filterSpot', 'filterSettings', 'notifBtn'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', () => {
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+          if (tg?.showAlert) tg.showAlert('Раздел фильтров обновлен');
         });
       });
     });
