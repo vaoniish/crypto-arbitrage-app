@@ -2,21 +2,20 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Arbitrage Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Arbitrage TWA</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg-color: #18222d;
-      --card-bg: #212d3b;
-      --card-secondary: #1c2733;
+      --bg-color: #0f1721;
+      --card-bg: #18222d;
+      --card-inner: #212d3b;
       --text-main: #ffffff;
-      --text-hint: #7e8c9a;
+      --text-secondary: #7e8c9a;
       --accent-blue: #3390ec;
       --accent-green: #2bb368;
       --accent-red: #e53935;
-      --badge-bg: rgba(43, 179, 104, 0.15);
-      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --border-color: rgba(255, 255, 255, 0.07);
     }
 
     * {
@@ -24,19 +23,20 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      font-family: var(--font-family);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       padding-bottom: 90px;
       overflow-x: hidden;
     }
 
-    /* Верхняя шапка */
+    /* Шапка */
     .header {
-      padding: 16px 16px 12px 16px;
+      padding: 16px 16px 10px 16px;
       background: var(--bg-color);
       position: sticky;
       top: 0;
@@ -47,25 +47,26 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .header-title {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
-      letter-spacing: -0.4px;
+      letter-spacing: -0.5px;
     }
 
     .status-badge {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--accent-green);
-      background: rgba(43, 179, 104, 0.1);
+      background: rgba(43, 179, 104, 0.12);
       padding: 4px 10px;
-      border-radius: 20px;
+      border-radius: 100px;
       font-weight: 600;
+      letter-spacing: 0.3px;
     }
 
     .status-dot {
@@ -73,64 +74,89 @@
       height: 6px;
       background-color: var(--accent-green);
       border-radius: 50%;
+      box-shadow: 0 0 6px var(--accent-green);
     }
 
-    /* Поле ввода депозита (стиль Wallet P2P) */
-    .deposit-box {
+    /* Инпут Депозита в стиле Wallet */
+    .deposit-card {
       background: var(--card-bg);
-      border-radius: 14px;
-      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
     .deposit-label {
-      font-size: 13px;
-      color: var(--text-hint);
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 400;
     }
 
-    .deposit-input-wrapper {
+    .deposit-input-box {
       display: flex;
       align-items: center;
-      gap: 4px;
+      background: var(--card-inner);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
     }
 
     .deposit-input {
       background: transparent;
       border: none;
       color: var(--text-main);
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 600;
       text-align: right;
-      width: 80px;
+      width: 60px;
       outline: none;
+      font-family: inherit;
     }
 
-    /* Список связок */
+    /* Убираем стрелочки у input number */
+    .deposit-input::-webkit-outer-spin-button,
+    .deposit-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .deposit-input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    .currency-symbol {
+      margin-left: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* Контейнер карточек */
     .container {
       padding: 0 16px;
     }
 
     .section-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
-      color: var(--text-hint);
+      color: var(--text-secondary);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 16px 0 10px 4px;
+      letter-spacing: 0.8px;
+      margin: 18px 0 12px 2px;
     }
 
     .cards-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     .card {
       background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 16px;
-      padding: 16px;
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -145,48 +171,51 @@
     .coin-info {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .coin-avatar {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
-      background: var(--accent-blue);
+      background: linear-gradient(135deg, #2b5c8f, #18222d);
+      border: 1px solid rgba(255,255,255,0.1);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 13px;
+      color: #fff;
     }
 
     .coin-name {
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 600;
     }
 
     .coin-net {
       font-size: 12px;
-      color: var(--text-hint);
+      color: var(--text-secondary);
+      margin-top: 1px;
     }
 
     .profit-tag {
-      background: var(--badge-bg);
+      background: rgba(43, 179, 104, 0.12);
       color: var(--accent-green);
-      padding: 6px 10px;
-      border-radius: 10px;
+      padding: 4px 8px;
+      border-radius: 8px;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 13px;
     }
 
-    /* Детали маршрута (Покупка -> Продажа) */
+    /* Маршрут */
     .route-box {
-      background: var(--card-secondary);
+      background: var(--card-inner);
       border-radius: 12px;
-      padding: 12px;
+      padding: 10px 12px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .route-row {
@@ -197,17 +226,14 @@
     }
 
     .route-label {
-      color: var(--text-hint);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      color: var(--text-secondary);
     }
 
     .route-val {
-      font-weight: 600;
+      font-weight: 500;
+      color: var(--text-main);
     }
 
-    /* Кнопки переходов в стиле Wallet */
     .card-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -225,28 +251,36 @@
       text-decoration: none;
       text-align: center;
       display: block;
+      transition: opacity 0.2s;
+    }
+
+    .btn-trade:active {
+      opacity: 0.8;
     }
 
     .btn-trade.sell {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.06);
       color: var(--text-main);
+      border: 1px solid var(--border-color);
     }
 
-    /* Нижнее фиксированное меню (Капсула Wallet) */
+    /* Нижняя навигация (Wallet Capsule) */
     .bottom-nav {
       position: fixed;
       bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
       width: calc(100% - 32px);
-      max-width: 420px;
-      background: rgba(33, 45, 59, 0.92);
-      backdrop-filter: blur(12px);
-      border-radius: 24px;
-      padding: 6px 8px;
+      max-width: 400px;
+      background: rgba(24, 34, 45, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 4px;
       display: flex;
       justify-content: space-around;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       z-index: 1000;
     }
 
@@ -254,31 +288,33 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      padding: 6px 12px;
+      justify-content: center;
+      gap: 3px;
+      padding: 6px 0;
       border-radius: 16px;
-      color: var(--text-hint);
+      color: var(--text-secondary);
       text-decoration: none;
       font-size: 10px;
-      font-weight: 600;
-      width: 25%;
+      font-weight: 500;
+      flex: 1;
       cursor: pointer;
     }
 
     .nav-item.active {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent-blue);
+      background: rgba(51, 144, 236, 0.1);
     }
 
     .nav-icon {
-      font-size: 18px;
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
     }
 
-    /* Лоадер */
     .loader {
       text-align: center;
       padding: 40px 0;
-      color: var(--text-hint);
+      color: var(--text-secondary);
       font-size: 14px;
     }
   </style>
@@ -295,49 +331,48 @@
       </div>
     </div>
 
-    <!-- Поле депозита -->
-    <div class="deposit-box">
-      <span class="deposit-label">Ваш депозит для расчета:</span>
-      <div class="deposit-input-wrapper">
+    <!-- Депозит -->
+    <div class="deposit-card">
+      <span class="deposit-label">Депозит для расчета</span>
+      <div class="deposit-input-box">
         <input type="number" id="depositInput" class="deposit-input" value="500">
-        <span style="font-weight: 700; font-size: 14px; color: var(--text-hint);">$</span>
+        <span class="currency-symbol">$</span>
       </div>
     </div>
   </div>
 
-  <!-- Список связок -->
+  <!-- Контент -->
   <div class="container">
     <div class="section-title">Доступные связки</div>
     <div id="cardsContainer" class="cards-list">
-      <div class="loader">Сканирование стаканов бирж...</div>
+      <div class="loader">Поиск выгодных ордеров...</div>
     </div>
   </div>
 
-  <!-- Нижняя панель навигации (Telegram Wallet Style) -->
+  <!-- Навигация Wallet -->
   <div class="bottom-nav">
     <div class="nav-item active">
-      <span class="nav-icon">⚡</span>
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
       <span>Связки</span>
     </div>
     <div class="nav-item">
-      <span class="nav-icon">📊</span>
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 17.08l1.5 1.41z"/></svg>
       <span>Рынок</span>
     </div>
     <div class="nav-item">
-      <span class="nav-icon">⚙️</span>
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
       <span>Фильтры</span>
     </div>
     <div class="nav-item">
-      <span class="nav-icon">👤</span>
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
       <span>Профиль</span>
     </div>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
-    tg.expand(); // Разворачиваем на весь экран
+    tg.expand();
 
-    // URL вашего бэкенда на Render
     const BACKEND_URL = "https://arbitrage-backend-z4mq.onrender.com/api/deals";
 
     const cardsContainer = document.getElementById('cardsContainer');
@@ -345,9 +380,8 @@
 
     let currentDeposit = 500;
 
-    // Слушатель изменения депозита
-    depositInput.addEventListener('change', (e) => {
-      currentDeposit = parseFloat(e.target.value) || 500;
+    depositInput.addEventListener('input', (e) => {
+      currentDeposit = parseFloat(e.target.value) || 0;
       fetchDeals();
     });
 
@@ -359,10 +393,10 @@
         if (data.status === "success" && data.deals.length > 0) {
           renderDeals(data.deals);
         } else {
-          cardsContainer.innerHTML = `<div class="loader">Прибыльных связок пока не найдено</div>`;
+          cardsContainer.innerHTML = `<div class="loader">Нет прибыльных связок для $${currentDeposit}</div>`;
         }
       } catch (err) {
-        cardsContainer.innerHTML = `<div class="loader" style="color: var(--accent-red)">Ошибка подключения к серверу</div>`;
+        cardsContainer.innerHTML = `<div class="loader" style="color: var(--accent-red)">Ошибка загрузки данных</div>`;
       }
     }
 
@@ -375,7 +409,7 @@
 
         const isPositive = deal.profit_pct > 0;
         const profitColor = isPositive ? 'var(--accent-green)' : 'var(--accent-red)';
-        const badgeBg = isPositive ? 'var(--badge-bg)' : 'rgba(229, 57, 53, 0.15)';
+        const badgeBg = isPositive ? 'rgba(43, 179, 104, 0.12)' : 'rgba(229, 57, 53, 0.12)';
 
         card.innerHTML = `
           <div class="card-header">
@@ -393,22 +427,22 @@
 
           <div class="route-box">
             <div class="route-row">
-              <span class="route-label">🛒 Покупка: <b>${deal.buy_ex}</b></span>
+              <span class="route-label">Покупка на <b>${deal.buy_ex}</b></span>
               <span class="route-val">$${deal.buy_price}</span>
             </div>
             <div class="route-row">
-              <span class="route-label">💰 Продажа: <b>${deal.sell_ex}</b></span>
+              <span class="route-label">Продажа на <b>${deal.sell_ex}</b></span>
               <span class="route-val">$${deal.sell_price}</span>
             </div>
-            <div class="route-row" style="margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
-              <span class="route-label">💸 Комиссия сети:</span>
-              <span class="route-val" style="color: var(--text-hint)">$${deal.net_fee}</span>
+            <div class="route-row" style="margin-top: 2px; border-top: 1px solid var(--border-color); padding-top: 6px;">
+              <span class="route-label">Комиссия сети:</span>
+              <span class="route-val" style="color: var(--text-secondary)">$${deal.net_fee}</span>
             </div>
           </div>
 
           <div class="card-actions">
-            <a href="${deal.buy_link}" target="_blank" class="btn-trade">Купить на ${deal.buy_ex}</a>
-            <a href="${deal.sell_link}" target="_blank" class="btn-trade sell">Продать на ${deal.sell_ex}</a>
+            <a href="${deal.buy_link}" target="_blank" class="btn-trade">Купить (${deal.buy_ex})</a>
+            <a href="${deal.sell_link}" target="_blank" class="btn-trade sell">Продать (${deal.sell_ex})</a>
           </div>
         `;
 
@@ -416,9 +450,8 @@
       });
     }
 
-    // Первый запуск и авто-обновление каждые 4 секунды
     fetchDeals();
-    setInterval(fetchDeals, 4000);
+    setInterval(fetchDeals, 5000);
   </script>
 </body>
 </html>
