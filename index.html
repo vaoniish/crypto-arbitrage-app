@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>bibols Arbitrage Terminal</title>
+  <title>bibols — Crypto Arbitrage Terminal</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -17,6 +17,7 @@
       --accent-green: #31B469;
       --accent-red: #FF4B4B;
       --accent-purple: #9945FF;
+      --accent-orange: #FF9500;
     }
 
     * {
@@ -66,11 +67,11 @@
       flex-shrink: 0;
     }
 
-    .usdt-bg { background: linear-gradient(135deg, #00B18A, #26A17B); }
-    .btc-bg { background: linear-gradient(135deg, #F7931A, #FFB300); }
-    .ton-bg { background: linear-gradient(135deg, #0088CC, #2AABEE); }
-    .eth-bg { background: linear-gradient(135deg, #627EEA, #8C9EFF); }
-    .sol-bg { background: linear-gradient(135deg, #9945FF, #14F195); }
+    .usdt-bg { background: linear-gradient(135deg, #00B18A, #26A17B); box-shadow: 0 4px 14px rgba(0, 177, 138, 0.3); }
+    .btc-bg { background: linear-gradient(135deg, #F7931A, #FFB300); box-shadow: 0 4px 14px rgba(247, 147, 26, 0.3); }
+    .ton-bg { background: linear-gradient(135deg, #0088CC, #2AABEE); box-shadow: 0 4px 14px rgba(42, 171, 238, 0.3); }
+    .eth-bg { background: linear-gradient(135deg, #627EEA, #8C9EFF); box-shadow: 0 4px 14px rgba(98, 126, 234, 0.3); }
+    .sol-bg { background: linear-gradient(135deg, #9945FF, #14F195); box-shadow: 0 4px 14px rgba(153, 69, 255, 0.3); }
 
     .header-bar {
       display: flex;
@@ -88,11 +89,13 @@
       justify-content: center;
       font-weight: 700;
       font-size: 15px;
-      color: #fff;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(42, 171, 238, 0.3);
+      transition: transform 0.15s ease;
+      color: #fff;
     }
-    .header-title { font-size: 18px; font-weight: 700; }
+    .profile-avatar:active { transform: scale(0.92); }
+
+    .header-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
 
     .icon-btn, .back-btn {
       width: 38px;
@@ -108,8 +111,9 @@
 
     .balance-section { text-align: center; padding: 18px 16px; }
     .balance-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
-    .balance-amount { font-size: 38px; font-weight: 800; }
+    .balance-amount { font-size: 38px; font-weight: 800; letter-spacing: -1px; }
 
+    /* Quick Filter Actions */
     .quick-actions {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -127,26 +131,34 @@
       align-items: center;
       gap: 8px;
       cursor: pointer;
+      transition: all 0.15s ease;
     }
+    .action-card:active { transform: scale(0.95); background: var(--card-pressed); }
     .action-card.active-filter {
       border-color: var(--accent-blue);
       background: rgba(42, 171, 238, 0.15);
     }
     .action-icon-circle {
-      width: 36px; height: 36px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.06);
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .action-icon-circle svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2; }
     .action-title { font-size: 11px; font-weight: 600; color: var(--text-main); }
 
+    /* Exchange Selector Pills */
     .exchange-selector {
       display: flex;
       gap: 8px;
       overflow-x: auto;
       padding: 0 16px 14px 16px;
+      scrollbar-width: none;
     }
+    .exchange-selector::-webkit-scrollbar { display: none; }
     .ex-pill {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -157,9 +169,15 @@
       white-space: nowrap;
       cursor: pointer;
       color: var(--text-secondary);
+      transition: all 0.2s;
     }
-    .ex-pill.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+    .ex-pill.active {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
 
+    /* Sub-mode selector */
     .submode-picker {
       display: flex;
       background: rgba(0, 0, 0, 0.3);
@@ -177,8 +195,13 @@
       color: var(--text-secondary);
       border-radius: 12px;
       cursor: pointer;
+      transition: all 0.2s;
     }
-    .submode-btn.active { background: #28374a; color: #ffffff; }
+    .submode-btn.active {
+      background: #28374a;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
 
     .section-container { margin: 0 16px 20px 16px; padding: 6px 0; }
     .section-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; }
@@ -191,8 +214,10 @@
       padding: 14px 16px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       cursor: pointer;
+      transition: background 0.15s ease;
     }
     .list-item:last-child { border-bottom: none; }
+    .list-item:active { background: var(--card-pressed); }
 
     .item-left { display: flex; align-items: center; gap: 14px; }
     .item-title { font-size: 15px; font-weight: 700; }
@@ -208,10 +233,93 @@
       background: rgba(255,255,255,0.08);
       color: var(--text-secondary);
       margin-left: 6px;
+      font-weight: 600;
+    }
+
+    .asset-header { padding: 12px 20px; display: flex; align-items: center; gap: 14px; }
+    .price-section { padding: 0 20px 10px 20px; }
+    .price-val { font-size: 34px; font-weight: 800; }
+
+    .live-chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      margin-bottom: 12px;
+      touch-action: none;
+    }
+    #liveCanvas, #intraCanvas { width: 100%; height: 100%; display: block; }
+    .chart-tooltip {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      background: rgba(15, 23, 33, 0.95);
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      pointer-events: none;
+      display: none;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    .chart-tf-picker {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 20px;
+      margin: 0 16px 20px 16px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .chart-tf-btn {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chart-tf-btn.active {
+      background: #28374a;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
     .info-card { margin: 0 16px 16px 16px; padding: 18px; }
-    .info-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; }
+    .info-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .route-step {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .route-step:last-child { border-bottom: none; }
+
+    .calc-box {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 8px 14px;
+      margin-top: 8px;
+    }
+    .calc-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      width: 100%;
+    }
 
     .btn-main, .btn-secondary {
       border: none;
@@ -221,10 +329,12 @@
       font-weight: 700;
       cursor: pointer;
       text-align: center;
-      width: 100%;
+      text-decoration: none;
+      display: inline-block;
     }
-    .btn-main { background: var(--accent-blue); color: #fff; }
-    .btn-secondary { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--card-border); }
+    .btn-main { background: var(--accent-blue); color: #fff; width: 100%; }
+    .btn-secondary { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--card-border); width: 100%; }
+    .btn-main:active, .btn-secondary:active { transform: scale(0.98); }
 
     /* Navbar */
     .navbar {
@@ -255,17 +365,25 @@
     .nav-tab.active { background: rgba(255, 255, 255, 0.08); color: #ffffff; }
     .nav-tab svg { width: 22px; height: 22px; fill: currentColor; }
 
-    /* Modal / Profile */
+    /* ==========================================
+       СТИЛИ МОДАЛЬНОГО ОКНА НАСТРОЕК (PROFILE MODAL)
+       ========================================== */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.82);
-      backdrop-filter: blur(14px);
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       z-index: 2000;
       display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
       overflow-y: auto;
     }
-    .modal-overlay.active { display: block; }
+    .modal-overlay.active {
+      display: block;
+      opacity: 1;
+    }
 
     .settings-container {
       max-width: 480px;
@@ -287,8 +405,8 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 20px;
-      font-weight: 800;
+      font-size: 18px;
+      font-weight: 700;
     }
 
     .settings-profile-card {
@@ -300,15 +418,15 @@
     }
 
     .avatar-large {
-      width: 82px;
-      height: 82px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #2AABEE, #185a8c);
+      background: linear-gradient(135deg, #2AABEE, #2B5278);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 34px;
-      font-weight: 800;
+      font-size: 32px;
+      font-weight: 700;
       margin-bottom: 12px;
       color: #fff;
     }
@@ -335,11 +453,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 16px;
+      padding: 12px 16px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       cursor: pointer;
+      transition: background 0.15s ease;
     }
     .settings-item:last-child { border-bottom: none; }
+    .settings-item:active { background: var(--card-pressed); }
 
     .settings-item-left {
       display: flex;
@@ -358,6 +478,7 @@
       justify-content: center;
       flex-shrink: 0;
     }
+
     .settings-icon svg { width: 18px; height: 18px; fill: #fff; }
 
     .settings-item-right {
@@ -368,8 +489,9 @@
       color: var(--text-secondary);
     }
 
-    .val-blue { color: var(--accent-blue); font-weight: 600; }
+    .val-blue { color: var(--accent-blue); font-weight: 500; }
 
+    /* Переключатель Toggle Switch */
     .toggle-switch {
       width: 44px;
       height: 24px;
@@ -377,6 +499,7 @@
       border-radius: 12px;
       position: relative;
       cursor: pointer;
+      transition: background 0.2s;
     }
     .toggle-switch.active { background: var(--accent-blue); }
     .toggle-switch::after {
@@ -390,56 +513,22 @@
     }
     .toggle-switch.active::after { transform: translateX(20px); }
 
+    .disclaimer-box {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      padding: 0 8px 16px 8px;
+    }
+    .disclaimer-box strong { color: #fff; }
+    .disclaimer-box a { color: var(--accent-blue); text-decoration: none; }
+
     .bot-username {
       text-align: center;
       font-size: 13px;
       color: var(--text-secondary);
       margin-top: auto;
       padding: 16px 0;
-      font-weight: 600;
     }
-
-    /* Dialogue Submodals */
-    .sub-modal-box {
-      background: #17212b;
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 20px;
-      width: 90%;
-      max-width: 400px;
-      margin: auto;
-    }
-    .sub-modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
-    .sub-modal-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px; }
-
-    .opt-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-    .opt-item {
-      padding: 12px 16px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .opt-item.selected { border: 1px solid var(--accent-blue); background: rgba(42,171,238,0.12); color: var(--accent-blue); }
-
-    .text-input {
-      width: 100%;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      margin-bottom: 12px;
-    }
-    textarea.text-input { resize: none; height: 90px; }
-
-    .faq-q { font-weight: 700; font-size: 14px; padding: 10px 0; cursor: pointer; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .faq-a { font-size: 13px; color: var(--text-secondary); padding: 8px 0 14px 0; display: none; line-height: 1.4; }
   </style>
 </head>
 <body>
@@ -448,9 +537,9 @@
   <div id="tab-scanner" class="tab-content active">
     <div id="scannerListScreen" class="sub-screen active">
       <div class="header-bar">
-        <div class="profile-avatar openProfileTrigger">U</div>
+        <div class="profile-avatar user-avatar-btn" id="openProfileBtn">U</div>
         <div class="header-title">Межбиржевой арбитраж</div>
-        <div class="icon-btn">
+        <div class="icon-btn" id="notificationsHeaderBtn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </div>
       </div>
@@ -484,7 +573,7 @@
       </div>
     </div>
 
-    <!-- Детали Межбирж -->
+    <!-- Детальный экран межбиржевой связки -->
     <div id="scannerDetailScreen" class="sub-screen">
       <div class="header-bar">
         <div class="back-btn" id="backBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
@@ -492,24 +581,73 @@
         <div></div>
       </div>
 
-      <div style="padding: 20px;" class="glass-card">
-        <h2 id="detailTitle" style="font-size:22px; margin-bottom:8px;">TON / USDT</h2>
-        <div id="detailSpread" style="font-size:32px; font-weight:800; color:var(--accent-green);">+2.45%</div>
-        <p id="detailType" style="color:var(--text-secondary); margin-top:4px;">Межбиржевой спот</p>
+      <div class="asset-header">
+        <div id="detailIcon" class="crypto-icon ton-bg">💎</div>
+        <div>
+          <div id="detailTitle" style="font-size: 20px; font-weight: 800;">TON / USDT</div>
+          <div id="detailType" class="item-subtitle">Межбиржевой спот</div>
+        </div>
+      </div>
+
+      <div class="price-section">
+        <div id="detailSpread" class="price-val" style="color: var(--accent-green)">+2.45%</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;" id="detailProfitText">Чистый профит: +$24.50 с $1,000</div>
+      </div>
+
+      <div class="live-chart-wrapper">
+        <div id="chartTooltip" class="chart-tooltip"></div>
+        <canvas id="liveCanvas"></canvas>
+      </div>
+
+      <div class="chart-tf-picker">
+        <div class="chart-tf-btn active" data-tf="1D">1Д</div>
+        <div class="chart-tf-btn" data-tf="7D">7Д</div>
+        <div class="chart-tf-btn" data-tf="1M">1М</div>
+        <div class="chart-tf-btn" data-tf="1Y">1Г</div>
+        <div class="chart-tf-btn" data-tf="ALL">Все</div>
+      </div>
+
+      <div class="info-card glass-card">
+        <div class="info-card-title">Калькулятор депозита</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Введите сумму для расчета чистой прибыли с учетом комиссий:</div>
+        <div class="calc-box">
+          <input type="number" id="calcDepositInput" value="1000">
+          <span style="font-weight: 700; color: var(--text-secondary);">$</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+          <span style="font-size: 14px; color: var(--text-secondary);">Итоговый доход:</span>
+          <span id="calcProfitResult" style="font-size: 18px; font-weight: 800; color: var(--accent-green);">+$24.50 (+2.45%)</span>
+        </div>
       </div>
 
       <div class="info-card glass-card">
         <div class="info-card-title">Детальный маршрут арбитража</div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-          <span>1. Покупка:</span><strong id="stepBuyEx">OKX</strong>
+        <div class="route-step">
+          <div>
+            <div style="font-weight: 600;">1. Покупка (Ask)</div>
+            <div id="stepBuyEx" class="item-subtitle">OKX (Spot) • Стакан: $14,200</div>
+          </div>
+          <div id="stepBuyPrice" style="font-weight: 700;">$5.20</div>
         </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-          <span>2. Продажа:</span><strong id="stepSellEx">MEXC</strong>
+        <div class="route-step">
+          <div>
+            <div style="font-weight: 600;">2. Сетевой перевод</div>
+            <div id="stepNetworkInfo" class="item-subtitle">Сеть TON • ~2 мин • Ком.: $0.05</div>
+          </div>
+          <div style="font-weight: 700; color: var(--accent-blue);">0.1 TON</div>
+        </div>
+        <div class="route-step">
+          <div>
+            <div style="font-weight: 600;">3. Продажа (Bid)</div>
+            <div id="stepSellEx" class="item-subtitle">MEXC (Spot) • Стакан: $8,500</div>
+          </div>
+          <div id="stepSellPrice" style="font-weight: 700; color: var(--accent-green);">$5.327</div>
         </div>
       </div>
 
-      <div style="padding: 16px;">
-        <button class="btn-main" id="btnBuyAction">Исполнить связку</button>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px 20px 16px;">
+        <button class="btn-main" id="btnBuyAction">Перейти на OKX</button>
+        <button class="btn-secondary" id="btnSellAction">Перейти на MEXC</button>
       </div>
     </div>
   </div>
@@ -519,16 +657,16 @@
   <div id="tab-market" class="tab-content">
     <div id="intraListScreen" class="sub-screen active">
       <div class="header-bar">
-        <div class="profile-avatar openProfileTrigger" style="background: linear-gradient(135deg, #9945FF, #2AABEE);">U</div>
+        <div class="profile-avatar user-avatar-btn" id="openProfileBtn2">U</div>
         <div class="header-title">Внутрибиржевой сканер</div>
-        <div class="icon-btn">
+        <div class="icon-btn" id="intraSearchBtn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </div>
       </div>
 
       <div class="balance-section">
-        <div class="balance-label">Макс. внутрибиржевой спред</div>
-        <div class="balance-amount">+1.84 <span style="color: var(--accent-green)">%</span></div>
+        <div class="balance-label">Макс. внутрибиржевой спред (Без вывода)</div>
+        <div class="balance-amount" id="maxIntraSpread">+1.84 <span style="color: var(--accent-green)">%</span></div>
       </div>
 
       <div class="exchange-selector" id="intraExSelector">
@@ -536,18 +674,70 @@
         <div class="ex-pill" data-ex="Bybit">Bybit</div>
         <div class="ex-pill" data-ex="Binance">Binance</div>
         <div class="ex-pill" data-ex="OKX">OKX</div>
+        <div class="ex-pill" data-ex="Gate.io">Gate.io</div>
+        <div class="ex-pill" data-ex="MEXC">MEXC</div>
       </div>
 
       <div class="submode-picker">
-        <div class="submode-btn active" data-mode="triangle">📐 Треугольники</div>
-        <div class="submode-btn" data-mode="spotfut">⚡ Спот / Фьючерс</div>
+        <div class="submode-btn active" data-mode="triangle">📐 Спотовые Треугольники</div>
+        <div class="submode-btn" data-mode="spotfut">⚡ Спот / Фьючерс (Funding)</div>
       </div>
 
       <div class="section-container glass-card">
         <div class="section-header">
-          <span class="section-title">Внутрибиржевые связки</span>
+          <span class="section-title" id="intraSectionTitle">Треугольные связки</span>
+          <span style="font-size: 11px; color: var(--accent-blue);">Без риска сети ● 0.0s</span>
         </div>
         <div id="intraDealsList"></div>
+      </div>
+    </div>
+
+    <!-- Детальный экран внутрибиржевой связки -->
+    <div id="intraDetailScreen" class="sub-screen">
+      <div class="header-bar">
+        <div class="back-btn" id="intraBackBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+        <div style="font-weight: 700; font-size: 16px;" id="intraDetailHeader">Анализ внутрибиржевой связки</div>
+        <div></div>
+      </div>
+
+      <div class="asset-header">
+        <div id="intraDetailIcon" class="crypto-icon btc-bg">₿</div>
+        <div>
+          <div id="intraDetailTitle" style="font-size: 19px; font-weight: 800;">USDT → BTC → ETH → USDT</div>
+          <div id="intraDetailSub" class="item-subtitle">Биржа: Bybit • Спотовый треугольник</div>
+        </div>
+      </div>
+
+      <div class="price-section">
+        <div id="intraDetailSpread" class="price-val" style="color: var(--accent-green)">+1.42%</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;" id="intraProfitSub">Чистый доход: +$14.20 с $1,000 (уже с учетом Taker 0.1%)</div>
+      </div>
+
+      <div class="live-chart-wrapper">
+        <div id="intraChartTooltip" class="chart-tooltip"></div>
+        <canvas id="intraCanvas"></canvas>
+      </div>
+
+      <div class="info-card glass-card">
+        <div class="info-card-title">Расчет профита (Авто-исполнение)</div>
+        <div style="font-size: 12px; color: var(--text-secondary);">Рабочий депозит ($):</div>
+        <div class="calc-box">
+          <input type="number" id="intraDepositInput" value="1000">
+          <span style="font-weight: 700; color: var(--text-secondary);">$</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+          <span style="font-size: 13px; color: var(--text-secondary);">Чистый спред (с комиссией):</span>
+          <span id="intraNetProfitResult" style="font-size: 17px; font-weight: 800; color: var(--accent-green);">+$14.20 (+1.42%)</span>
+        </div>
+      </div>
+
+      <div class="info-card glass-card">
+        <div class="info-card-title">Шаги исполнения ордеров</div>
+        <div id="intraStepsContainer"></div>
+      </div>
+
+      <div style="padding: 0 16px 20px 16px;">
+        <button class="btn-main" id="btnExecuteIntra">Запустить исполнение на бирже</button>
       </div>
     </div>
   </div>
@@ -559,7 +749,7 @@
     <div class="info-card glass-card" style="margin-top: 20px;">
       <div class="info-card-title">Зафиксированная прибыль</div>
       <div style="font-size: 32px; font-weight: 800; color: var(--accent-green); margin-bottom: 8px;">+$482.50</div>
-      <div style="font-size: 13px; color: var(--text-secondary);">Успешных сделок: 38</div>
+      <div style="font-size: 13px; color: var(--text-secondary);">Успешных сделок за 30 дней: 38</div>
     </div>
   </div>
 
@@ -570,7 +760,7 @@
     <div class="info-card glass-card" style="margin-top: 20px;">
       <div class="info-card-title">Партнерский спред</div>
       <div style="font-size: 14px; color: #fff; margin-bottom: 12px;">Приглашайте трейдеров и получайте 15% от их спреда.</div>
-      <button class="btn-main" id="btnInvite">Пригласить друга</button>
+      <button class="btn-main" id="btnInviteFriend">Пригласить друга</button>
     </div>
   </div>
 
@@ -581,6 +771,7 @@
   <div id="profileModal" class="modal-overlay">
     <div class="settings-container">
       
+      <!-- Верхняя панель управления (без крестиков и трех точек) -->
       <div class="settings-header">
         <div class="back-btn" id="closeSettingsBtn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -588,186 +779,131 @@
         <div class="settings-title-group">
           <span>bibols</span>
         </div>
-        <div style="width: 38px;"></div>
+        <div style="width: 38px;"></div> <!-- Филлер для симметрии flex-распределения -->
       </div>
 
+      <!-- Аватар (иконка по имени) и Юзернейм -->
       <div class="settings-profile-card glass-card">
         <div class="avatar-large" id="profileAvatarBig">U</div>
         <div class="profile-name" id="profileNameText">Пользователь</div>
         <div class="profile-email" id="profileEmailText">@user</div>
       </div>
 
+      <!-- Группа 1: Основные настройки -->
       <div class="settings-group">
-        <div class="settings-group-header">Основное настройки</div>
+        <div class="settings-group-header">Основные настройки</div>
         
         <div class="settings-item" id="itemNotifications">
           <div class="settings-item-left">
-            <div class="settings-icon" style="background: #FF3B30;">🔔</div>
+            <div class="settings-icon" style="background: #FF3B30;">
+              <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            </div>
             <span>Уведомления</span>
           </div>
           <div class="toggle-switch active" id="toggleNotif"></div>
         </div>
 
-        <div class="settings-item" id="btnPinCode">
+        <div class="settings-item" id="itemPasscode">
           <div class="settings-item-left">
-            <div class="settings-icon" style="background: #007AFF;">🔑</div>
+            <div class="settings-icon" style="background: #007AFF;">
+              <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            </div>
             <span>Код-пароль</span>
           </div>
           <div class="settings-item-right">
-            <span class="val-blue" id="pinStatusText">Откл</span>
-            <span>›</span>
+            <span class="val-blue" id="passcodeStatusText">Вкл</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
           </div>
         </div>
 
-        <div class="settings-item" id="btnLanguage">
+        <div class="settings-item" id="itemLanguage">
           <div class="settings-item-left">
-            <div class="settings-icon" style="background: #AF52DE;">🌐</div>
+            <div class="settings-icon" style="background: #AF52DE;">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            </div>
             <span>Язык</span>
           </div>
           <div class="settings-item-right">
             <span class="val-blue" id="currentLangText">Русский</span>
-            <span>›</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
           </div>
         </div>
 
-        <div class="settings-item" id="btnCurrency">
+        <div class="settings-item" id="itemCurrency">
           <div class="settings-item-left">
-            <div class="settings-icon" style="background: #8E8E93;">💵</div>
+            <div class="settings-icon" style="background: #8E8E93;">
+              <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+            </div>
             <span>Основная валюта</span>
           </div>
           <div class="settings-item-right">
-            <span class="val-blue" id="currentCurrText">RUB</span>
-            <span>›</span>
+            <span class="val-blue" id="currentCurrText">USD</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
           </div>
         </div>
       </div>
 
+      <!-- Группа 2: Тариф -->
       <div class="settings-group">
-        <div class="settings-item" id="btnTariff">
+        <div class="settings-item" id="itemTariff">
           <div class="settings-item-left">
-            <div class="settings-icon" style="background: #34C759;">👑</div>
+            <div class="settings-icon" style="background: #34C759;">
+              <svg viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+            </div>
             <span>Тарифы</span>
           </div>
           <div class="settings-item-right">
-            <span class="val-blue" id="currentTariffText">Base</span>
-            <span>›</span>
+            <span class="val-blue">Base</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
           </div>
         </div>
       </div>
 
+      <!-- Группа 3: Поддержка -->
       <div class="settings-group">
-        <div class="settings-item" id="btnSupport">
+        <div class="settings-item" id="itemSupport">
           <div class="settings-item-left">
-            <div class="settings-icon" style="background: #FF9500;">💬</div>
+            <div class="settings-icon" style="background: #FF9500;">
+              <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+            </div>
             <span>Обратиться в поддержку</span>
           </div>
-          <span>›</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
         </div>
 
-        <div class="settings-item" id="btnFaq">
+        <div class="settings-item" id="itemFAQ">
           <div class="settings-item-left">
-            <div class="settings-icon" style="background: #30B0C7;">❓</div>
+            <div class="settings-icon" style="background: #30B0C7;">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+            </div>
             <span>FAQ bibols</span>
           </div>
-          <span>›</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
         </div>
       </div>
 
+      <!-- Группа 4: Документы -->
       <div class="settings-group">
-        <div class="settings-item" id="btnTerms">
-          <span>Пользовательское соглашение</span>
-          <span>›</span>
+        <div class="settings-item" id="itemTerms">
+          <span style="font-size: 15px;">Пользовательское соглашение</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="settings-item" id="btnPrivacy">
-          <span>Политика конфиденциальности</span>
-          <span>›</span>
+        <div class="settings-item" id="itemPrivacy">
+          <span style="font-size: 15px;">Политика конфиденциальности</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
         </div>
+      </div>
+
+      <!-- Дисклеймер о рисках -->
+      <div class="disclaimer-box">
+        <strong>Инвестиции в криптовалюту могут нести риски.</strong><br>
+        Мини-приложение bibols управляется автономным сервисом и не связано напрямую с Telegram.
       </div>
 
       <div class="bot-username">@bibols</div>
     </div>
   </div>
 
-
-  <!-- DIALOG SUB-MODALS -->
-  <div id="subPinModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
-    <div class="sub-modal-box">
-      <div class="sub-modal-title">Код-пароль</div>
-      <div class="sub-modal-text">Введите 4-значный код:</div>
-      <input type="password" maxlength="4" id="pinInput" class="text-input" placeholder="••••" style="text-align:center; font-size:24px;">
-      <div style="display:flex; gap:8px;">
-        <button class="btn-main" id="btnSavePin">Сохранить</button>
-        <button class="btn-secondary" id="btnDisablePin">Закрыть</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="subLangModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
-    <div class="sub-modal-box">
-      <div class="sub-modal-title">Выберите язык</div>
-      <div class="opt-list">
-        <div class="opt-item selected" data-lang="Русский">Русский <span>✓</span></div>
-        <div class="opt-item" data-lang="English">English</div>
-        <div class="opt-item" data-lang="中文">中文</div>
-      </div>
-      <button class="btn-secondary" id="btnCloseLang">Закрыть</button>
-    </div>
-  </div>
-
-  <div id="subCurrModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
-    <div class="sub-modal-box">
-      <div class="sub-modal-title">Основная валюта</div>
-      <div class="opt-list">
-        <div class="opt-item selected" data-curr="RUB">RUB (₽) <span>✓</span></div>
-        <div class="opt-item" data-curr="USD">USD ($)</div>
-        <div class="opt-item" data-curr="EUR">EUR (€)</div>
-      </div>
-      <button class="btn-secondary" id="btnCloseCurr">Закрыть</button>
-    </div>
-  </div>
-
-  <div id="subTariffModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
-    <div class="sub-modal-box">
-      <div class="sub-modal-title">Тарифный план</div>
-      <div class="opt-list">
-        <div class="opt-item selected" data-tariff="Base">Base <span>✓</span></div>
-        <div class="opt-item" data-tariff="Pro">Pro Premium</div>
-      </div>
-      <button class="btn-secondary" id="btnCloseTariff">Закрыть</button>
-    </div>
-  </div>
-
-  <div id="subSupportModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
-    <div class="sub-modal-box">
-      <div class="sub-modal-title">Служба поддержки</div>
-      <textarea id="supportText" class="text-input" placeholder="Введите сообщение..."></textarea>
-      <div style="display:flex; gap:8px;">
-        <button class="btn-main" id="btnSendSupport">Отправить</button>
-        <button class="btn-secondary" id="btnCloseSupport">Отмена</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="subFaqModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
-    <div class="sub-modal-box">
-      <div class="sub-modal-title">FAQ bibols</div>
-      <div style="margin-bottom:16px;">
-        <div class="faq-q"><span>Что такое bibols?</span><span>+</span></div>
-        <div class="faq-a">bibols — это профессиональный терминал арбитража криптовалют.</div>
-        <div class="faq-q"><span>Безопасно ли это?</span><span>+</span></div>
-        <div class="faq-a">Да, bibols не запрашивает ключи доступа к вашим кошелькам.</div>
-      </div>
-      <button class="btn-secondary" id="btnCloseFaq">Закрыть</button>
-    </div>
-  </div>
-
-  <div id="subDocModal" class="modal-overlay" style="display:none; align-items:center; justify-content:center;">
-    <div class="sub-modal-box">
-      <div class="sub-modal-title" id="docTitle">Документ</div>
-      <div class="sub-modal-text" id="docBody" style="white-space: pre-line;"></div>
-      <button class="btn-secondary" id="btnCloseDoc">Понятно</button>
-    </div>
-  </div>
 
   <!-- NAVBAR -->
   <div class="navbar">
@@ -795,202 +931,596 @@
       const tg = window.Telegram?.WebApp;
       if (tg) tg.expand();
 
-      // Авто-имя по профилю
-      let userName = 'Пользователь';
-      let userAvatarLetter = 'U';
-      let userHandle = '@user';
+      // ==========================================
+      // ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ И ИКОНКИ ПО ИМЕНИ
+      // ==========================================
+      function setupUserProfile() {
+        let name = "Пользователь";
+        let initial = "U";
+        let handle = "@bibols_user";
 
-      if (tg?.initDataUnsafe?.user) {
-        const u = tg.initDataUnsafe.user;
-        userName = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Пользователь';
-        if (u.first_name) userAvatarLetter = u.first_name[0].toUpperCase();
-        if (u.username) userHandle = `@${u.username}`;
+        if (tg?.initDataUnsafe?.user) {
+          const u = tg.initDataUnsafe.user;
+          name = `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.username || "Пользователь";
+          if (u.first_name && u.first_name.trim().length > 0) {
+            initial = u.first_name.trim()[0].toUpperCase();
+          } else if (u.username) {
+            initial = u.username.trim()[0].toUpperCase();
+          }
+          if (u.username) handle = `@${u.username}`;
+        }
+
+        // Обновление интерфейса
+        document.querySelectorAll('.user-avatar-btn').forEach(btn => btn.innerText = initial);
+        document.getElementById('profileAvatarBig').innerText = initial;
+        document.getElementById('profileNameText').innerText = name;
+        document.getElementById('profileEmailText').innerText = handle;
       }
 
-      document.querySelectorAll('.openProfileTrigger').forEach(el => el.innerText = userAvatarLetter);
-      document.getElementById('profileAvatarBig').innerText = userAvatarLetter;
-      document.getElementById('profileNameText').innerText = userName;
-      document.getElementById('profileEmailText').innerText = userHandle;
+      setupUserProfile();
 
-      // Навигация по табам
+      // ==========================================
+      // МОДАЛЬНОЕ ОКНО НАСТРОЕК (ПРОФИЛЬ)
+      // ==========================================
+      const modal = document.getElementById('profileModal');
+      const openBtn1 = document.getElementById('openProfileBtn');
+      const openBtn2 = document.getElementById('openProfileBtn2');
+      const closeBtn = document.getElementById('closeSettingsBtn');
+
+      function openProfile() {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        modal.classList.add('active');
+      }
+
+      function closeProfile() {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        modal.classList.remove('active');
+      }
+
+      if (openBtn1) openBtn1.addEventListener('click', openProfile);
+      if (openBtn2) openBtn2.addEventListener('click', openProfile);
+      if (closeBtn) closeBtn.addEventListener('click', closeProfile);
+
+      // ==========================================
+      // КНОПКИ И ЭЛЕМЕНТЫ НАСТРОЕК (ПОЛНЫЙ ФУНКЦИОНАЛ)
+      // ==========================================
+      const toggleNotif = document.getElementById('toggleNotif');
+      if (toggleNotif) {
+        toggleNotif.addEventListener('click', () => {
+          if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+          toggleNotif.classList.toggle('active');
+        });
+      }
+
+      document.getElementById('itemPasscode').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        const st = document.getElementById('passcodeStatusText');
+        st.innerText = st.innerText === 'Вкл' ? 'Выкл' : 'Вкл';
+      });
+
+      document.getElementById('itemLanguage').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        const langEl = document.getElementById('currentLangText');
+        langEl.innerText = langEl.innerText === 'Русский' ? 'English' : 'Русский';
+      });
+
+      document.getElementById('itemCurrency').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        const currEl = document.getElementById('currentCurrText');
+        const currencies = ['USD', 'RUB', 'EUR', 'USDT'];
+        let idx = currencies.indexOf(currEl.innerText);
+        currEl.innerText = currencies[(idx + 1) % currencies.length];
+      });
+
+      document.getElementById('itemTariff').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        alert("Текущий тариф: Base. Подписка Pro открывает автоматическое исполнение связок!");
+      });
+
+      document.getElementById('itemSupport').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        alert("Служба поддержки bibols: Напишите нам в Telegram @bibols_support");
+      });
+
+      document.getElementById('itemFAQ').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        alert("Раздел FAQ bibols: Ответы на частые вопросы по работе межбиржевого и внутрибиржевого сканера.");
+      });
+
+      document.getElementById('itemTerms').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        alert("Пользовательское соглашение bibols v2.4");
+      });
+
+      document.getElementById('itemPrivacy').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        alert("Политика конфиденциальности: Все ваши данные защищены локальным шифрованием.");
+      });
+
+      document.getElementById('notificationsHeaderBtn').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        alert("Новых уведомлений нет");
+      });
+
+      document.getElementById('intraSearchBtn').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        alert("Поиск по тикеру: Введите название монеты в фильтре бирж.");
+      });
+
+      document.getElementById('btnInviteFriend').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        if (tg?.shareUrl) {
+          tg.shareUrl('https://t.me/bibols_bot', 'Присоединяйся к криптоарбитражному терминалу bibols!');
+        } else {
+          alert('Ваша реферальная ссылка скопирована в буфер обмена!');
+        }
+      });
+
+      document.getElementById('btnBuyAction').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        alert(`Переход на биржу ${currentInterItem.buyEx}...`);
+      });
+
+      document.getElementById('btnSellAction').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        alert(`Переход на биржу ${currentInterItem.sellEx}...`);
+      });
+
+
+      // ==========================================
+      // 1. ДАННЫЕ МЕЖБИРЖЕВОГО АРБИТРАЖА
+      // ==========================================
+      const deals = [
+        {
+          id: 'ton', title: 'TON / USDT', type: 'inter', symbol: '💎', bgClass: 'ton-bg',
+          buyEx: 'OKX Spot', sellEx: 'MEXC Spot', buyPrice: 5.20, sellPrice: 5.327,
+          spreadPct: 2.45, network: 'TON Network', netTime: '~2 мин', netFee: 0.05,
+          buyVol: '$14,200', sellVol: '$8,500'
+        },
+        {
+          id: 'btc', title: 'BTC / USDT', type: 'spot', symbol: '₿', bgClass: 'btc-bg',
+          buyEx: 'Bybit Spot', sellEx: 'KuCoin Spot', buyPrice: 64100, sellPrice: 65266,
+          spreadPct: 1.82, network: 'Bitcoin', netTime: '~15 мин', netFee: 2.50,
+          buyVol: '$180,000', sellVol: '$95,000'
+        },
+        {
+          id: 'eth', title: 'ETH / USDT', type: 'inter', symbol: 'Ξ', bgClass: 'eth-bg',
+          buyEx: 'Binance', sellEx: 'Gate.io', buyPrice: 2640, sellPrice: 2723,
+          spreadPct: 3.15, network: 'Arbitrum One', netTime: '~1 мин', netFee: 0.35,
+          buyVol: '$65,000', sellVol: '$42,000'
+        },
+        {
+          id: 'sol', title: 'SOL / USDT', type: 'inter', symbol: 'S', bgClass: 'sol-bg',
+          buyEx: 'Kraken', sellEx: 'Bybit', buyPrice: 142.10, sellPrice: 145.22,
+          spreadPct: 2.19, network: 'Solana', netTime: '~30 сек', netFee: 0.08,
+          buyVol: '$22,400', sellVol: '$18,900'
+        }
+      ];
+
+      // ==========================================
+      // 2. ДАННЫЕ ВНУТРИБИРЖЕВОГО АРБИТРАЖА
+      // ==========================================
+      const intraDeals = [
+        {
+          id: 'tr_1', mode: 'triangle', exchange: 'Bybit', title: 'USDT ➔ BTC ➔ ETH ➔ USDT',
+          spreadPct: 1.42, symbol: '₿', bgClass: 'btc-bg',
+          steps: [
+            { step: '1. Купить BTC за USDT', pair: 'BTC/USDT', action: 'BUY', price: '64,120.00', fee: '0.075%' },
+            { step: '2. Купить ETH за BTC', pair: 'ETH/BTC', action: 'BUY', price: '0.04115', fee: '0.075%' },
+            { step: '3. Продать ETH за USDT', pair: 'ETH/USDT', action: 'SELL', price: '2,682.50', fee: '0.075%' }
+          ]
+        },
+        {
+          id: 'tr_2', mode: 'triangle', exchange: 'Binance', title: 'USDT ➔ TON ➔ BTC ➔ USDT',
+          spreadPct: 1.84, symbol: '💎', bgClass: 'ton-bg',
+          steps: [
+            { step: '1. Купить TON за USDT', pair: 'TON/USDT', action: 'BUY', price: '5.180', fee: '0.1%' },
+            { step: '2. Продать TON за BTC', pair: 'TON/BTC', action: 'SELL', price: '0.0000812', fee: '0.1%' },
+            { step: '3. Продать BTC за USDT', pair: 'BTC/USDT', action: 'SELL', price: '64,450.00', fee: '0.1%' }
+          ]
+        },
+        {
+          id: 'tr_3', mode: 'triangle', exchange: 'OKX', title: 'USDT ➔ SOL ➔ ETH ➔ USDT',
+          spreadPct: 0.95, symbol: 'S', bgClass: 'sol-bg',
+          steps: [
+            { step: '1. Купить SOL за USDT', pair: 'SOL/USDT', action: 'BUY', price: '141.50', fee: '0.08%' },
+            { step: '2. Обменять SOL на ETH', pair: 'SOL/ETH', action: 'BUY', price: '0.0532', fee: '0.08%' },
+            { step: '3. Продать ETH за USDT', pair: 'ETH/USDT', action: 'SELL', price: '2,670.00', fee: '0.08%' }
+          ]
+        },
+        {
+          id: 'sf_1', mode: 'spotfut', exchange: 'Bybit', title: 'BTC Spot + Short Perpetual',
+          spreadPct: 1.65, symbol: '₿', bgClass: 'btc-bg',
+          steps: [
+            { step: '1. Купить Spot', pair: 'BTC/USDT Spot', action: 'BUY', price: '$64,100', fee: '0.06%' },
+            { step: '2. Открыть Short 1x Futures', pair: 'BTCUSDT PERP', action: 'SELL SHORT', price: '$64,280', fee: '0.06%' },
+            { step: '3. Ставка фандинга (Funding Rate)', pair: '8 часов', action: 'RECEIVE', price: '+0.042%', fee: '0.00%' }
+          ]
+        }
+      ];
+
+      // ==========================================
+      // 3. ОБЩИЙ ГРАФИЧЕСКИЙ ДВИЖОК (CANVAS)
+      // ==========================================
+      function setupCanvasEngine(canvasId, tooltipId) {
+        const cvs = document.getElementById(canvasId);
+        const ctx = cvs.getContext('2d');
+        const tooltip = document.getElementById(tooltipId);
+
+        let points = [];
+        let interval = null;
+        let isHover = false;
+        let mPos = { x: 0, y: 0 };
+
+        function resize() {
+          const rect = cvs.parentElement.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          cvs.width = rect.width * window.devicePixelRatio;
+          cvs.height = rect.height * window.devicePixelRatio;
+          ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+
+        function initPoints(baseVal) {
+          points = [];
+          let cur = baseVal;
+          const now = Date.now();
+          const oneDay = 24 * 60 * 60 * 1000;
+          for (let i = 35; i >= 0; i--) {
+            cur += (Math.random() - 0.49) * 0.08;
+            if (cur < 0.1) cur = 0.1;
+            points.push({ time: now - (i * (oneDay / 35)), val: cur });
+          }
+        }
+
+        function draw() {
+          const w = cvs.offsetWidth;
+          const h = cvs.offsetHeight;
+          if (!w || !h || points.length < 2) return;
+
+          ctx.clearRect(0, 0, w, h);
+
+          const pRight = 45, pBottom = 22, pTop = 15;
+          const gW = w - pRight;
+          const gH = h - pBottom - pTop;
+
+          const vals = points.map(p => p.val);
+          let min = Math.min(...vals);
+          let max = Math.max(...vals);
+          if (min === max) { min -= 0.2; max += 0.2; }
+          const range = max - min;
+
+          const getX = (i) => (i / (points.length - 1)) * gW;
+          const getY = (v) => pTop + gH - ((v - min) / range) * gH;
+
+          const isBull = points[points.length - 1].val >= points[0].val;
+          const color = isBull ? '#31B469' : '#FF4B4B';
+
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+          ctx.fillStyle = '#8c9ea8';
+          ctx.font = '10px -apple-system, sans-serif';
+          ctx.textAlign = 'right';
+
+          for (let i = 0; i < 3; i++) {
+            const ratio = i / 2;
+            const y = pTop + gH * ratio;
+            const v = max - (ratio * range);
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(gW, y); ctx.stroke();
+            ctx.fillText(`+${v.toFixed(2)}%`, w - 4, y + 3);
+          }
+
+          const grad = ctx.createLinearGradient(0, pTop, 0, pTop + gH);
+          grad.addColorStop(0, isBull ? 'rgba(49, 180, 105, 0.25)' : 'rgba(255, 75, 75, 0.25)');
+          grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+          ctx.beginPath();
+          ctx.moveTo(getX(0), getY(points[0].val));
+          for (let i = 1; i < points.length; i++) {
+            const xc = (getX(i) + getX(i - 1)) / 2;
+            const yc = (getY(points[i].val) + getY(points[i - 1].val)) / 2;
+            ctx.quadraticCurveTo(getX(i - 1), getY(points[i - 1].val), xc, yc);
+          }
+          ctx.lineTo(gW, pTop + gH);
+          ctx.lineTo(0, pTop + gH);
+          ctx.closePath();
+          ctx.fillStyle = grad;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(getX(0), getY(points[0].val));
+          for (let i = 1; i < points.length; i++) {
+            const xc = (getX(i) + getX(i - 1)) / 2;
+            const yc = (getY(points[i].val) + getY(points[i - 1].val)) / 2;
+            ctx.quadraticCurveTo(getX(i - 1), getY(points[i - 1].val), xc, yc);
+          }
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 2.2;
+          ctx.stroke();
+
+          if (isHover && mPos.x <= gW) {
+            const idx = Math.max(0, Math.min(points.length - 1, Math.round((mPos.x / gW) * (points.length - 1))));
+            const px = getX(idx);
+            const py = getY(points[idx].val);
+
+            ctx.beginPath(); ctx.setLineDash([3, 3]); ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            ctx.moveTo(px, pTop); ctx.lineTo(px, pTop + gH); ctx.stroke(); ctx.setLineDash([]);
+
+            ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
+
+            tooltip.style.display = 'block';
+            tooltip.style.left = `${Math.min(Math.max(10, px - 35), gW - 80)}px`;
+            tooltip.innerText = `Спред: +${points[idx].val.toFixed(2)}%`;
+          } else {
+            tooltip.style.display = 'none';
+          }
+        }
+
+        function handleMove(e) {
+          const rect = cvs.getBoundingClientRect();
+          const cx = e.touches ? e.touches[0].clientX : e.clientX;
+          const cy = e.touches ? e.touches[0].clientY : e.clientY;
+          mPos.x = cx - rect.left;
+          mPos.y = cy - rect.top;
+          isHover = true;
+          draw();
+        }
+
+        function handleLeave() { isHover = false; draw(); }
+
+        cvs.addEventListener('mousemove', handleMove);
+        cvs.addEventListener('touchmove', handleMove);
+        cvs.addEventListener('mouseleave', handleLeave);
+        cvs.addEventListener('touchend', handleLeave);
+
+        return {
+          start: (baseVal) => {
+            setTimeout(() => {
+              resize();
+              initPoints(baseVal);
+              draw();
+              if (interval) clearInterval(interval);
+              interval = setInterval(() => {
+                const last = points[points.length - 1].val;
+                points.shift();
+                points.push({ time: Date.now(), val: Math.max(0.1, last + (Math.random() - 0.48) * 0.05) });
+                draw();
+              }, 1000);
+            }, 50);
+          },
+          stop: () => { if (interval) clearInterval(interval); }
+        };
+      }
+
+      const interChart = setupCanvasEngine('liveCanvas', 'chartTooltip');
+      const intraChart = setupCanvasEngine('intraCanvas', 'intraChartTooltip');
+
+
+      // ==========================================
+      // 4. МЕЖБИРЖЕВОЙ АРБИТРАЖ (СПИСОК И ДЕТАЛИ)
+      // ==========================================
+      let currentFilter = 'all';
+      let currentInterItem = deals[0];
+
+      function renderDeals() {
+        const container = document.getElementById('dealsList');
+        container.innerHTML = '';
+
+        let filtered = deals.filter(d => {
+          if (currentFilter === 'all') return true;
+          return d.type === currentFilter;
+        });
+
+        filtered.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'list-item';
+          el.innerHTML = `
+            <div class="item-left">
+              <div class="crypto-icon ${item.bgClass}">${item.symbol}</div>
+              <div>
+                <div class="item-title">${item.title}</div>
+                <div class="item-subtitle">${item.buyEx} ➔ ${item.sellEx}</div>
+              </div>
+            </div>
+            <div class="item-right">
+              <div class="val-green">+${item.spreadPct.toFixed(2)}%</div>
+              <div class="item-subtitle">+$${(1000 * (item.spreadPct / 100) - item.netFee).toFixed(2)}</div>
+            </div>
+          `;
+          el.addEventListener('click', () => openDetailScreen(item));
+          container.appendChild(el);
+        });
+      }
+
+      function openDetailScreen(item) {
+        currentInterItem = item;
+        if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+
+        document.getElementById('detailTitle').innerText = item.title;
+        document.getElementById('detailSpread').innerText = `+${item.spreadPct.toFixed(2)}%`;
+        document.getElementById('stepBuyEx').innerText = `${item.buyEx} • Стакан: ${item.buyVol}`;
+        document.getElementById('stepSellEx').innerText = `${item.sellEx} • Стакан: ${item.sellVol}`;
+        document.getElementById('stepBuyPrice').innerText = `$${item.buyPrice.toFixed(2)}`;
+        document.getElementById('stepSellPrice').innerText = `$${item.sellPrice.toFixed(2)}`;
+        document.getElementById('stepNetworkInfo').innerText = `${item.network} • ${item.netTime} • Ком.: $${item.netFee.toFixed(2)}`;
+
+        const iconEl = document.getElementById('detailIcon');
+        iconEl.innerText = item.symbol;
+        iconEl.className = `crypto-icon ${item.bgClass}`;
+
+        document.getElementById('scannerListScreen').classList.remove('active');
+        document.getElementById('scannerDetailScreen').classList.add('active');
+
+        updateCalculator();
+        interChart.start(item.spreadPct);
+      }
+
+      function updateCalculator() {
+        const deposit = parseFloat(document.getElementById('calcDepositInput').value) || 0;
+        const grossProfit = (deposit * (currentInterItem.spreadPct / 100));
+        const netProfit = Math.max(0, grossProfit - currentInterItem.netFee);
+        const netPct = deposit > 0 ? (netProfit / deposit) * 100 : 0;
+
+        document.getElementById('calcProfitResult').innerText = `+$${netProfit.toFixed(2)} (+${netPct.toFixed(2)}%)`;
+        document.getElementById('detailProfitText').innerText = `Чистый профит: +$${netProfit.toFixed(2)} с $${deposit.toLocaleString()}`;
+      }
+
+      document.getElementById('calcDepositInput').addEventListener('input', updateCalculator);
+
+      document.querySelectorAll('.quick-actions .action-card').forEach(card => {
+        card.addEventListener('click', function() {
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+          document.querySelectorAll('.quick-actions .action-card').forEach(c => c.classList.remove('active-filter'));
+          this.classList.add('active-filter');
+          currentFilter = this.getAttribute('data-type') || 'all';
+          renderDeals();
+        });
+      });
+
+      document.getElementById('backBtn').addEventListener('click', () => {
+        interChart.stop();
+        document.getElementById('scannerDetailScreen').classList.remove('active');
+        document.getElementById('scannerListScreen').classList.add('active');
+      });
+
+
+      // ==========================================
+      // 5. ВНУТРИБИРЖЕВОЙ АРБИТРАЖ
+      // ==========================================
+      let selectedExchange = 'ALL';
+      let selectedSubmode = 'triangle';
+      let currentIntraItem = intraDeals[0];
+
+      function renderIntraDeals() {
+        const container = document.getElementById('intraDealsList');
+        container.innerHTML = '';
+
+        let filtered = intraDeals.filter(d => {
+          const exMatch = selectedExchange === 'ALL' || d.exchange.toLowerCase() === selectedExchange.toLowerCase();
+          const modeMatch = d.mode === selectedSubmode;
+          return exMatch && modeMatch;
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-secondary); font-size: 13px;">Связок по фильтру не найдено</div>`;
+          return;
+        }
+
+        filtered.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'list-item';
+          el.innerHTML = `
+            <div class="item-left">
+              <div class="crypto-icon ${item.bgClass}">${item.symbol}</div>
+              <div>
+                <div class="item-title">${item.title} <span class="badge-tag">${item.exchange}</span></div>
+                <div class="item-subtitle">${item.mode === 'triangle' ? '3 спотовых шага • 0.0s network' : 'Спот + Фьючерс • Funding'}</div>
+              </div>
+            </div>
+            <div class="item-right">
+              <div class="val-green">+${item.spreadPct.toFixed(2)}%</div>
+              <div class="item-subtitle">+$${(1000 * (item.spreadPct / 100)).toFixed(2)}</div>
+            </div>
+          `;
+          el.addEventListener('click', () => openIntraDetailScreen(item));
+          container.appendChild(el);
+        });
+      }
+
+      function openIntraDetailScreen(item) {
+        currentIntraItem = item;
+        if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+
+        document.getElementById('intraDetailTitle').innerText = item.title;
+        document.getElementById('intraDetailSub').innerText = `Биржа: ${item.exchange} • ${item.mode === 'triangle' ? 'Спотовый треугольник' : 'Дельта-нейтральный спред'}`;
+        document.getElementById('intraDetailSpread').innerText = `+${item.spreadPct.toFixed(2)}%`;
+
+        const iconEl = document.getElementById('intraDetailIcon');
+        iconEl.innerText = item.symbol;
+        iconEl.className = `crypto-icon ${item.bgClass}`;
+
+        const stepsContainer = document.getElementById('intraStepsContainer');
+        stepsContainer.innerHTML = '';
+        item.steps.forEach(st => {
+          const stepEl = document.createElement('div');
+          stepEl.className = 'route-step';
+          stepEl.innerHTML = `
+            <div>
+              <div style="font-weight: 600; font-size: 13px;">${st.step}</div>
+              <div class="item-subtitle">${st.pair} • Ком.: ${st.fee}</div>
+            </div>
+            <div style="font-weight: 700; font-size: 14px; color: var(--accent-blue);">${st.price}</div>
+          `;
+          stepsContainer.appendChild(stepEl);
+        });
+
+        document.getElementById('intraListScreen').classList.remove('active');
+        document.getElementById('intraDetailScreen').classList.add('active');
+
+        updateIntraCalculator();
+        intraChart.start(item.spreadPct);
+      }
+
+      function updateIntraCalculator() {
+        const deposit = parseFloat(document.getElementById('intraDepositInput').value) || 0;
+        const netProfit = (deposit * (currentIntraItem.spreadPct / 100));
+        
+        document.getElementById('intraNetProfitResult').innerText = `+$${netProfit.toFixed(2)} (+${currentIntraItem.spreadPct.toFixed(2)}%)`;
+        document.getElementById('intraProfitSub').innerText = `Чистый доход: +$${netProfit.toFixed(2)} с $${deposit.toLocaleString()} (учитывая Taker комиссию)`;
+      }
+
+      document.getElementById('intraDepositInput').addEventListener('input', updateIntraCalculator);
+
+      document.querySelectorAll('#intraExSelector .ex-pill').forEach(pill => {
+        pill.addEventListener('click', function() {
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+          document.querySelectorAll('#intraExSelector .ex-pill').forEach(p => p.classList.remove('active'));
+          this.classList.add('active');
+          selectedExchange = this.getAttribute('data-ex');
+          renderIntraDeals();
+        });
+      });
+
+      document.querySelectorAll('.submode-picker .submode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+          document.querySelectorAll('.submode-picker .submode-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          selectedSubmode = this.getAttribute('data-mode');
+          document.getElementById('intraSectionTitle').innerText = selectedSubmode === 'triangle' ? 'Треугольные связки' : 'Фандинг / Кассовый спред';
+          renderIntraDeals();
+        });
+      });
+
+      document.getElementById('intraBackBtn').addEventListener('click', () => {
+        intraChart.stop();
+        document.getElementById('intraDetailScreen').classList.remove('active');
+        document.getElementById('intraListScreen').classList.add('active');
+      });
+
+      document.getElementById('btnExecuteIntra').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        alert(`Ордера для связки ${currentIntraItem.title} успешно созданы на ${currentIntraItem.exchange}!`);
+      });
+
+
+      // ==========================================
+      // 6. НАВИГАЦИЯ ПО ВКЛАДКАМ
+      // ==========================================
       document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.addEventListener('click', function() {
+          if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
           document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
           document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
           this.classList.add('active');
           const target = this.getAttribute('data-tab');
           document.getElementById(target).classList.add('active');
+
+          if (target === 'tab-market') {
+            renderIntraDeals();
+          }
         });
       });
-
-      // Открытие / Закрытие модального окна профиля
-      const profileModal = document.getElementById('profileModal');
-      document.querySelectorAll('.openProfileTrigger').forEach(btn => {
-        btn.addEventListener('click', () => profileModal.classList.add('active'));
-      });
-      document.getElementById('closeSettingsBtn').addEventListener('click', () => profileModal.classList.remove('active'));
-
-      // Переключатель уведомлений
-      document.getElementById('toggleNotif').addEventListener('click', function() {
-        this.classList.toggle('active');
-      });
-
-      // Вспомогательная логика открытия диалоговых модалок
-      function bindSubModal(btnId, modalId, closeId) {
-        const b = document.getElementById(btnId);
-        const m = document.getElementById(modalId);
-        const c = document.getElementById(closeId);
-        if (b && m) b.addEventListener('click', () => m.style.display = 'flex');
-        if (c && m) c.addEventListener('click', () => m.style.display = 'none');
-      }
-
-      bindSubModal('btnPinCode', 'subPinModal', 'btnDisablePin');
-      bindSubModal('btnLanguage', 'subLangModal', 'btnCloseLang');
-      bindSubModal('btnCurrency', 'subCurrModal', 'btnCloseCurr');
-      bindSubModal('btnTariff', 'subTariffModal', 'btnCloseTariff');
-      bindSubModal('btnSupport', 'subSupportModal', 'btnCloseSupport');
-      bindSubModal('btnFaq', 'subFaqModal', 'btnCloseFaq');
-
-      // Сохранение ПИН
-      document.getElementById('btnSavePin').addEventListener('click', () => {
-        const pin = document.getElementById('pinInput').value;
-        if (pin.length === 4) {
-          document.getElementById('pinStatusText').innerText = 'Вкл';
-          document.getElementById('subPinModal').style.display = 'none';
-        } else {
-          alert('Введите 4 цифры');
-        }
-      });
-
-      // Выбор языка
-      document.querySelectorAll('#subLangModal .opt-item').forEach(item => {
-        item.addEventListener('click', function() {
-          document.getElementById('currentLangText').innerText = this.getAttribute('data-lang');
-          document.getElementById('subLangModal').style.display = 'none';
-        });
-      });
-
-      // Выбор валюты
-      document.querySelectorAll('#subCurrModal .opt-item').forEach(item => {
-        item.addEventListener('click', function() {
-          document.getElementById('currentCurrText').innerText = this.getAttribute('data-curr');
-          document.getElementById('subCurrModal').style.display = 'none';
-        });
-      });
-
-      // Выбор тарифа
-      document.querySelectorAll('#subTariffModal .opt-item').forEach(item => {
-        item.addEventListener('click', function() {
-          document.getElementById('currentTariffText').innerText = this.getAttribute('data-tariff');
-          document.getElementById('subTariffModal').style.display = 'none';
-        });
-      });
-
-      // Отправка поддержки
-      document.getElementById('btnSendSupport').addEventListener('click', () => {
-        const val = document.getElementById('supportText').value.trim();
-        if (val) {
-          alert('Сообщение отправлено!');
-          document.getElementById('supportText').value = '';
-          document.getElementById('subSupportModal').style.display = 'none';
-        }
-      });
-
-      // FAQ аккордеон
-      document.querySelectorAll('.faq-q').forEach(q => {
-        q.addEventListener('click', function() {
-          const a = this.nextElementSibling;
-          a.style.display = a.style.display === 'block' ? 'none' : 'block';
-        });
-      });
-
-      // Документы
-      const docModal = document.getElementById('subDocModal');
-      document.getElementById('btnCloseDoc').addEventListener('click', () => docModal.style.display = 'none');
-
-      document.getElementById('btnTerms').addEventListener('click', () => {
-        document.getElementById('docTitle').innerText = 'Соглашение';
-        document.getElementById('docBody').innerText = 'Условия сервиса bibols. Все данные предоставляются для ознакомления.';
-        docModal.style.display = 'flex';
-      });
-
-      document.getElementById('btnPrivacy').addEventListener('click', () => {
-        document.getElementById('docTitle').innerText = 'Конфиденциальность';
-        document.getElementById('docBody').innerText = 'Сервис bibols не хранит данные и ключи пользователей.';
-        docModal.style.display = 'flex';
-      });
-
-      // Данные межбиржи
-      const deals = [
-        { id: '1', title: 'TON / USDT', spreadPct: 2.45, buyEx: 'OKX Spot', sellEx: 'MEXC Spot' },
-        { id: '2', title: 'BTC / USDT', spreadPct: 1.82, buyEx: 'Bybit Spot', sellEx: 'KuCoin Spot' },
-        { id: '3', title: 'ETH / USDT', spreadPct: 3.15, buyEx: 'Binance', sellEx: 'Gate.io' }
-      ];
-
-      function renderDeals() {
-        const c = document.getElementById('dealsList');
-        c.innerHTML = '';
-        deals.forEach(d => {
-          const el = document.createElement('div');
-          el.className = 'list-item';
-          el.innerHTML = `
-            <div class="item-left">
-              <div class="crypto-icon ton-bg">💎</div>
-              <div>
-                <div class="item-title">${d.title}</div>
-                <div class="item-subtitle">${d.buyEx} ➔ ${d.sellEx}</div>
-              </div>
-            </div>
-            <div class="item-right">
-              <div class="val-green">+${d.spreadPct}%</div>
-            </div>
-          `;
-          el.addEventListener('click', () => {
-            document.getElementById('detailTitle').innerText = d.title;
-            document.getElementById('detailSpread').innerText = `+${d.spreadPct}%`;
-            document.getElementById('stepBuyEx').innerText = d.buyEx;
-            document.getElementById('stepSellEx').innerText = d.sellEx;
-
-            document.getElementById('scannerListScreen').classList.remove('active');
-            document.getElementById('scannerDetailScreen').classList.add('active');
-          });
-          c.appendChild(el);
-        });
-      }
-
-      document.getElementById('backBtn').addEventListener('click', () => {
-        document.getElementById('scannerDetailScreen').classList.remove('active');
-        document.getElementById('scannerListScreen').classList.add('active');
-      });
-
-      // Внутрибиржевой сканер
-      const intraDeals = [
-        { title: 'USDT ➔ BTC ➔ ETH ➔ USDT', exchange: 'Bybit', spreadPct: 1.42 },
-        { title: 'USDT ➔ TON ➔ BTC ➔ USDT', exchange: 'Binance', spreadPct: 1.84 }
-      ];
-
-      function renderIntraDeals() {
-        const c = document.getElementById('intraDealsList');
-        c.innerHTML = '';
-        intraDeals.forEach(d => {
-          const el = document.createElement('div');
-          el.className = 'list-item';
-          el.innerHTML = `
-            <div class="item-left">
-              <div class="crypto-icon btc-bg">₿</div>
-              <div>
-                <div class="item-title">${d.title}</div>
-                <div class="item-subtitle">Биржа: ${d.exchange}</div>
-              </div>
-            </div>
-            <div class="item-right">
-              <div class="val-green">+${d.spreadPct}%</div>
-            </div>
-          `;
-          c.appendChild(el);
-        });
-      }
 
       renderDeals();
       renderIntraDeals();
