@@ -17,6 +17,7 @@
       --accent-green: #31B469;
       --accent-red: #FF4B4B;
       --accent-purple: #9945FF;
+      --accent-orange: #FF9500;
     }
 
     * {
@@ -88,7 +89,11 @@
       justify-content: center;
       font-weight: 700;
       font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease;
     }
+    .profile-avatar:active { transform: scale(0.92); }
+
     .header-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
 
     .icon-btn, .back-btn {
@@ -171,7 +176,7 @@
       border-color: var(--accent-blue);
     }
 
-    /* Sub-mode selector (Triangle vs Spot-Fut) */
+    /* Sub-mode selector */
     .submode-picker {
       display: flex;
       background: rgba(0, 0, 0, 0.3);
@@ -218,7 +223,6 @@
     .item-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
     .item-right { text-align: right; }
     .val-green { font-size: 16px; font-weight: 700; color: var(--accent-green); }
-    .val-red { font-size: 16px; font-weight: 700; color: var(--accent-red); }
 
     .badge-tag {
       display: inline-block;
@@ -231,12 +235,10 @@
       font-weight: 600;
     }
 
-    /* Asset Info Header */
     .asset-header { padding: 12px 20px; display: flex; align-items: center; gap: 14px; }
     .price-section { padding: 0 20px 10px 20px; }
     .price-val { font-size: 34px; font-weight: 800; }
 
-    /* Interactive Live Chart Wrapper */
     .live-chart-wrapper {
       position: relative;
       width: 100%;
@@ -244,11 +246,7 @@
       margin-bottom: 12px;
       touch-action: none;
     }
-    #liveCanvas, #intraCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+    #liveCanvas, #intraCanvas { width: 100%; height: 100%; display: block; }
     .chart-tooltip {
       position: absolute;
       top: 10px;
@@ -266,7 +264,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
-    /* Timeframe Selector */
     .chart-tf-picker {
       display: flex;
       background: rgba(0, 0, 0, 0.3);
@@ -304,7 +301,6 @@
     }
     .route-step:last-child { border-bottom: none; }
 
-    /* Calculator Input */
     .calc-box {
       display: flex;
       align-items: center;
@@ -367,6 +363,177 @@
     }
     .nav-tab.active { background: rgba(255, 255, 255, 0.08); color: #ffffff; }
     .nav-tab svg { width: 22px; height: 22px; fill: currentColor; }
+
+    /* ==========================================
+       СТИЛИ МОДАЛЬНОГО ОКНА НАСТРОЕК (PROFILE MODAL)
+       ========================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 2000;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      overflow-y: auto;
+    }
+    .modal-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .settings-container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0 20px 0;
+    }
+
+    .settings-title-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .verified-badge {
+      width: 18px;
+      height: 18px;
+      fill: var(--accent-blue);
+    }
+
+    .settings-profile-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      margin-bottom: 16px;
+    }
+
+    .avatar-large {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #2b394a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+    }
+
+    .profile-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .profile-email { font-size: 13px; color: var(--text-secondary); }
+
+    .settings-group {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .settings-group-header {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      padding: 14px 16px 6px 16px;
+    }
+
+    .settings-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .settings-item:last-child { border-bottom: none; }
+    .settings-item:active { background: var(--card-pressed); }
+
+    .settings-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .settings-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .settings-icon svg { width: 18px; height: 18px; fill: #fff; }
+
+    .settings-item-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .val-blue { color: var(--accent-blue); font-weight: 500; }
+
+    /* Переключатель Toggle Switch */
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-switch.active { background: var(--accent-blue); }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 20px; height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle-switch.active::after { transform: translateX(20px); }
+
+    .disclaimer-box {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      padding: 0 8px 16px 8px;
+    }
+    .disclaimer-box strong { color: #fff; }
+    .disclaimer-box a { color: var(--accent-blue); text-decoration: none; }
+
+    .bot-username {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: auto;
+      padding: 16px 0;
+    }
   </style>
 </head>
 <body>
@@ -375,7 +542,7 @@
   <div id="tab-scanner" class="tab-content active">
     <div id="scannerListScreen" class="sub-screen active">
       <div class="header-bar">
-        <div class="profile-avatar">TG</div>
+        <div class="profile-avatar" id="openProfileBtn">TG</div>
         <div class="header-title">Межбиржевой арбитраж</div>
         <div class="icon-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
@@ -491,12 +658,11 @@
   </div>
 
 
-  <!-- ================= TAB 2: VNYTRIBYRZH (ВНУТРИБИРЖЕВОЙ АРБИТРАЖ) ================= -->
+  <!-- ================= TAB 2: VNYTRIBYRZH ================= -->
   <div id="tab-market" class="tab-content">
-    <!-- Главный список внутрибиржи -->
     <div id="intraListScreen" class="sub-screen active">
       <div class="header-bar">
-        <div class="profile-avatar" style="background: linear-gradient(135deg, #9945FF, #2AABEE);">INT</div>
+        <div class="profile-avatar" style="background: linear-gradient(135deg, #9945FF, #2AABEE);" id="openProfileBtn2">INT</div>
         <div class="header-title">Внутрибиржевой сканер</div>
         <div class="icon-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -508,7 +674,6 @@
         <div class="balance-amount" id="maxIntraSpread">+1.84 <span style="color: var(--accent-green)">%</span></div>
       </div>
 
-      <!-- Фильтр Бирж -->
       <div class="exchange-selector" id="intraExSelector">
         <div class="ex-pill active" data-ex="ALL">Все биржи</div>
         <div class="ex-pill" data-ex="Bybit">Bybit</div>
@@ -518,7 +683,6 @@
         <div class="ex-pill" data-ex="MEXC">MEXC</div>
       </div>
 
-      <!-- Переключатель режима: Треугольный / Спот-Фьючерс -->
       <div class="submode-picker">
         <div class="submode-btn active" data-mode="triangle">📐 Спотовые Треугольники</div>
         <div class="submode-btn" data-mode="spotfut">⚡ Спот / Фьючерс (Funding)</div>
@@ -572,12 +736,9 @@
         </div>
       </div>
 
-      <!-- Маршрут исполнения -->
       <div class="info-card glass-card">
         <div class="info-card-title">Шаги исполнения ордеров</div>
-        <div id="intraStepsContainer">
-          <!-- Заполняется динамически из JS -->
-        </div>
+        <div id="intraStepsContainer"></div>
       </div>
 
       <div style="padding: 0 16px 20px 16px;">
@@ -609,6 +770,177 @@
   </div>
 
 
+  <!-- ==========================================
+       МОДАЛЬНОЕ ОКНО ПРОФИЛЯ / НАСТРОЕК (WALLETLIKE)
+       ========================================== -->
+  <div id="profileModal" class="modal-overlay">
+    <div class="settings-container">
+      
+      <!-- Верхняя панель управления -->
+      <div class="settings-header">
+        <div class="back-btn" id="closeSettingsBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </div>
+        <div class="settings-title-group">
+          <span>Wallet</span>
+          <svg class="verified-badge" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <div class="icon-btn" style="border:none; background:transparent;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </div>
+          <div class="icon-btn" id="closeXBtn" style="border:none; background:transparent;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Аватар и Юзернейм -->
+      <div class="settings-profile-card glass-card">
+        <div class="avatar-large" id="profileAvatarBig">👤</div>
+        <div class="profile-name" id="profileNameText">赌场 瀑布</div>
+        <div class="profile-email" id="profileEmailText">me**a@gmail.com</div>
+      </div>
+
+      <!-- Группа 1: Основные настройки -->
+      <div class="settings-group">
+        <div class="settings-group-header">Основное настройки</div>
+        
+        <div class="settings-item" id="itemNotifications">
+          <div class="settings-item-left">
+            <div class="settings-icon" style="background: #FF3B30;">
+              <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            </div>
+            <span>Уведомления</span>
+          </div>
+          <div class="toggle-switch active" id="toggleNotif"></div>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon" style="background: #007AFF;">
+              <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            </div>
+            <span>Код-пароль</span>
+          </div>
+          <div class="settings-item-right">
+            <span class="val-blue">Вкл</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon" style="background: #AF52DE;">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            </div>
+            <span>Язык</span>
+          </div>
+          <div class="settings-item-right">
+            <span class="val-blue">Русский</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon" style="background: #8E8E93;">
+              <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+            </div>
+            <span>Основная валюта</span>
+          </div>
+          <div class="settings-item-right">
+            <span class="val-blue">RUB</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Группа 2: Статус и Тариф -->
+      <div class="settings-group">
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon" style="background: #5856D6;">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+            <span>Уровень верификации</span>
+          </div>
+          <div class="settings-item-right">
+            <span class="val-blue">Плюс</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon" style="background: #34C759;">
+              <svg viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+            </div>
+            <span>Тарифы</span>
+          </div>
+          <div class="settings-item-right">
+            <span class="val-blue">Base</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Группа 3: Поддержка -->
+      <div class="settings-group">
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon" style="background: #FF9500;">
+              <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+            </div>
+            <span>Обратиться в поддержку</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon" style="background: #30B0C7;">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+            </div>
+            <span>FAQ Wallet</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+        <div class="settings-item">
+          <div class="settings-item-left">
+            <div class="settings-icon" style="background: #FFCC00;">
+              <svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+            </div>
+            <span>Новости Wallet</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- Группа 4: Документы -->
+      <div class="settings-group">
+        <div class="settings-item">
+          <span style="font-size: 15px;">Пользовательское соглашение</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="settings-item">
+          <span style="font-size: 15px;">Политика конфиденциальности</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- Дисклеймер о рисках -->
+      <div class="disclaimer-box">
+        <strong>Инвестиции в криптовалюту могут нести риски.</strong><br>
+        Мини-приложение управляется Crypto Wallet Service Provider. Сервис независим и не связан с Telegram. <a href="#">Подробнее</a>
+      </div>
+
+      <div class="bot-username">@wallet</div>
+    </div>
+  </div>
+
+
   <!-- NAVBAR -->
   <div class="navbar">
     <div class="nav-tab active" data-tab="tab-scanner">
@@ -634,6 +966,51 @@
     document.addEventListener("DOMContentLoaded", () => {
       const tg = window.Telegram?.WebApp;
       if (tg) tg.expand();
+
+      // ==========================================
+      // МОДАЛЬНОЕ ОКНО НАСТРОЕК (ПРОФИЛЬ)
+      // ==========================================
+      const modal = document.getElementById('profileModal');
+      const openBtn1 = document.getElementById('openProfileBtn');
+      const openBtn2 = document.getElementById('openProfileBtn2');
+      const closeBtn = document.getElementById('closeSettingsBtn');
+      const closeXBtn = document.getElementById('closeXBtn');
+
+      // Извлечение данных из Telegram WebApp API
+      if (tg?.initDataUnsafe?.user) {
+        const u = tg.initDataUnsafe.user;
+        const name = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Пользователь';
+        document.getElementById('profileNameText').innerText = name;
+        document.getElementById('profileAvatarBig').innerText = u.first_name ? u.first_name[0].toUpperCase() : '👤';
+        if (u.username) {
+          document.getElementById('profileEmailText').innerText = `@${u.username}`;
+        }
+      }
+
+      function openProfile() {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        modal.classList.add('active');
+      }
+
+      function closeProfile() {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        modal.classList.remove('active');
+      }
+
+      if (openBtn1) openBtn1.addEventListener('click', openProfile);
+      if (openBtn2) openBtn2.addEventListener('click', openProfile);
+      if (closeBtn) closeBtn.addEventListener('click', closeProfile);
+      if (closeXBtn) closeXBtn.addEventListener('click', closeProfile);
+
+      // Переключатель уведомлений
+      const toggleNotif = document.getElementById('toggleNotif');
+      if (toggleNotif) {
+        toggleNotif.addEventListener('click', () => {
+          if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+          toggleNotif.classList.toggle('active');
+        });
+      }
+
 
       // ==========================================
       // 1. ДАННЫЕ МЕЖБИРЖЕВОГО АРБИТРАЖА
@@ -669,15 +1046,9 @@
       // 2. ДАННЫЕ ВНУТРИБИРЖЕВОГО АРБИТРАЖА
       // ==========================================
       const intraDeals = [
-        // ТРЕУГОЛЬНИКИ
         {
-          id: 'tr_1',
-          mode: 'triangle',
-          exchange: 'Bybit',
-          title: 'USDT ➔ BTC ➔ ETH ➔ USDT',
-          spreadPct: 1.42,
-          symbol: '₿',
-          bgClass: 'btc-bg',
+          id: 'tr_1', mode: 'triangle', exchange: 'Bybit', title: 'USDT ➔ BTC ➔ ETH ➔ USDT',
+          spreadPct: 1.42, symbol: '₿', bgClass: 'btc-bg',
           steps: [
             { step: '1. Купить BTC за USDT', pair: 'BTC/USDT', action: 'BUY', price: '64,120.00', fee: '0.075%' },
             { step: '2. Купить ETH за BTC', pair: 'ETH/BTC', action: 'BUY', price: '0.04115', fee: '0.075%' },
@@ -685,13 +1056,8 @@
           ]
         },
         {
-          id: 'tr_2',
-          mode: 'triangle',
-          exchange: 'Binance',
-          title: 'USDT ➔ TON ➔ BTC ➔ USDT',
-          spreadPct: 1.84,
-          symbol: '💎',
-          bgClass: 'ton-bg',
+          id: 'tr_2', mode: 'triangle', exchange: 'Binance', title: 'USDT ➔ TON ➔ BTC ➔ USDT',
+          spreadPct: 1.84, symbol: '💎', bgClass: 'ton-bg',
           steps: [
             { step: '1. Купить TON за USDT', pair: 'TON/USDT', action: 'BUY', price: '5.180', fee: '0.1%' },
             { step: '2. Продать TON за BTC', pair: 'TON/BTC', action: 'SELL', price: '0.0000812', fee: '0.1%' },
@@ -699,13 +1065,8 @@
           ]
         },
         {
-          id: 'tr_3',
-          mode: 'triangle',
-          exchange: 'OKX',
-          title: 'USDT ➔ SOL ➔ ETH ➔ USDT',
-          spreadPct: 0.95,
-          symbol: 'S',
-          bgClass: 'sol-bg',
+          id: 'tr_3', mode: 'triangle', exchange: 'OKX', title: 'USDT ➔ SOL ➔ ETH ➔ USDT',
+          spreadPct: 0.95, symbol: 'S', bgClass: 'sol-bg',
           steps: [
             { step: '1. Купить SOL за USDT', pair: 'SOL/USDT', action: 'BUY', price: '141.50', fee: '0.08%' },
             { step: '2. Обменять SOL на ETH', pair: 'SOL/ETH', action: 'BUY', price: '0.0532', fee: '0.08%' },
@@ -713,61 +1074,12 @@
           ]
         },
         {
-          id: 'tr_4',
-          mode: 'triangle',
-          exchange: 'Gate.io',
-          title: 'USDT ➔ ETH ➔ BTC ➔ USDT',
-          spreadPct: 1.15,
-          symbol: 'Ξ',
-          bgClass: 'eth-bg',
-          steps: [
-            { step: '1. Купить ETH за USDT', pair: 'ETH/USDT', action: 'BUY', price: '2,635.00', fee: '0.1%' },
-            { step: '2. Продать ETH за BTC', pair: 'ETH/BTC', action: 'SELL', price: '0.04108', fee: '0.1%' },
-            { step: '3. Продать BTC за USDT', pair: 'BTC/USDT', action: 'SELL', price: '64,310.00', fee: '0.1%' }
-          ]
-        },
-
-        // СПОТ / ФЬЮЧЕРС (CASH & CARRY / FUNDING)
-        {
-          id: 'sf_1',
-          mode: 'spotfut',
-          exchange: 'Bybit',
-          title: 'BTC Spot + Short Perpetual',
-          spreadPct: 1.65,
-          symbol: '₿',
-          bgClass: 'btc-bg',
+          id: 'sf_1', mode: 'spotfut', exchange: 'Bybit', title: 'BTC Spot + Short Perpetual',
+          spreadPct: 1.65, symbol: '₿', bgClass: 'btc-bg',
           steps: [
             { step: '1. Купить Spot', pair: 'BTC/USDT Spot', action: 'BUY', price: '$64,100', fee: '0.06%' },
             { step: '2. Открыть Short 1x Futures', pair: 'BTCUSDT PERP', action: 'SELL SHORT', price: '$64,280', fee: '0.06%' },
             { step: '3. Ставка фандинга (Funding Rate)', pair: '8 часов', action: 'RECEIVE', price: '+0.042%', fee: '0.00%' }
-          ]
-        },
-        {
-          id: 'sf_2',
-          mode: 'spotfut',
-          exchange: 'OKX',
-          title: 'ETH Spot + Short Perpetual',
-          spreadPct: 2.10,
-          symbol: 'Ξ',
-          bgClass: 'eth-bg',
-          steps: [
-            { step: '1. Купить Spot', pair: 'ETH/USDT Spot', action: 'BUY', price: '$2,640', fee: '0.05%' },
-            { step: '2. Открыть Short 1x Futures', pair: 'ETH-USDT-SWAP', action: 'SELL SHORT', price: '$2,668', fee: '0.05%' },
-            { step: '3. Ставка фандинга (Funding Rate)', pair: '8 часов', action: 'RECEIVE', price: '+0.065%', fee: '0.00%' }
-          ]
-        },
-        {
-          id: 'sf_3',
-          mode: 'spotfut',
-          exchange: 'MEXC',
-          title: 'SOL Spot + Short Perpetual',
-          spreadPct: 2.75,
-          symbol: 'S',
-          bgClass: 'sol-bg',
-          steps: [
-            { step: '1. Купить Spot', pair: 'SOL/USDT Spot', action: 'BUY', price: '$141.20', fee: '0.00%' },
-            { step: '2. Открыть Short 1x Futures', pair: 'SOL_USDT PERP', action: 'SELL SHORT', price: '$143.10', fee: '0.02%' },
-            { step: '3. Ставка фандинга (Funding Rate)', pair: '8 часов', action: 'RECEIVE', price: '+0.088%', fee: '0.00%' }
           ]
         }
       ];
@@ -828,7 +1140,6 @@
           const isBull = points[points.length - 1].val >= points[0].val;
           const color = isBull ? '#31B469' : '#FF4B4B';
 
-          // Сетка
           ctx.lineWidth = 1;
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
           ctx.fillStyle = '#8c9ea8';
@@ -843,7 +1154,6 @@
             ctx.fillText(`+${v.toFixed(2)}%`, w - 4, y + 3);
           }
 
-          // Градиент
           const grad = ctx.createLinearGradient(0, pTop, 0, pTop + gH);
           grad.addColorStop(0, isBull ? 'rgba(49, 180, 105, 0.25)' : 'rgba(255, 75, 75, 0.25)');
           grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
@@ -861,7 +1171,6 @@
           ctx.fillStyle = grad;
           ctx.fill();
 
-          // Линия
           ctx.beginPath();
           ctx.moveTo(getX(0), getY(points[0].val));
           for (let i = 1; i < points.length; i++) {
@@ -873,7 +1182,6 @@
           ctx.lineWidth = 2.2;
           ctx.stroke();
 
-          // Интерактивный курсор
           if (isHover && mPos.x <= gW) {
             const idx = Math.max(0, Math.min(points.length - 1, Math.round((mPos.x / gW) * (points.length - 1))));
             const px = getX(idx);
@@ -933,7 +1241,7 @@
 
 
       // ==========================================
-      // 4. ЛОГИКА ВКЛАДКИ 1: МЕЖБИРЖЕВОЙ АРБИТРАЖ
+      // 4. МЕЖБИРЖЕВОЙ АРБИТРАЖ (СПИСОК И ДЕТАЛИ)
       // ==========================================
       let currentFilter = 'all';
       let currentInterItem = deals[0];
@@ -1021,7 +1329,7 @@
 
 
       // ==========================================
-      // 5. ЛОГИКА ВКЛАДКИ 2: ВНУТРИБИРЖЕВОЙ АРБИТРАЖ
+      // 5. ВНУТРИБИРЖЕВОЙ АРБИТРАЖ
       // ==========================================
       let selectedExchange = 'ALL';
       let selectedSubmode = 'triangle';
@@ -1075,7 +1383,6 @@
         iconEl.innerText = item.symbol;
         iconEl.className = `crypto-icon ${item.bgClass}`;
 
-        // Отрисовка шагов маршрута
         const stepsContainer = document.getElementById('intraStepsContainer');
         stepsContainer.innerHTML = '';
         item.steps.forEach(st => {
@@ -1108,7 +1415,6 @@
 
       document.getElementById('intraDepositInput').addEventListener('input', updateIntraCalculator);
 
-      // Переключатели бирж
       document.querySelectorAll('#intraExSelector .ex-pill').forEach(pill => {
         pill.addEventListener('click', function() {
           if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
@@ -1119,7 +1425,6 @@
         });
       });
 
-      // Переключатель режима (Треугольники vs Спот-Фьючерс)
       document.querySelectorAll('.submode-picker .submode-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
@@ -1144,7 +1449,7 @@
 
 
       // ==========================================
-      // 6. НАВИГАЦИЯ ПО ВКЛАДКАМ ПРИЛОЖЕНИЯ
+      // 6. НАВИГАЦИЯ ПО ВКЛАДКАМ
       // ==========================================
       document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.addEventListener('click', function() {
@@ -1162,7 +1467,6 @@
         });
       });
 
-      // Первый рендер
       renderDeals();
       renderIntraDeals();
     });
