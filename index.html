@@ -75,8 +75,10 @@
     .ton-bg { background: linear-gradient(135deg, #0088CC, #2AABEE); box-shadow: 0 4px 14px rgba(42, 171, 238, 0.3); }
     .eth-bg { background: linear-gradient(135deg, #627EEA, #8C9EFF); box-shadow: 0 4px 14px rgba(98, 126, 234, 0.3); }
     .sol-bg { background: linear-gradient(135deg, #9945FF, #14F195); box-shadow: 0 4px 14px rgba(153, 69, 255, 0.3); }
+    .bnb-bg { background: linear-gradient(135deg, #F3BA2F, #F0B90B); box-shadow: 0 4px 14px rgba(243, 186, 47, 0.3); }
+    .xrp-bg { background: linear-gradient(135deg, #23292F, #00AAE4); box-shadow: 0 4px 14px rgba(0, 170, 228, 0.3); }
 
-    /* Header */
+    /* Header Bar */
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -113,7 +115,7 @@
     .balance-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
     .balance-amount { font-size: 40px; font-weight: 800; letter-spacing: -1px; }
 
-    /* Grid Actions */
+    /* Quick Action Grid */
     .quick-actions {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -150,7 +152,7 @@
     .action-icon-circle svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2; }
     .action-title { font-size: 11px; font-weight: 600; color: var(--text-main); }
 
-    /* Lists */
+    /* Container Lists */
     .section-container { margin: 0 16px 20px 16px; padding: 6px 0; }
     .section-header {
       display: flex;
@@ -167,6 +169,7 @@
       padding: 14px 16px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       cursor: pointer;
+      transition: background 0.15s ease;
     }
     .list-item:last-child { border-bottom: none; }
     .list-item:active { background: var(--card-pressed); }
@@ -178,7 +181,7 @@
     .val-green { font-size: 16px; font-weight: 700; color: var(--accent-green); }
     .val-red { font-size: 16px; font-weight: 700; color: var(--accent-red); }
 
-    /* Controls & Filters */
+    /* Controls & Search */
     .search-box {
       margin: 0 16px 14px 16px;
       border-radius: 16px;
@@ -216,7 +219,7 @@
     }
     .tf-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
-    /* Detail / Action Screens */
+    /* Detailed View Elements */
     .asset-header { padding: 12px 20px; display: flex; align-items: center; gap: 14px; }
     .price-section { padding: 0 20px 16px 20px; }
     .price-val { font-size: 34px; font-weight: 800; }
@@ -249,7 +252,7 @@
     .btn-secondary { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--card-border); width: 100%; }
     .btn-main:active, .btn-secondary:active { transform: scale(0.98); }
 
-    /* Modal Sheet */
+    /* Modal Component */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -270,7 +273,7 @@
     }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-    /* Navigation */
+    /* Bottom Fixed Navbar */
     .navbar {
       position: fixed;
       bottom: 16px; left: 16px; right: 16px;
@@ -398,7 +401,7 @@
     </div>
   </div>
 
-  <!-- TAB 2: MARKET (ПОЛНОСТЬЮ РАБОЧАЯ) -->
+  <!-- TAB 2: MARKET -->
   <div id="tab-market" class="tab-content">
     <div class="header-bar">
       <div class="header-title">Рынок криптовалют</div>
@@ -454,12 +457,12 @@
       <div class="header-title">Партнёрство</div>
     </div>
     <div class="balance-section">
-      <div class="balance-label">Заработано</div>
+      <div class="balance-label">Заработано рефералами</div>
       <div class="balance-amount">$142.50</div>
     </div>
   </div>
 
-  <!-- MODAL SHEET FOR MARKET COIN -->
+  <!-- MODAL SHEET FOR MARKET COIN DETAIL -->
   <div class="modal-overlay" id="coinModal">
     <div class="modal-sheet">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -518,7 +521,7 @@
       const tg = window.Telegram?.WebApp;
       if (tg) tg.expand();
 
-      // Данные арбитражных сделок
+      // База арбитражных сделок
       const deals = [
         {
           id: 'ton',
@@ -567,19 +570,21 @@
         }
       ];
 
-      // База данных монеток для вкладки "Рынок"
+      // Полная база монеток рынка
       const marketCoins = [
         { id: 'ton', title: 'Toncoin', ticker: 'TON', price: '$5.24', change: '+4.2%', isUp: true, icon: '💎', bg: 'ton-bg', vol: '$142.5M', cap: '$12.8B' },
         { id: 'btc', title: 'Bitcoin', ticker: 'BTC', price: '$64,450.00', change: '+1.8%', isUp: true, icon: '₿', bg: 'btc-bg', vol: '$28.4B', cap: '$1.27T' },
         { id: 'eth', title: 'Ethereum', ticker: 'ETH', price: '$2,680.10', change: '-0.9%', isUp: false, icon: 'Ξ', bg: 'eth-bg', vol: '$14.2B', cap: '$322.5B' },
         { id: 'sol', title: 'Solana', ticker: 'SOL', price: '$145.30', change: '+8.4%', isUp: true, icon: 'S', bg: 'sol-bg', vol: '$3.8B', cap: '$68.1B' },
-        { id: 'usdt', title: 'Tether', ticker: 'USDT', price: '$1.00', change: '+0.01%', isUp: true, icon: '₮', bg: 'usdt-bg', vol: '$52.1B', cap: '$118.2B' }
+        { id: 'usdt', title: 'Tether', ticker: 'USDT', price: '$1.00', change: '+0.01%', isUp: true, icon: '₮', bg: 'usdt-bg', vol: '$52.1B', cap: '$118.2B' },
+        { id: 'bnb', title: 'BNB', ticker: 'BNB', price: '$575.20', change: '-1.4%', isUp: false, icon: 'B', bg: 'bnb-bg', vol: '$1.1B', cap: '$83.9B' },
+        { id: 'xrp', title: 'XRP', ticker: 'XRP', price: '$0.58', change: '+3.1%', isUp: true, icon: 'X', bg: 'xrp-bg', vol: '$950M', cap: '$32.4B' }
       ];
 
       let currentMarketFilter = 'all';
       let currentSearchQuery = '';
 
-      // Рендер сканера
+      // Рендер Сканера
       function renderDeals(filterType = 'all') {
         const container = document.getElementById('dealsList');
         container.innerHTML = '';
@@ -606,7 +611,7 @@
         });
       }
 
-      // Функция рендера вкладки "Рынок"
+      // Полный рендер Рынка (клики, поиск, фильтры)
       function renderMarket() {
         const container = document.getElementById('marketList');
         container.innerHTML = '';
@@ -640,13 +645,12 @@
               <div class="${c.isUp ? 'val-green' : 'val-red'}" style="font-size: 13px;">${c.change}</div>
             </div>
           `;
-          // Клики по элементам рынка теперь полностью функционируют!
           el.addEventListener('click', () => openCoinModal(c));
           container.appendChild(el);
         });
       }
 
-      // Переключение главных вкладок
+      // Навигация
       document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.addEventListener('click', function() {
           if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
@@ -659,16 +663,10 @@
         });
       });
 
-      // Переключение фильтров рынка
-      document.getElementById('filterAll').addEventListener('click', function() {
-        setMarketFilter(this, 'all');
-      });
-      document.getElementById('filterGainers').addEventListener('click', function() {
-        setMarketFilter(this, 'gainers');
-      });
-      document.getElementById('filterLosers').addEventListener('click', function() {
-        setMarketFilter(this, 'losers');
-      });
+      // Переключатели Рынка
+      document.getElementById('filterAll').addEventListener('click', function() { setMarketFilter(this, 'all'); });
+      document.getElementById('filterGainers').addEventListener('click', function() { setMarketFilter(this, 'gainers'); });
+      document.getElementById('filterLosers').addEventListener('click', function() { setMarketFilter(this, 'losers'); });
 
       function setMarketFilter(btn, filter) {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
@@ -678,13 +676,13 @@
         renderMarket();
       }
 
-      // Живой поиск
+      // Поиск
       document.getElementById('marketSearch').addEventListener('input', (e) => {
         currentSearchQuery = e.target.value;
         renderMarket();
       });
 
-      // Детальное окно монеты (Modal)
+      // Модальное окно
       function openCoinModal(coin) {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
         document.getElementById('modalCoinTitle').innerText = coin.title;
@@ -708,14 +706,13 @@
 
       document.getElementById('modalTradeBtn').addEventListener('click', () => {
         document.getElementById('coinModal').classList.remove('active');
-        // Переход на сканер
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelector('[data-tab="tab-scanner"]').classList.add('active');
         document.getElementById('tab-scanner').classList.add('active');
       });
 
-      // Детали связки в сканере
+      // Подробности связки
       function openDetailScreen(item) {
         if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
         document.getElementById('detailTitle').innerText = item.title;
@@ -757,7 +754,7 @@
         document.getElementById(id).addEventListener('input', recalculate);
       });
 
-      // Инициализация
+      // Старт
       renderDeals();
       renderMarket();
     });
