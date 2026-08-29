@@ -27,23 +27,15 @@
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
       -webkit-font-smoothing: antialiased;
       padding-bottom: 90px;
-      overflow-x: hidden;
     }
 
-    /* Экраны приложения */
-    .screen {
-      display: none;
-      width: 100%;
-    }
+    .screen { display: none; width: 100%; }
+    .screen.active { display: block; }
 
-    .screen.active {
-      display: block;
-    }
-
-    /* Верхняя панель */
+    /* Header */
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -51,14 +43,9 @@
       padding: 14px 16px;
     }
 
-    .profile-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #243140;
-    }
-
-    .icon-btn {
+    .profile-avatar { width: 36px; height: 36px; border-radius: 50%; background: #243140; }
+    
+    .icon-btn, .back-btn {
       width: 36px;
       height: 36px;
       border-radius: 50%;
@@ -67,45 +54,17 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: var(--accent-blue);
-    }
-
-    .back-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
       color: var(--text-main);
     }
+    .icon-btn:active, .back-btn:active { background: var(--card-pressed); }
 
-    /* Главный баланс / спред */
-    .balance-section {
-      text-align: center;
-      padding: 4px 0 18px 0;
-    }
+    /* Counter */
+    .balance-section { text-align: center; padding: 4px 0 18px 0; }
+    .balance-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+    .balance-amount { font-size: 40px; font-weight: 700; letter-spacing: -0.8px; line-height: 1; }
+    .balance-currency { color: var(--accent-blue); }
 
-    .balance-label {
-      font-size: 13px;
-      color: var(--text-secondary);
-      font-weight: 400;
-      margin-bottom: 6px;
-    }
-
-    .balance-amount {
-      font-size: 40px;
-      font-weight: 700;
-      letter-spacing: -0.8px;
-      line-height: 1;
-    }
-
-    .balance-currency {
-      color: var(--accent-blue);
-    }
-
-    /* 4 Векторные кнопки */
+    /* Quick Action Grid */
     .quick-actions {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -123,11 +82,9 @@
       align-items: center;
       gap: 8px;
       cursor: pointer;
+      transition: background 0.15s;
     }
-
-    .action-card:active {
-      background: var(--card-pressed);
-    }
+    .action-card:active { background: var(--card-pressed); }
 
     .action-icon-circle {
       width: 36px;
@@ -150,13 +107,9 @@
       fill: none;
     }
 
-    .action-title {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-main);
-    }
+    .action-title { font-size: 12px; font-weight: 500; }
 
-    /* Баннер */
+    /* Banner */
     .banner {
       margin: 0 16px 16px 16px;
       background: linear-gradient(135deg, #7047eb, #8b5cf6);
@@ -167,19 +120,11 @@
       align-items: center;
       cursor: pointer;
     }
+    .banner:active { opacity: 0.9; }
+    .banner-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .banner-subtitle { font-size: 12px; opacity: 0.9; }
 
-    .banner-title {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 2px;
-    }
-
-    .banner-subtitle {
-      font-size: 12px;
-      opacity: 0.9;
-    }
-
-    /* Контейнер списка связок */
+    /* Deals List */
     .section-container {
       margin: 0 16px;
       background: var(--card-bg);
@@ -194,17 +139,11 @@
       padding: 14px 16px 8px 16px;
     }
 
-    .section-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--accent-blue);
-    }
-
+    .section-title { font-size: 15px; font-weight: 700; color: var(--accent-blue); }
     .section-stat {
       font-size: 11px;
       color: var(--accent-green);
       font-weight: 600;
-      letter-spacing: 0.5px;
       background: rgba(43, 179, 104, 0.12);
       padding: 3px 8px;
       border-radius: 6px;
@@ -218,21 +157,10 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       cursor: pointer;
     }
+    .deal-item:last-child { border-bottom: none; }
+    .deal-item:active { background: var(--card-pressed); }
 
-    .deal-item:last-child {
-      border-bottom: none;
-    }
-
-    .deal-item:active {
-      background: var(--card-pressed);
-    }
-
-    .deal-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
+    .deal-left { display: flex; align-items: center; gap: 12px; }
     .crypto-icon {
       width: 40px;
       height: 40px;
@@ -250,84 +178,20 @@
     .ton-bg { background: #0088cc; }
     .eth-bg { background: #627eea; }
 
-    .deal-names {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
+    .coin-title { font-size: 15px; font-weight: 600; }
+    .route-subtitle { font-size: 13px; color: var(--text-secondary); }
+    .deal-right { text-align: right; }
+    .profit-val { font-size: 15px; font-weight: 600; color: var(--accent-green); }
+    .spread-percent { font-size: 13px; color: var(--text-secondary); }
 
-    .coin-title {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: -0.2px;
-    }
+    /* Details View */
+    .asset-header { padding: 8px 16px 16px 16px; display: flex; align-items: center; gap: 12px; }
+    .asset-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #fff; }
+    .asset-name { font-size: 20px; font-weight: 700; }
+    .asset-sub { font-size: 13px; color: var(--text-secondary); }
 
-    .route-subtitle {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .deal-right {
-      text-align: right;
-    }
-
-    .profit-val {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--accent-green);
-    }
-
-    .spread-percent {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-top: 1px;
-    }
-
-    /* Страница детализации */
-    .asset-header {
-      padding: 8px 16px 16px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .asset-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .asset-title-block {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .asset-name {
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .asset-sub {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .price-section {
-      padding: 0 16px 16px 16px;
-    }
-
-    .price-val {
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
+    .price-section { padding: 0 16px 16px 16px; }
+    .price-val { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
     .spread-tag {
       display: inline-flex;
       align-items: center;
@@ -341,18 +205,12 @@
       margin-top: 6px;
     }
 
-    .chart-container {
-      width: 100%;
-      height: 150px;
-      position: relative;
-      margin-bottom: 12px;
-    }
+    /* SVG Chart */
+    .chart-container { width: 100%; height: 150px; position: relative; margin-bottom: 12px; }
+    .chart-svg { width: 100%; height: 100%; }
+    .chart-path { transition: d 0.3s ease; }
 
-    .chart-svg {
-      width: 100%;
-      height: 100%;
-    }
-
+    /* Timeframe Selector */
     .timeframe-picker {
       display: flex;
       background: var(--card-bg);
@@ -370,27 +228,15 @@
       color: var(--text-secondary);
       border-radius: 9px;
       cursor: pointer;
+      transition: all 0.2s;
     }
 
-    .tf-btn.active {
-      background: #2b394a;
-      color: var(--text-main);
-    }
+    .tf-btn.active { background: #2b394a; color: var(--text-main); }
 
-    .info-card {
-      margin: 0 16px 16px 16px;
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 16px;
-    }
-
-    .info-card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 12px;
-    }
-
+    /* Route Info Card */
+    .info-card { margin: 0 16px 16px 16px; background: var(--card-bg); border-radius: 16px; padding: 16px; }
+    .info-card-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
+    
     .route-step {
       display: flex;
       justify-content: space-between;
@@ -398,40 +244,13 @@
       padding: 10px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
+    .route-step:last-child { border-bottom: none; }
+    .step-action { font-size: 14px; font-weight: 600; }
+    .step-exchange { font-size: 12px; color: var(--text-secondary); }
+    .step-price { font-size: 14px; font-weight: 600; text-align: right; }
 
-    .route-step:last-child {
-      border-bottom: none;
-    }
-
-    .step-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .step-action {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .step-exchange {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .step-price {
-      font-size: 14px;
-      font-weight: 600;
-      text-align: right;
-    }
-
-    .action-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      padding: 0 16px;
-    }
-
+    /* Action Buttons */
+    .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; }
     .btn-main {
       background: var(--accent-blue);
       color: #ffffff;
@@ -441,8 +260,8 @@
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      text-align: center;
     }
+    .btn-main:active { opacity: 0.85; }
 
     .btn-secondary {
       background: var(--card-bg);
@@ -453,10 +272,10 @@
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      text-align: center;
     }
+    .btn-secondary:active { background: var(--card-pressed); }
 
-    /* Нижняя навигация */
+    /* Bottom Navbar */
     .navbar {
       position: fixed;
       bottom: 12px;
@@ -480,28 +299,18 @@
       padding: 6px 0;
       border-radius: 18px;
       color: var(--text-secondary);
-      text-decoration: none;
       font-size: 10px;
       font-weight: 500;
       gap: 4px;
       cursor: pointer;
     }
-
-    .nav-tab.active {
-      background: #2b394a;
-      color: #ffffff;
-    }
-
-    .nav-tab svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
-    }
+    .nav-tab.active { background: #2b394a; color: #ffffff; }
+    .nav-tab svg { width: 20px; height: 20px; fill: currentColor; }
   </style>
 </head>
 <body>
 
-  <!-- ================= ЭКРАН 1: ГЛАВНАЯ (СКАНЕР) ================= -->
+  <!-- MAIN SCREEN -->
   <div id="mainScreen" class="screen active">
     <div class="header-bar">
       <div class="profile-avatar"></div>
@@ -516,28 +325,28 @@
     </div>
 
     <div class="quick-actions">
-      <div class="action-card">
+      <div class="action-card" onclick="filterDeals('all')">
         <div class="action-icon-circle">
           <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
         </div>
         <div class="action-title">Все связки</div>
       </div>
       
-      <div class="action-card">
+      <div class="action-card" onclick="filterDeals('inter')">
         <div class="action-icon-circle">
           <svg viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
         </div>
         <div class="action-title">Межбиржевой</div>
       </div>
 
-      <div class="action-card">
+      <div class="action-card" onclick="filterDeals('spot')">
         <div class="action-icon-circle">
           <svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
         </div>
         <div class="action-title">Спот</div>
       </div>
 
-      <div class="action-card">
+      <div class="action-card" onclick="filterDeals('filter')">
         <div class="action-icon-circle">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
@@ -545,7 +354,7 @@
       </div>
     </div>
 
-    <div class="banner">
+    <div class="banner" onclick="openVIP()">
       <div>
         <div class="banner-title">VIP Сигналы в Telegram</div>
         <div class="banner-subtitle">Получайте уведомления о спреде > 2% 🚀</div>
@@ -560,8 +369,7 @@
       </div>
 
       <div id="dealsList">
-        <!-- TON -->
-        <div class="deal-item" onclick="openDetails('TON / USDT', '💎', 'ton-bg', '+2.45%', '+$24.50', 'OKX Spot', 'MEXC Spot', '$5.20', '$5.32')">
+        <div class="deal-item" onclick="openDetails('TON / USDT', '💎', 'ton-bg', '+2.45%', '+$24.50', 'OKX', 'MEXC', '$5.20', '$5.32', 'https://okx.com', 'https://mexc.com')">
           <div class="deal-left">
             <div class="crypto-icon ton-bg">💎</div>
             <div class="deal-names">
@@ -575,8 +383,7 @@
           </div>
         </div>
 
-        <!-- ETH -->
-        <div class="deal-item" onclick="openDetails('ETH / USDT', 'Ξ', 'eth-bg', '+1.80%', '+$18.00', 'Bybit Spot', 'Gate.io', '$2,640', '$2,687')">
+        <div class="deal-item" onclick="openDetails('ETH / USDT', 'Ξ', 'eth-bg', '+1.80%', '+$18.00', 'Bybit', 'Gate.io', '$2,640', '$2,687', 'https://bybit.com', 'https://gate.io')">
           <div class="deal-left">
             <div class="crypto-icon eth-bg">Ξ</div>
             <div class="deal-names">
@@ -590,8 +397,7 @@
           </div>
         </div>
 
-        <!-- BTC -->
-        <div class="deal-item" onclick="openDetails('BTC / USDT', '₿', 'btc-bg', '+1.12%', '+$11.20', 'Binance Spot', 'KuCoin', '$64,100', '$64,817')">
+        <div class="deal-item" onclick="openDetails('BTC / USDT', '₿', 'btc-bg', '+1.12%', '+$11.20', 'Binance', 'KuCoin', '$64,100', '$64,817', 'https://binance.com', 'https://kucoin.com')">
           <div class="deal-left">
             <div class="crypto-icon btc-bg">₿</div>
             <div class="deal-names">
@@ -608,7 +414,7 @@
     </div>
   </div>
 
-  <!-- ================= ЭКРАН 2: ДЕТАЛИ МОНЕТЫ ================= -->
+  <!-- DETAILS SCREEN -->
   <div id="detailsScreen" class="screen">
     <div class="header-bar">
       <div class="back-btn" onclick="closeDetails()">
@@ -643,17 +449,18 @@
             <stop offset="100%" stop-color="#2bb368" stop-opacity="0.0"/>
           </linearGradient>
         </defs>
-        <path d="M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20 L400,150 L0,150 Z" fill="url(#chartGradient)" />
-        <path d="M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20" fill="none" stroke="#2bb368" stroke-width="3" />
+        <path id="chartArea" d="M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20 L400,150 L0,150 Z" fill="url(#chartGradient)" />
+        <path id="chartLine" class="chart-path" d="M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20" fill="none" stroke="#2bb368" stroke-width="3" />
       </svg>
     </div>
 
+    <!-- Интерактивные таймфреймы -->
     <div class="timeframe-picker">
-      <div class="tf-btn active">1Д</div>
-      <div class="tf-btn">7Д</div>
-      <div class="tf-btn">1М</div>
-      <div class="tf-btn">1Г</div>
-      <div class="tf-btn">Все</div>
+      <div class="tf-btn active" onclick="setChartTF(this, '1D')">1Д</div>
+      <div class="tf-btn" onclick="setChartTF(this, '7D')">7Д</div>
+      <div class="tf-btn" onclick="setChartTF(this, '1M')">1М</div>
+      <div class="tf-btn" onclick="setChartTF(this, '1Y')">1Г</div>
+      <div class="tf-btn" onclick="setChartTF(this, 'ALL')">Все</div>
     </div>
 
     <div class="info-card">
@@ -685,26 +492,26 @@
     </div>
 
     <div class="action-buttons">
-      <button id="btnBuy" class="btn-main">Купить</button>
-      <button id="btnSell" class="btn-secondary">Продать</button>
+      <button id="btnBuy" class="btn-main" onclick="openExchangeLink(currentBuyUrl)">Купить</button>
+      <button id="btnSell" class="btn-secondary" onclick="openExchangeLink(currentSellUrl)">Продать</button>
     </div>
   </div>
 
-  <!-- ================= НИЖНЕЕ МЕНЮ (WALLET NAVBAR) ================= -->
+  <!-- NAVBAR -->
   <div class="navbar">
-    <div class="nav-tab active">
+    <div class="nav-tab active" onclick="switchTab(this)">
       <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
       <span>Сканер</span>
     </div>
-    <div class="nav-tab">
+    <div class="nav-tab" onclick="switchTab(this)">
       <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 17.08l1.5 1.41z"/></svg>
       <span>Рынок</span>
     </div>
-    <div class="nav-tab">
+    <div class="nav-tab" onclick="switchTab(this)">
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
       <span>Доход</span>
     </div>
-    <div class="nav-tab">
+    <div class="nav-tab" onclick="switchTab(this)">
       <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
       <span>Бонусы</span>
     </div>
@@ -714,34 +521,88 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Функция переключения на детали связки
-    function openDetails(title, icon, bgClass, spread, profit, buyEx, sellEx, buyPrice, sellPrice) {
-      document.getElementById('detailTitle').innerText = title;
+    let currentBuyUrl = '';
+    let currentSellUrl = '';
+
+    // Варианты графика под разное время
+    const chartPaths = {
+      '1D': { line: "M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20", area: "M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20 L400,150 L0,150 Z" },
+      '7D': { line: "M0,90 Q50,140 100,80 T200,100 T300,40 T400,60", area: "M0,90 Q50,140 100,80 T200,100 T300,40 T400,60 L400,150 L0,150 Z" },
+      '1M': { line: "M0,60 Q60,20 120,90 T240,40 T320,110 T400,30", area: "M0,60 Q60,20 120,90 T240,40 T320,110 T400,30 L400,150 L0,150 Z" },
+      '1Y': { line: "M0,110 Q80,50 160,100 T280,30 T400,80", area: "M0,110 Q80,50 160,100 T280,30 T400,80 L400,150 L0,150 Z" },
+      'ALL': { line: "M0,140 Q100,10 200,130 T300,20 T400,90", area: "M0,140 Q100,10 200,130 T300,20 T400,90 L400,150 L0,150 Z" }
+    };
+
+    // Переключение таймфрейма
+    function setChartTF(element, tf) {
+      if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
       
+      document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+      element.classList.add('active');
+
+      const pathData = chartPaths[tf];
+      if (pathData) {
+        document.getElementById('chartLine').setAttribute('d', pathData.line);
+        document.getElementById('chartArea').setAttribute('d', pathData.area);
+      }
+    }
+
+    // Открытие экрана деталей
+    function openDetails(title, icon, bgClass, spread, profit, buyEx, sellEx, buyPrice, sellPrice, buyUrl, sellUrl) {
+      if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+
+      document.getElementById('detailTitle').innerText = title;
       const iconEl = document.getElementById('detailIcon');
       iconEl.innerText = icon;
       iconEl.className = 'asset-icon ' + bgClass;
 
       document.getElementById('detailSpread').innerText = spread;
       document.getElementById('detailProfit').innerText = '▲ ' + profit;
-      document.getElementById('detailBuyEx').innerText = buyEx;
-      document.getElementById('detailSellEx').innerText = sellEx;
+      document.getElementById('detailBuyEx').innerText = buyEx + ' Spot';
+      document.getElementById('detailSellEx').innerText = sellEx + ' Spot';
       document.getElementById('detailBuyPrice').innerText = buyPrice;
       document.getElementById('detailSellPrice').innerText = sellPrice;
 
-      document.getElementById('btnBuy').innerText = 'Купить на ' + buyEx.split(' ')[0];
-      document.getElementById('btnSell').innerText = 'Продать на ' + sellEx.split(' ')[0];
+      document.getElementById('btnBuy').innerText = 'Купить на ' + buyEx;
+      document.getElementById('btnSell').innerText = 'Продать на ' + sellEx;
+
+      currentBuyUrl = buyUrl;
+      currentSellUrl = sellUrl;
 
       document.getElementById('mainScreen').classList.remove('active');
       document.getElementById('detailsScreen').classList.add('active');
       window.scrollTo(0, 0);
     }
 
-    // Возврат на главный экран
     function closeDetails() {
+      if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
       document.getElementById('detailsScreen').classList.remove('active');
       document.getElementById('mainScreen').classList.add('active');
-      window.scrollTo(0, 0);
+    }
+
+    // Переход по внешней ссылке на биржу
+    function openExchangeLink(url) {
+      if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+      if (url) tg.openLink(url);
+    }
+
+    // Фильтры кнопок сверху
+    function filterDeals(type) {
+      if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+      tg.showAlert('Фильтр: ' + type);
+    }
+
+    // Нажатие на VIP баннер
+    function openVIP() {
+      if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+      tg.showAlert('Подключение VIP-уведомлений в боте');
+    }
+
+    // Нижнее меню
+    function switchTab(el) {
+      if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
     }
   </script>
 </body>
