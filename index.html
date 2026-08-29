@@ -3,19 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Arbitrage TWA</title>
+  <title>Arbitrage Scanner</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg-color: #0f1721;
-      --card-bg: #18222d;
-      --card-inner: #212d3b;
+      --bg-color: #151e27;
+      --card-bg: #1f2c3a;
+      --card-pressed: #273647;
       --text-main: #ffffff;
       --text-secondary: #7e8c9a;
       --accent-blue: #3390ec;
       --accent-green: #2bb368;
-      --accent-red: #e53935;
-      --border-color: rgba(255, 255, 255, 0.07);
+      --accent-purple: #7b52ea;
     }
 
     * {
@@ -29,429 +28,378 @@
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      padding-bottom: 90px;
-      overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      padding-bottom: 100px;
     }
 
-    /* Шапка */
-    .header {
-      padding: 16px 16px 10px 16px;
-      background: var(--bg-color);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-top {
+    /* Шапка (Аватар + Подарки/Уведомления) */
+    .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      padding: 14px 16px;
     }
 
-    .header-title {
-      font-size: 22px;
+    .profile-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #2b394a;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #1f2c3a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Главный баланс/спред */
+    .balance-section {
+      text-align: center;
+      padding: 8px 0 20px 0;
+    }
+
+    .balance-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .balance-amount {
+      font-size: 38px;
       font-weight: 700;
       letter-spacing: -0.5px;
     }
 
-    .status-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--accent-green);
-      background: rgba(43, 179, 104, 0.12);
-      padding: 4px 10px;
-      border-radius: 100px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
+    .balance-currency {
+      color: var(--accent-blue);
     }
 
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      background-color: var(--accent-green);
-      border-radius: 50%;
-      box-shadow: 0 0 6px var(--accent-green);
-    }
-
-    /* Инпут Депозита в стиле Wallet */
-    .deposit-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .deposit-label {
-      font-size: 14px;
-      color: var(--text-secondary);
-      font-weight: 400;
-    }
-
-    .deposit-input-box {
-      display: flex;
-      align-items: center;
-      background: var(--card-inner);
-      padding: 6px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-    }
-
-    .deposit-input {
-      background: transparent;
-      border: none;
-      color: var(--text-main);
-      font-size: 15px;
-      font-weight: 600;
-      text-align: right;
-      width: 60px;
-      outline: none;
-      font-family: inherit;
-    }
-
-    /* Убираем стрелочки у input number */
-    .deposit-input::-webkit-outer-spin-button,
-    .deposit-input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    .deposit-input[type=number] {
-      -moz-appearance: textfield;
-    }
-
-    .currency-symbol {
-      margin-left: 4px;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
-
-    /* Контейнер карточек */
-    .container {
-      padding: 0 16px;
-    }
-
-    .section-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin: 18px 0 12px 2px;
-    }
-
-    .cards-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .coin-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .coin-avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #2b5c8f, #18222d);
-      border: 1px solid rgba(255,255,255,0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
-      color: #fff;
-    }
-
-    .coin-name {
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    .coin-net {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 1px;
-    }
-
-    .profit-tag {
-      background: rgba(43, 179, 104, 0.12);
-      color: var(--accent-green);
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 13px;
-    }
-
-    /* Маршрут */
-    .route-box {
-      background: var(--card-inner);
-      border-radius: 12px;
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .route-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-    }
-
-    .route-label {
-      color: var(--text-secondary);
-    }
-
-    .route-val {
-      font-weight: 500;
-      color: var(--text-main);
-    }
-
-    .card-actions {
+    /* 4 быстрыe плитки действий */
+    .quick-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
+      padding: 0 16px;
+      margin-bottom: 16px;
     }
 
-    .btn-trade {
-      background: var(--accent-blue);
-      color: #fff;
-      border: none;
-      padding: 10px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 13px;
-      text-decoration: none;
-      text-align: center;
-      display: block;
-      transition: opacity 0.2s;
-    }
-
-    .btn-trade:active {
-      opacity: 0.8;
-    }
-
-    .btn-trade.sell {
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text-main);
-      border: 1px solid var(--border-color);
-    }
-
-    /* Нижняя навигация (Wallet Capsule) */
-    .bottom-nav {
-      position: fixed;
-      bottom: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 32px);
-      max-width: 400px;
-      background: rgba(24, 34, 45, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 4px;
-      display: flex;
-      justify-content: space-around;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-    }
-
-    .nav-item {
+    .action-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 12px 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 3px;
-      padding: 6px 0;
-      border-radius: 16px;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 10px;
-      font-weight: 500;
-      flex: 1;
+      gap: 6px;
       cursor: pointer;
     }
 
-    .nav-item.active {
-      color: var(--accent-blue);
-      background: rgba(51, 144, 236, 0.1);
+    .action-card:active {
+      background: var(--card-pressed);
     }
 
-    .nav-icon {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
+    .action-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
     }
 
-    .loader {
-      text-align: center;
-      padding: 40px 0;
-      color: var(--text-secondary);
+    .action-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Рекламный/Инфо баннер (фиолетовый как SOL) */
+    .banner {
+      margin: 0 16px 16px 16px;
+      background: linear-gradient(135deg, #6c47ff, #8b5cf6);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .banner-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .banner-subtitle {
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
+    /* Секция списка монет / связок */
+    .section-container {
+      margin: 0 16px;
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 4px 0;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px 8px 16px;
+    }
+
+    .section-title {
       font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .section-stat {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .deal-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+    }
+
+    .deal-item:last-child {
+      border-bottom: none;
+    }
+
+    .deal-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .crypto-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .usdt-bg { background: #26a17b; }
+    .btc-bg { background: #f7931a; }
+    .ton-bg { background: #0088cc; }
+
+    .deal-names {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .coin-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .route-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .deal-right {
+      text-align: right;
+    }
+
+    .profit-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+
+    .spread-percent {
+      font-size: 12px;
+      color: var(--accent-green);
+      font-weight: 500;
+    }
+
+    /* Фиксированное нижнее меню (Идентичное Wallet) */
+    .navbar {
+      position: fixed;
+      bottom: 12px;
+      left: 16px;
+      right: 16px;
+      background: #19232d;
+      border-radius: 28px;
+      padding: 6px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      z-index: 1000;
+    }
+
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 0;
+      border-radius: 20px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 600;
+      gap: 3px;
+    }
+
+    .nav-tab.active {
+      background: #2b394a;
+      color: var(--text-main);
+    }
+
+    .nav-tab-icon {
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Шапка -->
-  <div class="header">
-    <div class="header-top">
-      <div class="header-title">Арбитраж</div>
-      <div class="status-badge">
-        <div class="status-dot"></div>
-        <span>LIVE SCAN</span>
-      </div>
-    </div>
+  <!-- Верхняя панель -->
+  <div class="header-bar">
+    <div class="profile-avatar"></div>
+    <div class="icon-btn">🔔</div>
+  </div>
 
-    <!-- Депозит -->
-    <div class="deposit-card">
-      <span class="deposit-label">Депозит для расчета</span>
-      <div class="deposit-input-box">
-        <input type="number" id="depositInput" class="deposit-input" value="500">
-        <span class="currency-symbol">$</span>
-      </div>
+  <!-- Главный счетчик -->
+  <div class="balance-section">
+    <div class="balance-label">Максимальный спред 24h</div>
+    <div class="balance-amount">+3,84 <span class="balance-currency">%</span></div>
+  </div>
+
+  <!-- 4 Кнопки -->
+  <div class="quick-actions">
+    <div class="action-card">
+      <div class="action-icon">⚡</div>
+      <div class="action-title">Все связки</div>
+    </div>
+    <div class="action-card">
+      <div class="action-icon">🔄</div>
+      <div class="action-title">P2P</div>
+    </div>
+    <div class="action-card">
+      <div class="action-icon">📈</div>
+      <div class="action-title">Спот</div>
+    </div>
+    <div class="action-card">
+      <div class="action-icon">⚙️</div>
+      <div class="action-title">Фильтры</div>
     </div>
   </div>
 
-  <!-- Контент -->
-  <div class="container">
-    <div class="section-title">Доступные связки</div>
-    <div id="cardsContainer" class="cards-list">
-      <div class="loader">Поиск выгодных ордеров...</div>
+  <!-- Инфо-баннер -->
+  <div class="banner">
+    <div>
+      <div class="banner-title">VIP Сигналы в Telegram</div>
+      <div class="banner-subtitle">Получайте уведосления о спреде > 2% 🚀</div>
     </div>
   </div>
 
-  <!-- Навигация Wallet -->
-  <div class="bottom-nav">
-    <div class="nav-item active">
-      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-      <span>Связки</span>
+  <!-- Основной блок с карточками (Как блок "Крипто" в Wallet) -->
+  <div class="section-container">
+    <div class="section-header">
+      <span class="section-title">Горячие связки</span>
+      <span class="section-stat">LIVE SCAN</span>
     </div>
-    <div class="nav-item">
-      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 17.08l1.5 1.41z"/></svg>
+
+    <!-- Список связок -->
+    <div id="dealsList">
+      
+      <!-- Карточка 1 -->
+      <div class="deal-item">
+        <div class="deal-left">
+          <div class="crypto-icon usdt-bg">₮</div>
+          <div class="deal-names">
+            <div class="coin-title">USDT / RUB</div>
+            <div class="route-subtitle">Bybit P2P ➔ HTX Spot</div>
+          </div>
+        </div>
+        <div class="deal-right">
+          <div class="profit-val">+240 ₽</div>
+          <div class="spread-percent">+2.40%</div>
+        </div>
+      </div>
+
+      <!-- Карточка 2 -->
+      <div class="deal-item">
+        <div class="deal-left">
+          <div class="crypto-icon ton-bg">💎</div>
+          <div class="deal-names">
+            <div class="coin-title">TON / USDT</div>
+            <div class="route-subtitle">OKX Spot ➔ MEXC Spot</div>
+          </div>
+        </div>
+        <div class="deal-right">
+          <div class="profit-val">+1.85%</div>
+          <div class="spread-percent">+$18.5</div>
+        </div>
+      </div>
+
+      <!-- Карточка 3 -->
+      <div class="deal-item">
+        <div class="deal-left">
+          <div class="crypto-icon btc-bg">₿</div>
+          <div class="deal-names">
+            <div class="coin-title">BTC / RUB</div>
+            <div class="route-subtitle">CommEX ➔ KuCoin</div>
+          </div>
+        </div>
+        <div class="deal-right">
+          <div class="profit-val">+1.12%</div>
+          <div class="spread-percent">+$56.0</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Нижняя навигация Wallet -->
+  <div class="navbar">
+    <div class="nav-tab active">
+      <span class="nav-tab-icon">👛</span>
+      <span>Сканер</span>
+    </div>
+    <div class="nav-tab">
+      <span class="nav-tab-icon">📈</span>
       <span>Рынок</span>
     </div>
-    <div class="nav-item">
-      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-      <span>Фильтры</span>
+    <div class="nav-tab">
+      <span class="nav-tab-icon">📊</span>
+      <span>Доход</span>
     </div>
-    <div class="nav-item">
-      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      <span>Профиль</span>
+    <div class="nav-tab">
+      <span class="nav-tab-icon">💎</span>
+      <span>Бонусы</span>
     </div>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-
-    const BACKEND_URL = "https://arbitrage-backend-z4mq.onrender.com/api/deals";
-
-    const cardsContainer = document.getElementById('cardsContainer');
-    const depositInput = document.getElementById('depositInput');
-
-    let currentDeposit = 500;
-
-    depositInput.addEventListener('input', (e) => {
-      currentDeposit = parseFloat(e.target.value) || 0;
-      fetchDeals();
-    });
-
-    async function fetchDeals() {
-      try {
-        const response = await fetch(`${BACKEND_URL}?deposit=${currentDeposit}`);
-        const data = await response.json();
-
-        if (data.status === "success" && data.deals.length > 0) {
-          renderDeals(data.deals);
-        } else {
-          cardsContainer.innerHTML = `<div class="loader">Нет прибыльных связок для $${currentDeposit}</div>`;
-        }
-      } catch (err) {
-        cardsContainer.innerHTML = `<div class="loader" style="color: var(--accent-red)">Ошибка загрузки данных</div>`;
-      }
-    }
-
-    function renderDeals(deals) {
-      cardsContainer.innerHTML = '';
-
-      deals.forEach(deal => {
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        const isPositive = deal.profit_pct > 0;
-        const profitColor = isPositive ? 'var(--accent-green)' : 'var(--accent-red)';
-        const badgeBg = isPositive ? 'rgba(43, 179, 104, 0.12)' : 'rgba(229, 57, 53, 0.12)';
-
-        card.innerHTML = `
-          <div class="card-header">
-            <div class="coin-info">
-              <div class="coin-avatar">${deal.coin.substring(0, 3)}</div>
-              <div>
-                <div class="coin-name">${deal.symbol}</div>
-                <div class="coin-net">${deal.network}</div>
-              </div>
-            </div>
-            <div class="profit-tag" style="color: ${profitColor}; background: ${badgeBg}">
-              ${isPositive ? '+' : ''}${deal.profit_pct}% (+$${deal.profit_usd})
-            </div>
-          </div>
-
-          <div class="route-box">
-            <div class="route-row">
-              <span class="route-label">Покупка на <b>${deal.buy_ex}</b></span>
-              <span class="route-val">$${deal.buy_price}</span>
-            </div>
-            <div class="route-row">
-              <span class="route-label">Продажа на <b>${deal.sell_ex}</b></span>
-              <span class="route-val">$${deal.sell_price}</span>
-            </div>
-            <div class="route-row" style="margin-top: 2px; border-top: 1px solid var(--border-color); padding-top: 6px;">
-              <span class="route-label">Комиссия сети:</span>
-              <span class="route-val" style="color: var(--text-secondary)">$${deal.net_fee}</span>
-            </div>
-          </div>
-
-          <div class="card-actions">
-            <a href="${deal.buy_link}" target="_blank" class="btn-trade">Купить (${deal.buy_ex})</a>
-            <a href="${deal.sell_link}" target="_blank" class="btn-trade sell">Продать (${deal.sell_ex})</a>
-          </div>
-        `;
-
-        cardsContainer.appendChild(card);
-      });
-    }
-
-    fetchDeals();
-    setInterval(fetchDeals, 5000);
   </script>
 </body>
 </html>
