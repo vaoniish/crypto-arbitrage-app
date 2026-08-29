@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Intra-exchange Arbitrage</title>
+  <title>Wallet UI & Live Chart Arbitrage</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -37,6 +37,7 @@
       overflow-x: hidden;
     }
 
+    /* Screen Transitions */
     .tab-content { display: none; width: 100%; animation: fadeIn 0.25s ease; }
     .tab-content.active { display: block; }
     .sub-screen { display: none; width: 100%; animation: slideIn 0.25s cubic-bezier(0.1, 0.9, 0.2, 1); }
@@ -45,6 +46,7 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
+    /* Glass Cards */
     .glass-card {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -53,7 +55,10 @@
       border-radius: 20px;
     }
 
+    /* Crypto Icons */
     .crypto-icon {
+      position: relative;
+      overflow: hidden;
       width: 44px;
       height: 44px;
       border-radius: 50%;
@@ -66,9 +71,14 @@
       flex-shrink: 0;
     }
 
+    .usdt-bg { background: linear-gradient(135deg, #00B18A, #26A17B); box-shadow: 0 4px 14px rgba(0, 177, 138, 0.3); }
+    .btc-bg { background: linear-gradient(135deg, #F7931A, #FFB300); box-shadow: 0 4px 14px rgba(247, 147, 26, 0.3); }
+    .ton-bg { background: linear-gradient(135deg, #0088CC, #2AABEE); box-shadow: 0 4px 14px rgba(42, 171, 238, 0.3); }
+    .eth-bg { background: linear-gradient(135deg, #627EEA, #8C9EFF); box-shadow: 0 4px 14px rgba(98, 126, 234, 0.3); }
     .tri-bg { background: linear-gradient(135deg, #9945FF, #2AABEE); box-shadow: 0 4px 14px rgba(153, 69, 255, 0.3); }
     .fund-bg { background: linear-gradient(135deg, #F7931A, #31B469); box-shadow: 0 4px 14px rgba(247, 147, 26, 0.3); }
 
+    /* Header Bar */
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -100,14 +110,15 @@
       cursor: pointer;
     }
 
+    /* Balance Section */
     .balance-section { text-align: center; padding: 18px 16px; }
     .balance-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
     .balance-amount { font-size: 40px; font-weight: 800; letter-spacing: -1px; }
 
-    /* Filter Cards */
+    /* Quick Action Grid */
     .quick-actions {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       padding: 0 16px;
       margin-bottom: 20px;
@@ -141,8 +152,14 @@
     .action-icon-circle svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2; }
     .action-title { font-size: 11px; font-weight: 600; color: var(--text-main); }
 
+    /* Container Lists */
     .section-container { margin: 0 16px 20px 16px; padding: 6px 0; }
-    .section-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+    }
     .section-title { font-size: 15px; font-weight: 700; }
 
     .list-item {
@@ -162,7 +179,8 @@
     .item-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
     .item-right { text-align: right; }
     .val-green { font-size: 16px; font-weight: 700; color: var(--accent-green); }
-    
+    .val-red { font-size: 16px; font-weight: 700; color: var(--accent-red); }
+
     .ttl-badge {
       font-size: 10px;
       background: rgba(247, 147, 26, 0.15);
@@ -174,6 +192,45 @@
       display: inline-block;
     }
 
+    /* Controls & Search */
+    .search-box {
+      margin: 0 16px 14px 16px;
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 15px;
+      width: 100%;
+    }
+
+    .timeframe-picker {
+      display: flex;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 14px;
+      margin: 0 16px 16px 16px;
+      padding: 3px;
+    }
+    .tf-btn {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tf-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+    /* Interactive Live Chart Container */
     .asset-header { padding: 12px 20px; display: flex; align-items: center; gap: 14px; }
     .price-section { padding: 0 20px 10px 20px; }
     .price-val { font-size: 34px; font-weight: 800; }
@@ -181,11 +238,15 @@
     .live-chart-wrapper {
       position: relative;
       width: 100%;
-      height: 220px;
+      height: 230px;
       margin-bottom: 12px;
       touch-action: none;
     }
-    #liveCanvas { width: 100%; height: 100%; display: block; }
+    #liveCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
     .chart-tooltip {
       position: absolute;
       top: 10px;
@@ -200,8 +261,10 @@
       pointer-events: none;
       display: none;
       z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
+    /* Timeframe Selector (1Д 7Д 1М 1Г Все) */
     .chart-tf-picker {
       display: flex;
       background: rgba(0, 0, 0, 0.3);
@@ -220,7 +283,10 @@
       border-radius: 16px;
       cursor: pointer;
     }
-    .chart-tf-btn.active { background: #28374a; color: #ffffff; }
+    .chart-tf-btn.active {
+      background: #28374a;
+      color: #ffffff;
+    }
 
     .info-card { margin: 0 16px 16px 16px; padding: 18px; }
     .info-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -234,6 +300,7 @@
     }
     .route-step:last-child { border-bottom: none; }
 
+    /* Calculator Input */
     .calc-box {
       display: flex;
       align-items: center;
@@ -253,19 +320,42 @@
       width: 100%;
     }
 
-    .btn-main {
-      background: var(--accent-blue);
-      color: #fff;
-      width: 100%;
+    .btn-main, .btn-secondary {
       border: none;
       border-radius: 16px;
       padding: 16px;
       font-size: 15px;
       font-weight: 700;
       cursor: pointer;
+      text-align: center;
+      text-decoration: none;
     }
-    .btn-main:active { transform: scale(0.98); }
+    .btn-main { background: var(--accent-blue); color: #fff; width: 100%; }
+    .btn-secondary { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--card-border); width: 100%; }
+    .btn-main:active, .btn-secondary:active { transform: scale(0.98); }
 
+    /* Modal Component */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: flex-end;
+      z-index: 2000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-sheet {
+      background: #17212b;
+      border: 1px solid var(--card-border);
+      width: 100%;
+      border-radius: 24px 24px 0 0;
+      padding: 24px;
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    /* Bottom Fixed Navbar */
     .navbar {
       position: fixed;
       bottom: 16px; left: 16px; right: 16px;
@@ -297,69 +387,68 @@
 </head>
 <body>
 
-  <!-- TAB: INTRAEXCHANGE ARBITRAGE -->
   <div id="tab-scanner" class="tab-content active">
     <div id="scannerListScreen" class="sub-screen active">
       <div class="header-bar">
         <div class="profile-avatar">TG</div>
-        <div class="header-title">Внутрибиржевой арбитраж</div>
+        <div class="header-title">Арбитраж</div>
         <div class="icon-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </div>
       </div>
 
       <div class="balance-section">
-        <div class="balance-label">Максимальный моментальный спред</div>
-        <div class="balance-amount">+1.84 <span style="color: var(--accent-blue)">%</span></div>
+        <div class="balance-label">Максимальный живой спред</div>
+        <div class="balance-amount">+3.84 <span style="color: var(--accent-blue)">%</span></div>
       </div>
 
-      <!-- Quick Strategy Filters -->
       <div class="quick-actions">
-        <div class="action-card active-filter" data-strategy="all">
+        <div class="action-card active-filter" data-type="all">
           <div class="action-icon-circle"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></div>
-          <div class="action-title">Все стратегии</div>
+          <div class="action-title">Все</div>
         </div>
-        <div class="action-card" data-strategy="triangle">
-          <div class="action-icon-circle"><svg viewBox="0 0 24 24"><polygon points="12 2 2 22 22 22"></polygon></svg></div>
-          <div class="action-title">Треугольники</div>
+        <div class="action-card" data-type="inter">
+          <div class="action-icon-circle"><svg viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg></div>
+          <div class="action-title">Межбирж</div>
         </div>
-        <div class="action-card" data-strategy="funding">
-          <div class="action-icon-circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-          <div class="action-title">Спот / Фьючерс</div>
+        <div class="action-card" data-type="spot">
+          <div class="action-icon-circle"><svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
+          <div class="action-title">Внутрибирж</div>
+        </div>
+        <div class="action-card" id="openFilterModal">
+          <div class="action-icon-circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+          <div class="action-title">Фильтры</div>
         </div>
       </div>
 
       <div class="section-container glass-card">
         <div class="section-header">
-          <span class="section-title">Активные связки</span>
-          <span style="font-size: 12px; color: var(--accent-green);">● Быстрое исполнение</span>
+          <span class="section-title">Арбитражные связки</span>
         </div>
         <div id="dealsList"></div>
       </div>
     </div>
 
-    <!-- Detail Screen -->
     <div id="scannerDetailScreen" class="sub-screen">
       <div class="header-bar">
         <div class="back-btn" id="backBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
-        <div style="font-weight: 700; font-size: 16px;">Внутрибиржевой круг</div>
+        <div style="font-weight: 700; font-size: 16px;">Детали связки</div>
         <div></div>
       </div>
 
       <div class="asset-header">
-        <div id="detailIcon" class="crypto-icon tri-bg">▲</div>
+        <div id="detailIcon" class="crypto-icon ton-bg">💎</div>
         <div>
-          <div id="detailTitle" style="font-size: 20px; font-weight: 800;">USDT ➔ BTC ➔ ETH</div>
-          <div id="detailExchange" class="item-subtitle">Binance • Треугольный арбитраж</div>
+          <div id="detailTitle" style="font-size: 20px; font-weight: 800;">TON / USDT</div>
+          <div id="detailType" class="item-subtitle">Межбиржевой спот</div>
         </div>
       </div>
 
       <div class="price-section">
-        <div id="detailSpread" class="price-val" style="color: var(--accent-green)">+1.24%</div>
-        <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;" id="detailProfitText">Чистый профит: +$12.40 с $1,000</div>
+        <div id="detailSpread" class="price-val" style="color: var(--accent-green)">+2.45%</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;" id="detailProfitText">Чистый профит: +$24.50 с $1,000</div>
       </div>
 
-      <!-- Chart Canvas -->
       <div class="live-chart-wrapper">
         <div id="chartTooltip" class="chart-tooltip"></div>
         <canvas id="liveCanvas"></canvas>
@@ -369,335 +458,10 @@
         <div class="chart-tf-btn active" data-tf="1D">1Д</div>
         <div class="chart-tf-btn" data-tf="7D">7Д</div>
         <div class="chart-tf-btn" data-tf="1M">1М</div>
+        <div class="chart-tf-btn" data-tf="1Y">1Г</div>
+        <div class="chart-tf-btn" data-tf="ALL">Все</div>
       </div>
 
-      <!-- Dynamic Volume & Slippage Calculator -->
       <div class="info-card glass-card">
         <div class="info-card-title">Калькулятор и проскальзывание (Slippage)</div>
-        <div style="font-size: 13px; color: var(--text-secondary);">Сумма сделки в USDT:</div>
-        <div class="calc-box">
-          <input type="number" id="calcDepositInput" value="1000">
-          <span style="font-weight: 700; color: var(--text-secondary);">$</span>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 13px;">
-          <span style="color: var(--text-secondary);">Проскальзывание (Slippage):</span>
-          <span id="slippageVal" style="font-weight: 700; color: var(--accent-yellow);">-0.05%</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 13px;">
-          <span style="color: var(--text-secondary);">Комиссия биржи (VIP 0 / Taker):</span>
-          <span id="feeVal" style="font-weight: 700; color: var(--text-main);">0.075% ($0.75)</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
-          <span style="font-size: 14px; color: var(--text-secondary);">Чистый доход с круга:</span>
-          <span id="calcProfitResult" style="font-size: 18px; font-weight: 800; color: var(--accent-green);">+$11.15 (+1.11%)</span>
-        </div>
-      </div>
-
-      <!-- Route Details -->
-      <div class="info-card glass-card">
-        <div class="info-card-title">Исполнение ордеров (Шаги)</div>
-        <div id="routeStepsContainer"></div>
-      </div>
-
-      <div style="padding: 0 16px 20px 16px;">
-        <button class="btn-main" id="btnExecute">Исполнить круг через API (1-Click)</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="tab-market" class="tab-content"></div>
-  <div id="tab-income" class="tab-content"></div>
-  <div id="tab-bonuses" class="tab-content"></div>
-
-  <!-- NAVBAR -->
-  <div class="navbar">
-    <div class="nav-tab active" data-tab="tab-scanner">
-      <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-      <span>Внутрибирж</span>
-    </div>
-    <div class="nav-tab" data-tab="tab-market">
-      <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 17.08l1.5 1.41z"/></svg>
-      <span>Межбирж</span>
-    </div>
-    <div class="nav-tab" data-tab="tab-income">
-      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-      <span>Доход</span>
-    </div>
-    <div class="nav-tab" data-tab="tab-bonuses">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      <span>Бонусы</span>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const tg = window.Telegram?.WebApp;
-      if (tg) tg.expand();
-
-      // Данные внутрибиржевых связок
-      const deals = [
-        {
-          id: 'tri_1',
-          title: 'USDT ➔ BTC ➔ ETH ➔ USDT',
-          strategy: 'triangle',
-          exchange: 'Binance',
-          symbol: '▲',
-          bgClass: 'tri-bg',
-          spreadPct: 1.24,
-          ttlSec: 1.8,
-          takerFeePct: 0.075,
-          maxLiquidity: 4500,
-          steps: [
-            { name: '1. Покупка BTC за USDT', price: '$64,120.00', type: 'Market Buy', vol: '$15,400' },
-            { name: '2. Обмен BTC на ETH', price: '0.0412 BTC/ETH', type: 'Market Limit', vol: '$8,200' },
-            { name: '3. Продажа ETH за USDT', price: '$2,648.50', type: 'Market Sell', vol: '$12,000' }
-          ]
-        },
-        {
-          id: 'fund_1',
-          title: 'TON Spot / USDT Futures',
-          strategy: 'funding',
-          exchange: 'Bybit',
-          symbol: '⥮',
-          bgClass: 'fund-bg',
-          spreadPct: 1.84,
-          ttlSec: 42.0,
-          takerFeePct: 0.06,
-          maxLiquidity: 18000,
-          steps: [
-            { name: '1. Покупка TON (Spot)', price: '$5.20', type: 'Spot Buy', vol: '$35,000' },
-            { name: '2. Открытие Шорт TON (Perp)', price: '$5.295', type: 'Short Futures', vol: '$42,000' },
-            { name: '3. Ставка финансирования (Funding)', price: '+0.08% / 8ч', type: 'Auto Receive', vol: '-' }
-          ]
-        },
-        {
-          id: 'tri_2',
-          title: 'USDT ➔ SOL ➔ RAY ➔ USDT',
-          strategy: 'triangle',
-          exchange: 'OKX',
-          symbol: '▲',
-          bgClass: 'tri-bg',
-          spreadPct: 0.95,
-          ttlSec: 0.9,
-          takerFeePct: 0.08,
-          maxLiquidity: 2200,
-          steps: [
-            { name: '1. Покупка SOL за USDT', price: '$142.10', type: 'Market Buy', vol: '$9,100' },
-            { name: '2. Обмен SOL на RAY', price: '82.4 RAY/SOL', type: 'Market Swap', vol: '$3,400' },
-            { name: '3. Продажа RAY за USDT', price: '$1.74', type: 'Market Sell', vol: '$4,500' }
-          ]
-        }
-      ];
-
-      const canvas = document.getElementById('liveCanvas');
-      const ctx = canvas.getContext('2d');
-      const tooltip = document.getElementById('chartTooltip');
-
-      let chartPoints = [];
-      let liveInterval = null;
-      let currentItem = deals[0];
-      let currentStrategyFilter = 'all';
-
-      function resizeCanvas() {
-        const rect = canvas.parentElement.getBoundingClientRect();
-        if (!rect.width || !rect.height) return;
-        canvas.width = rect.width * window.devicePixelRatio;
-        canvas.height = rect.height * window.devicePixelRatio;
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-      }
-
-      function initChartPoints(item) {
-        chartPoints = [];
-        let cur = item.spreadPct;
-        const now = Date.now();
-        for (let i = 30; i >= 0; i--) {
-          cur += (Math.random() - 0.49) * 0.08;
-          if (cur < 0.1) cur = 0.1;
-          chartPoints.push({ time: now - (i * 1000), val: cur });
-        }
-      }
-
-      function drawChart() {
-        const w = canvas.offsetWidth;
-        const h = canvas.offsetHeight;
-        if (!w || !h) return;
-
-        ctx.clearRect(0, 0, w, h);
-        if (chartPoints.length < 2) return;
-
-        const paddingRight = 45;
-        const paddingBottom = 20;
-        const paddingTop = 15;
-        const graphW = w - paddingRight;
-        const graphH = h - paddingBottom - paddingTop;
-
-        const vals = chartPoints.map(p => p.val);
-        let min = Math.min(...vals);
-        let max = Math.max(...vals);
-        if (min === max) { min -= 0.2; max += 0.2; }
-        const range = max - min;
-
-        const getX = (idx) => (idx / (chartPoints.length - 1)) * graphW;
-        const getY = (val) => paddingTop + graphH - ((val - min) / range) * graphH;
-
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-        ctx.fillStyle = '#8c9ea8';
-        ctx.font = '10px sans-serif';
-        ctx.textAlign = 'right';
-
-        for (let i = 0; i < 3; i++) {
-          const ratio = i / 2;
-          const y = paddingTop + graphH * ratio;
-          const val = max - (ratio * range);
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(graphW, y);
-          ctx.stroke();
-          ctx.fillText(`+${val.toFixed(2)}%`, w - 4, y + 3);
-        }
-
-        const grad = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + graphH);
-        grad.addColorStop(0, 'rgba(49, 180, 105, 0.25)');
-        grad.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
-
-        ctx.beginPath();
-        ctx.moveTo(getX(0), getY(chartPoints[0].val));
-        for (let i = 1; i < chartPoints.length; i++) {
-          ctx.lineTo(getX(i), getY(chartPoints[i].val));
-        }
-        ctx.lineTo(graphW, paddingTop + graphH);
-        ctx.lineTo(0, paddingTop + graphH);
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(getX(0), getY(chartPoints[0].val));
-        for (let i = 1; i < chartPoints.length; i++) {
-          ctx.lineTo(getX(i), getY(chartPoints[i].val));
-        }
-        ctx.strokeStyle = '#31B469';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-
-      // Калькулятор с учетом проскальзывания (Slippage)
-      function updateCalculator() {
-        const deposit = parseFloat(document.getElementById('calcDepositInput').value) || 0;
-        
-        // Расчет проскальзывания от объема стакана
-        let slippagePct = (deposit / currentItem.maxLiquidity) * 0.15;
-        if (slippagePct > 0.8) slippagePct = 0.8;
-
-        const totalFeesPct = currentItem.takerFeePct * (currentItem.strategy === 'triangle' ? 3 : 2);
-        const grossProfit = deposit * (currentItem.spreadPct / 100);
-        const slippageCost = deposit * (slippagePct / 100);
-        const feeCost = deposit * (totalFeesPct / 100);
-
-        const netProfit = grossProfit - slippageCost - feeCost;
-        const netPct = deposit > 0 ? (netProfit / deposit) * 100 : 0;
-
-        document.getElementById('slippageVal').innerText = `-${slippagePct.toFixed(2)}% (-$${slippageCost.toFixed(2)})`;
-        document.getElementById('feeVal').innerText = `${totalFeesPct.toFixed(2)}% ($${feeCost.toFixed(2)})`;
-        document.getElementById('calcProfitResult').innerText = `+$${netProfit.toFixed(2)} (+${netPct.toFixed(2)}%)`;
-        document.getElementById('detailProfitText').innerText = `Чистый профит: +$${netProfit.toFixed(2)} с $${deposit.toLocaleString()}`;
-      }
-
-      document.getElementById('calcDepositInput').addEventListener('input', updateCalculator);
-
-      function renderDeals() {
-        const container = document.getElementById('dealsList');
-        container.innerHTML = '';
-
-        let filtered = deals.filter(d => {
-          if (currentStrategyFilter === 'all') return true;
-          return d.strategy === currentStrategyFilter;
-        });
-
-        filtered.forEach(item => {
-          const el = document.createElement('div');
-          el.className = 'list-item';
-          el.innerHTML = `
-            <div class="item-left">
-              <div class="crypto-icon ${item.bgClass}">${item.symbol}</div>
-              <div>
-                <div class="item-title">${item.title}</div>
-                <div class="item-subtitle">${item.exchange} • ${item.strategy === 'triangle' ? 'Треугольник' : 'Фандинг'}</div>
-              </div>
-            </div>
-            <div class="item-right">
-              <div class="val-green">+${item.spreadPct.toFixed(2)}%</div>
-              <div class="ttl-badge">⏱ Живет ~${item.ttlSec}с</div>
-            </div>
-          `;
-          el.addEventListener('click', () => openDetailScreen(item));
-          container.appendChild(el);
-        });
-      }
-
-      function openDetailScreen(item) {
-        currentItem = item;
-        if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
-
-        document.getElementById('detailTitle').innerText = item.title;
-        document.getElementById('detailExchange').innerText = `${item.exchange} • ${item.strategy === 'triangle' ? 'Треугольный арбитраж' : 'Спот / Фьючерс'}`;
-        document.getElementById('detailSpread').innerText = `+${item.spreadPct.toFixed(2)}%`;
-
-        const iconEl = document.getElementById('detailIcon');
-        iconEl.innerText = item.symbol;
-        iconEl.className = `crypto-icon ${item.bgClass}`;
-
-        // Рендер шагов
-        const stepsContainer = document.getElementById('routeStepsContainer');
-        stepsContainer.innerHTML = '';
-        item.steps.forEach(step => {
-          const stepEl = document.createElement('div');
-          stepEl.className = 'route-step';
-          stepEl.innerHTML = `
-            <div>
-              <div style="font-weight: 600;">${step.name}</div>
-              <div class="item-subtitle">${step.type} • Стакан: ${step.vol}</div>
-            </div>
-            <div style="font-weight: 700; color: var(--accent-blue);">${step.price}</div>
-          `;
-          stepsContainer.appendChild(stepEl);
-        });
-
-        document.getElementById('scannerListScreen').classList.remove('active');
-        document.getElementById('scannerDetailScreen').classList.add('active');
-
-        updateCalculator();
-        setTimeout(() => {
-          resizeCanvas();
-          initChartPoints(item);
-          drawChart();
-        }, 50);
-      }
-
-      // Быстрые фильтры стратегий
-      document.querySelectorAll('.quick-actions .action-card').forEach(card => {
-        card.addEventListener('click', function() {
-          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-          document.querySelectorAll('.quick-actions .action-card').forEach(c => c.classList.remove('active-filter'));
-          this.classList.add('active-filter');
-          currentStrategyFilter = this.getAttribute('data-strategy') || 'all';
-          renderDeals();
-        });
-      });
-
-      document.getElementById('backBtn').addEventListener('click', () => {
-        document.getElementById('scannerDetailScreen').classList.remove('active');
-        document.getElementById('scannerListScreen').classList.add('active');
-      });
-
-      document.getElementById('btnExecute').addEventListener('click', () => {
-        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        alert('Запрос на исполнение отправлен в API биржи!');
-      });
-
-      renderDeals();
-    });
-  </script>
-</body>
-</html>
+        <div style="font-size: 13px; color: var(--text-secondary);">Сумма сделки в USDT:http://googleusercontent.com/image_generation_content/0
