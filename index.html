@@ -925,7 +925,7 @@
   </div>
 
 
-  <script>
+<script>
     document.addEventListener("DOMContentLoaded", () => {
       const tg = window.Telegram?.WebApp;
       if (tg) {
@@ -952,7 +952,6 @@
             name = u.username;
           }
 
-          // Полноценная поддержка любых Unicode-символов (китайский, эмодзи, кириллица)
           const nameForInitial = firstName || u.username || name;
           if (nameForInitial) {
             initial = Array.from(nameForInitial)[0];
@@ -963,7 +962,6 @@
           }
         }
 
-        // Подстановка в интерфейс
         document.querySelectorAll('.user-avatar-btn').forEach(btn => btn.innerText = initial);
         document.getElementById('profileAvatarBig').innerText = initial;
         document.getElementById('profileNameText').innerText = name;
@@ -995,7 +993,7 @@
       if (closeBtn) closeBtn.addEventListener('click', closeProfile);
 
       // ==========================================
-      // КНОПКИ И ЭЛЕМЕНТЫ НАСТРОЕК (ПОЛНЫЙ ФУНКЦИОНАЛ)
+      // ЭЛЕМЕНТЫ НАСТРОЕК
       // ==========================================
       const toggleNotif = document.getElementById('toggleNotif');
       if (toggleNotif) {
@@ -1088,34 +1086,38 @@
 
 
       // ==========================================
-      // 1. ДАННЫЕ МЕЖБИРЖЕВОГО АРБИТРАЖА
+      // 1. ДИНАМИЧЕСКИЕ ДАННЫЕ МЕЖБИРЖЕВОГО АРБИТРАЖА (С БЭКЕНДА)
       // ==========================================
-      const deals = [
-        {
-          id: 'ton', title: 'TON / USDT', type: 'inter', symbol: '💎', bgClass: 'ton-bg',
-          buyEx: 'OKX Spot', sellEx: 'MEXC Spot', buyPrice: 5.20, sellPrice: 5.327,
-          spreadPct: 2.45, network: 'TON Network', netTime: '~2 мин', netFee: 0.05,
-          buyVol: '$14,200', sellVol: '$8,500'
-        },
-        {
-          id: 'btc', title: 'BTC / USDT', type: 'spot', symbol: '₿', bgClass: 'btc-bg',
-          buyEx: 'Bybit Spot', sellEx: 'KuCoin Spot', buyPrice: 64100, sellPrice: 65266,
-          spreadPct: 1.82, network: 'Bitcoin', netTime: '~15 мин', netFee: 2.50,
-          buyVol: '$180,000', sellVol: '$95,000'
-        },
-        {
-          id: 'eth', title: 'ETH / USDT', type: 'inter', symbol: 'Ξ', bgClass: 'eth-bg',
-          buyEx: 'Binance', sellEx: 'Gate.io', buyPrice: 2640, sellPrice: 2723,
-          spreadPct: 3.15, network: 'Arbitrum One', netTime: '~1 мин', netFee: 0.35,
-          buyVol: '$65,000', sellVol: '$42,000'
-        },
-        {
-          id: 'sol', title: 'SOL / USDT', type: 'inter', symbol: 'S', bgClass: 'sol-bg',
-          buyEx: 'Kraken', sellEx: 'Bybit', buyPrice: 142.10, sellPrice: 145.22,
-          spreadPct: 2.19, network: 'Solana', netTime: '~30 сек', netFee: 0.08,
-          buyVol: '$22,400', sellVol: '$18,900'
+      let deals = []; // Массив будет заполняться с сервера
+
+      async function fetchLiveDeals() {
+        try {
+          const depositInput = document.getElementById('calcDepositInput');
+          const deposit = depositInput ? depositInput.value : 500;
+          
+          // ⚠️ ЗАМЕНИ ССЫЛКУ НА СВОЙ URL С RENDER
+          const BACKEND_URL = 'https://arbitrage-backend-z4mq.onrender.com/api/deals';
+          
+          const response = await fetch(`${BACKEND_URL}/api/deals?deposit=${deposit}`);
+          const data = await response.json();
+          
+          if (data && data.deals) {
+            deals = data.deals;
+            renderDeals(); 
+            
+            if (deals.length > 0) {
+              const topSpread = deals[0].spreadPct || deals[0].profit_pct || 0;
+              const balanceEl = document.querySelector('.balance-amount');
+              if (balanceEl) {
+                balanceEl.innerHTML = `+${Number(topSpread).toFixed(2)} <span style="color: var(--accent-blue)">%</span>`;
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Ошибка загрузки связок с бэкенда:", err);
         }
-      ];
+      }
+
 
       // ==========================================
       // 2. ДАННЫЕ ВНУТРИБИРЖЕВОГО АРБИТРАЖА
@@ -1319,10 +1321,11 @@
       // 4. МЕЖБИРЖЕВОЙ АРБИТРАЖ (СПИСОК И ДЕТАЛИ)
       // ==========================================
       let currentFilter = 'all';
-      let currentInterItem = deals[0];
+      let currentInterItem = null;
 
       function renderDeals() {
         const container = document.getElementById('dealsList');
+        if (!container) return;
         container.innerHTML = '';
 
         let filtered = deals.filter(d => {
@@ -1330,20 +1333,26 @@
           return d.type === currentFilter;
         });
 
+        if (filtered.length === 0) {
+          container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-secondary); font-size: 13px;">Загрузка связок с бэкенда...</div>`;
+          return;
+        }
+
         filtered.forEach(item => {
+          const spread = item.spreadPct || item.profit_pct || 0;
           const el = document.createElement('div');
           el.className = 'list-item';
           el.innerHTML = `
             <div class="item-left">
-              <div class="crypto-icon ${item.bgClass}">${item.symbol}</div>
+              <div class="crypto-icon ${item.bgClass || 'btc-bg'}">${item.symbol || '₿'}</div>
               <div>
                 <div class="item-title">${item.title}</div>
                 <div class="item-subtitle">${item.buyEx} ➔ ${item.sellEx}</div>
               </div>
             </div>
             <div class="item-right">
-              <div class="val-green">+${item.spreadPct.toFixed(2)}%</div>
-              <div class="item-subtitle">+$${(1000 * (item.spreadPct / 100) - item.netFee).toFixed(2)}</div>
+              <div class="val-green">+${Number(spread).toFixed(2)}%</div>
+              <div class="item-subtitle">+$${(1000 * (spread / 100) - (item.netFee || 0)).toFixed(2)}</div>
             </div>
           `;
           el.addEventListener('click', () => openDetailScreen(item));
@@ -1355,36 +1364,48 @@
         currentInterItem = item;
         if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
 
+        const spread = item.spreadPct || item.profit_pct || 0;
+
         document.getElementById('detailTitle').innerText = item.title;
-        document.getElementById('detailSpread').innerText = `+${item.spreadPct.toFixed(2)}%`;
-        document.getElementById('stepBuyEx').innerText = `${item.buyEx} • Стакан: ${item.buyVol}`;
-        document.getElementById('stepSellEx').innerText = `${item.sellEx} • Стакан: ${item.sellVol}`;
-        document.getElementById('stepBuyPrice').innerText = `$${item.buyPrice.toFixed(2)}`;
-        document.getElementById('stepSellPrice').innerText = `$${item.sellPrice.toFixed(2)}`;
-        document.getElementById('stepNetworkInfo').innerText = `${item.network} • ${item.netTime} • Ком.: $${item.netFee.toFixed(2)}`;
+        document.getElementById('detailSpread').innerText = `+${Number(spread).toFixed(2)}%`;
+        document.getElementById('stepBuyEx').innerText = `${item.buyEx} • Стакан: ${item.buyVol || '$10,000'}`;
+        document.getElementById('stepSellEx').innerText = `${item.sellEx} • Стакан: ${item.sellVol || '$10,000'}`;
+        document.getElementById('stepBuyPrice').innerText = `$${Number(item.buyPrice || 0).toFixed(2)}`;
+        document.getElementById('stepSellPrice').innerText = `$${Number(item.sellPrice || 0).toFixed(2)}`;
+        document.getElementById('stepNetworkInfo').innerText = `${item.network || 'Mainnet'} • ${item.netTime || '~2 мин'} • Ком.: $${Number(item.netFee || 0).toFixed(2)}`;
 
         const iconEl = document.getElementById('detailIcon');
-        iconEl.innerText = item.symbol;
-        iconEl.className = `crypto-icon ${item.bgClass}`;
+        iconEl.innerText = item.symbol || '₿';
+        iconEl.className = `crypto-icon ${item.bgClass || 'btc-bg'}`;
 
         document.getElementById('scannerListScreen').classList.remove('active');
         document.getElementById('scannerDetailScreen').classList.add('active');
 
         updateCalculator();
-        interChart.start(item.spreadPct);
+        interChart.start(Number(spread));
       }
 
       function updateCalculator() {
+        if (!currentInterItem) return;
         const deposit = parseFloat(document.getElementById('calcDepositInput').value) || 0;
-        const grossProfit = (deposit * (currentInterItem.spreadPct / 100));
-        const netProfit = Math.max(0, grossProfit - currentInterItem.netFee);
+        const spread = currentInterItem.spreadPct || currentInterItem.profit_pct || 0;
+        const netFee = currentInterItem.netFee || 0;
+        
+        const grossProfit = (deposit * (spread / 100));
+        const netProfit = Math.max(0, grossProfit - netFee);
         const netPct = deposit > 0 ? (netProfit / deposit) * 100 : 0;
 
         document.getElementById('calcProfitResult').innerText = `+$${netProfit.toFixed(2)} (+${netPct.toFixed(2)}%)`;
         document.getElementById('detailProfitText').innerText = `Чистый профит: +$${netProfit.toFixed(2)} с $${deposit.toLocaleString()}`;
       }
 
-      document.getElementById('calcDepositInput').addEventListener('input', updateCalculator);
+      const depositInputEl = document.getElementById('calcDepositInput');
+      if (depositInputEl) {
+        depositInputEl.addEventListener('input', () => {
+          updateCalculator();
+          fetchLiveDeals(); // Обновляем данные на бэкенде под новый депозит
+        });
+      }
 
       document.querySelectorAll('.quick-actions .action-card').forEach(card => {
         card.addEventListener('click', function() {
@@ -1412,6 +1433,7 @@
 
       function renderIntraDeals() {
         const container = document.getElementById('intraDealsList');
+        if (!container) return;
         container.innerHTML = '';
 
         let filtered = intraDeals.filter(d => {
@@ -1488,7 +1510,10 @@
         document.getElementById('intraProfitSub').innerText = `Чистый доход: +$${netProfit.toFixed(2)} с $${deposit.toLocaleString()} (учитывая Taker комиссию)`;
       }
 
-      document.getElementById('intraDepositInput').addEventListener('input', updateIntraCalculator);
+      const intraDepositEl = document.getElementById('intraDepositInput');
+      if (intraDepositEl) {
+        intraDepositEl.addEventListener('input', updateIntraCalculator);
+      }
 
       document.querySelectorAll('#intraExSelector .ex-pill').forEach(pill => {
         pill.addEventListener('click', function() {
@@ -1522,13 +1547,14 @@
         alert(`Ордера для связки ${currentIntraItem.title} успешно созданы на ${currentIntraItem.exchange}!`);
       });
 
-      // Переключение таймфреймов графиков
       document.querySelectorAll('.chart-tf-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
           document.querySelectorAll('.chart-tf-btn').forEach(b => b.classList.remove('active'));
           this.classList.add('active');
-          interChart.start(currentInterItem.spreadPct);
+          if (currentInterItem) {
+            interChart.start(currentInterItem.spreadPct || currentInterItem.profit_pct);
+          }
         });
       });
 
@@ -1551,7 +1577,10 @@
         });
       });
 
-      renderDeals();
+      // Запуск первичного запроса к бэкенду и настройка интервала опроса (каждые 5 сек)
+      fetchLiveDeals();
+      setInterval(fetchLiveDeals, 5000);
+
       renderIntraDeals();
     });
   </script>
