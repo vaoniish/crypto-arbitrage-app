@@ -92,6 +92,8 @@
       cursor: pointer;
       transition: transform 0.15s ease;
       color: #fff;
+      overflow: hidden;
+      text-transform: uppercase;
     }
     .profile-avatar:active { transform: scale(0.92); }
 
@@ -365,9 +367,7 @@
     .nav-tab.active { background: rgba(255, 255, 255, 0.08); color: #ffffff; }
     .nav-tab svg { width: 22px; height: 22px; fill: currentColor; }
 
-    /* ==========================================
-       СТИЛИ МОДАЛЬНОГО ОКНА НАСТРОЕК (PROFILE MODAL)
-       ========================================== */
+    /* PROFILE MODAL STYLES */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -429,10 +429,11 @@
       font-weight: 700;
       margin-bottom: 12px;
       color: #fff;
+      text-transform: uppercase;
     }
 
-    .profile-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-    .profile-email { font-size: 13px; color: var(--text-secondary); }
+    .profile-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+    .profile-email { font-size: 13px; color: var(--text-secondary); text-align: center; }
 
     .settings-group {
       background: var(--card-bg);
@@ -491,7 +492,7 @@
 
     .val-blue { color: var(--accent-blue); font-weight: 500; }
 
-    /* Переключатель Toggle Switch */
+    /* Toggle Switch */
     .toggle-switch {
       width: 44px;
       height: 24px;
@@ -520,7 +521,6 @@
       padding: 0 8px 16px 8px;
     }
     .disclaimer-box strong { color: #fff; }
-    .disclaimer-box a { color: var(--accent-blue); text-decoration: none; }
 
     .bot-username {
       text-align: center;
@@ -771,7 +771,6 @@
   <div id="profileModal" class="modal-overlay">
     <div class="settings-container">
       
-      <!-- Верхняя панель управления (без крестиков и трех точек) -->
       <div class="settings-header">
         <div class="back-btn" id="closeSettingsBtn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -779,10 +778,10 @@
         <div class="settings-title-group">
           <span>bibols</span>
         </div>
-        <div style="width: 38px;"></div> <!-- Филлер для симметрии flex-распределения -->
+        <div style="width: 38px;"></div>
       </div>
 
-      <!-- Аватар (иконка по имени) и Юзернейм -->
+      <!-- Аватар и Имя Пользователя из TG -->
       <div class="settings-profile-card glass-card">
         <div class="avatar-large" id="profileAvatarBig">U</div>
         <div class="profile-name" id="profileNameText">Пользователь</div>
@@ -853,7 +852,7 @@
             <span>Тарифы</span>
           </div>
           <div class="settings-item-right">
-            <span class="val-blue">Base</span>
+            <span class="val-blue" id="tariffText">Base</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8c9ea8" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
           </div>
         </div>
@@ -900,7 +899,7 @@
         Мини-приложение bibols управляется автономным сервисом и не связано напрямую с Telegram.
       </div>
 
-      <div class="bot-username">@bibols</div>
+      <div class="bot-username" id="botUsernameText">@bibols_bot</div>
     </div>
   </div>
 
@@ -929,28 +928,42 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const tg = window.Telegram?.WebApp;
-      if (tg) tg.expand();
+      if (tg) {
+        tg.ready();
+        tg.expand();
+      }
 
       // ==========================================
-      // ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ И ИКОНКИ ПО ИМЕНИ
+      // ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ ИЗ TELEGRAM
       // ==========================================
       function setupUserProfile() {
         let name = "Пользователь";
         let initial = "U";
-        let handle = "@bibols_user";
+        let handle = "me**a@gmail.com";
 
         if (tg?.initDataUnsafe?.user) {
           const u = tg.initDataUnsafe.user;
-          name = `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.username || "Пользователь";
-          if (u.first_name && u.first_name.trim().length > 0) {
-            initial = u.first_name.trim()[0].toUpperCase();
+          const firstName = u.first_name ? u.first_name.trim() : '';
+          const lastName = u.last_name ? u.last_name.trim() : '';
+          
+          if (firstName || lastName) {
+            name = `${firstName} ${lastName}`.trim();
           } else if (u.username) {
-            initial = u.username.trim()[0].toUpperCase();
+            name = u.username;
           }
-          if (u.username) handle = `@${u.username}`;
+
+          // Полноценная поддержка любых Unicode-символов (китайский, эмодзи, кириллица)
+          const nameForInitial = firstName || u.username || name;
+          if (nameForInitial) {
+            initial = Array.from(nameForInitial)[0];
+          }
+
+          if (u.username) {
+            handle = `@${u.username}`;
+          }
         }
 
-        // Обновление интерфейса
+        // Подстановка в интерфейс
         document.querySelectorAll('.user-avatar-btn').forEach(btn => btn.innerText = initial);
         document.getElementById('profileAvatarBig').innerText = initial;
         document.getElementById('profileNameText').innerText = name;
@@ -1019,22 +1032,26 @@
 
       document.getElementById('itemSupport').addEventListener('click', () => {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        alert("Служба поддержки bibols: Напишите нам в Telegram @bibols_support");
+        if (tg?.openTelegramLink) {
+          tg.openTelegramLink('https://t.me/bibols_support');
+        } else {
+          alert("Служба поддержки: @bibols_support");
+        }
       });
 
       document.getElementById('itemFAQ').addEventListener('click', () => {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        alert("Раздел FAQ bibols: Ответы на частые вопросы по работе межбиржевого и внутрибиржевого сканера.");
+        alert("FAQ bibols:\n1. Выберите связку из списка.\n2. Нажмите запуск или перейдите на биржу.\n3. Пользуйтесь встроенным калькулятором спреда.");
       });
 
       document.getElementById('itemTerms').addEventListener('click', () => {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        alert("Пользовательское соглашение bibols v2.4");
+        alert("Пользовательское соглашение bibols v2.4\nВсе права защищены.");
       });
 
       document.getElementById('itemPrivacy').addEventListener('click', () => {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        alert("Политика конфиденциальности: Все ваши данные защищены локальным шифрованием.");
+        alert("Политика конфиденциальности:\nВаши данные защищены и обрабатываются локально.");
       });
 
       document.getElementById('notificationsHeaderBtn').addEventListener('click', () => {
@@ -1044,7 +1061,10 @@
 
       document.getElementById('intraSearchBtn').addEventListener('click', () => {
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        alert("Поиск по тикеру: Введите название монеты в фильтре бирж.");
+        const searchPair = prompt("Введите тикер для поиска (например BTC, TON, ETH):");
+        if (searchPair) {
+          alert(`Поиск связок для: ${searchPair.toUpperCase()}`);
+        }
       });
 
       document.getElementById('btnInviteFriend').addEventListener('click', () => {
@@ -1052,7 +1072,7 @@
         if (tg?.shareUrl) {
           tg.shareUrl('https://t.me/bibols_bot', 'Присоединяйся к криптоарбитражному терминалу bibols!');
         } else {
-          alert('Ваша реферальная ссылка скопирована в буфер обмена!');
+          alert('Ваша реферальная ссылка скопирована!');
         }
       });
 
@@ -1502,6 +1522,15 @@
         alert(`Ордера для связки ${currentIntraItem.title} успешно созданы на ${currentIntraItem.exchange}!`);
       });
 
+      // Переключение таймфреймов графиков
+      document.querySelectorAll('.chart-tf-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+          document.querySelectorAll('.chart-tf-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          interChart.start(currentInterItem.spreadPct);
+        });
+      });
 
       // ==========================================
       // 6. НАВИГАЦИЯ ПО ВКЛАДКАМ
