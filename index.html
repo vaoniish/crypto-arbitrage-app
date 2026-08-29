@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wallet UI & Advanced Chart</title>
+  <title>Interexchange Arbitrage</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -53,8 +53,6 @@
     }
 
     .crypto-icon {
-      position: relative;
-      overflow: hidden;
       width: 44px;
       height: 44px;
       border-radius: 50%;
@@ -71,6 +69,7 @@
     .btc-bg { background: linear-gradient(135deg, #F7931A, #FFB300); box-shadow: 0 4px 14px rgba(247, 147, 26, 0.3); }
     .ton-bg { background: linear-gradient(135deg, #0088CC, #2AABEE); box-shadow: 0 4px 14px rgba(42, 171, 238, 0.3); }
     .eth-bg { background: linear-gradient(135deg, #627EEA, #8C9EFF); box-shadow: 0 4px 14px rgba(98, 126, 234, 0.3); }
+    .sol-bg { background: linear-gradient(135deg, #9945FF, #14F195); box-shadow: 0 4px 14px rgba(153, 69, 255, 0.3); }
 
     .header-bar {
       display: flex;
@@ -107,6 +106,7 @@
     .balance-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
     .balance-amount { font-size: 40px; font-weight: 800; letter-spacing: -1px; }
 
+    /* Quick Filter Actions */
     .quick-actions {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -175,7 +175,7 @@
     .live-chart-wrapper {
       position: relative;
       width: 100%;
-      height: 240px;
+      height: 230px;
       margin-bottom: 12px;
       touch-action: none;
     }
@@ -228,7 +228,7 @@
     }
 
     .info-card { margin: 0 16px 16px 16px; padding: 18px; }
-    .info-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; }
+    .info-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
 
     .route-step {
       display: flex;
@@ -239,6 +239,26 @@
     }
     .route-step:last-child { border-bottom: none; }
 
+    /* Calculator Input */
+    .calc-box {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 8px 14px;
+      margin-top: 8px;
+    }
+    .calc-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      width: 100%;
+    }
+
     .btn-main, .btn-secondary {
       border: none;
       border-radius: 16px;
@@ -247,9 +267,12 @@
       font-weight: 700;
       cursor: pointer;
       text-align: center;
+      text-decoration: none;
+      display: inline-block;
     }
     .btn-main { background: var(--accent-blue); color: #fff; width: 100%; }
     .btn-secondary { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--card-border); width: 100%; }
+    .btn-main:active, .btn-secondary:active { transform: scale(0.98); }
 
     /* Navbar */
     .navbar {
@@ -283,20 +306,19 @@
 </head>
 <body>
 
-  <!-- TAB 1: SCANNER -->
   <div id="tab-scanner" class="tab-content active">
     <div id="scannerListScreen" class="sub-screen active">
       <div class="header-bar">
         <div class="profile-avatar">TG</div>
-        <div class="header-title">Wallet Arbitrage</div>
+        <div class="header-title">Межбиржевой арбитраж</div>
         <div class="icon-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </div>
       </div>
 
       <div class="balance-section">
-        <div class="balance-label">Максимальный спред 24h</div>
-        <div class="balance-amount">+3.84 <span style="color: var(--accent-blue)">%</span></div>
+        <div class="balance-label">Максимальный чистый спред</div>
+        <div class="balance-amount">+3.15 <span style="color: var(--accent-blue)">%</span></div>
       </div>
 
       <div class="quick-actions">
@@ -312,52 +334,46 @@
           <div class="action-icon-circle"><svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
           <div class="action-title">Внутрибирж</div>
         </div>
-        <div class="action-card">
-          <div class="action-icon-circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-          <div class="action-title">Фильтры</div>
+        <div class="action-card" id="filterHighSpread">
+          <div class="action-icon-circle"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="action-title">> 2% спред</div>
         </div>
       </div>
 
       <div class="section-container glass-card">
         <div class="section-header">
           <span class="section-title">Арбитражные связки</span>
+          <span style="font-size: 12px; color: var(--accent-green);">● Живой поток</span>
         </div>
         <div id="dealsList"></div>
       </div>
     </div>
 
-    <!-- Live Detail Screen -->
     <div id="scannerDetailScreen" class="sub-screen">
       <div class="header-bar">
         <div class="back-btn" id="backBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
-        <div style="font-weight: 700; font-size: 16px;">График монеты</div>
+        <div style="font-weight: 700; font-size: 16px;">Анализ арбитражной связки</div>
         <div></div>
       </div>
 
       <div class="asset-header">
         <div id="detailIcon" class="crypto-icon ton-bg">💎</div>
         <div>
-          <div id="detailTitle" style="font-size: 20px; font-weight: 800;">Gram (бывш. Toncoin) <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">GRAM</span></div>
+          <div id="detailTitle" style="font-size: 20px; font-weight: 800;">TON / USDT</div>
           <div id="detailType" class="item-subtitle">Межбиржевой спот</div>
         </div>
       </div>
 
       <div class="price-section">
-        <div id="detailPrice" class="price-val">117,25 ₽</div>
-        <div style="font-size: 13px; margin-top: 4px; display: flex; gap: 8px; align-items: center;">
-          <span id="detailChangeAbs" style="color: var(--accent-red); font-weight: 600;">-0,69 ₽</span>
-          <span id="detailChangePct" style="color: var(--accent-red); font-weight: 600; background: rgba(255,75,75,0.15); padding: 2px 6px; border-radius: 6px;">↓ 0.58%</span>
-          <span style="color: var(--text-secondary);">Сегодня</span>
-        </div>
+        <div id="detailSpread" class="price-val" style="color: var(--accent-green)">+2.45%</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;" id="detailProfitText">Чистый профит: +$24.50 с $1,000</div>
       </div>
 
-      <!-- Live Interactive Canvas Chart Container -->
       <div class="live-chart-wrapper">
         <div id="chartTooltip" class="chart-tooltip"></div>
         <canvas id="liveCanvas"></canvas>
       </div>
 
-      <!-- Timeframe selector like in sample image -->
       <div class="chart-tf-picker">
         <div class="chart-tf-btn active" data-tf="1D">1Д</div>
         <div class="chart-tf-btn" data-tf="7D">7Д</div>
@@ -367,20 +383,49 @@
       </div>
 
       <div class="info-card glass-card">
-        <div class="info-card-title">Маршрут сделки</div>
-        <div class="route-step">
-          <div><div style="font-weight: 600;">1. Покупка</div><div id="stepBuyEx" class="item-subtitle">OKX</div></div>
-          <div id="stepBuyPrice" style="font-weight: 700;">116.50 ₽</div>
+        <div class="info-card-title">Калькулятор депозита</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">Введите сумму для расчета чистой прибыли с учетом комиссий:</div>
+        <div class="calc-box">
+          <input type="number" id="calcDepositInput" value="1000">
+          <span style="font-weight: 700; color: var(--text-secondary);">$</span>
         </div>
-        <div class="route-step">
-          <div><div style="font-weight: 600;">2. Продажа</div><div id="stepSellEx" class="item-subtitle">MEXC</div></div>
-          <div id="stepSellPrice" style="font-weight: 700; color: var(--accent-green);">119.35 ₽</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);">
+          <span style="font-size: 14px; color: var(--text-secondary);">Итоговый доход:</span>
+          <span id="calcProfitResult" style="font-size: 18px; font-weight: 800; color: var(--accent-green);">+$24.50 (+2.45%)</span>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px;">
-        <button class="btn-main">Купить</button>
-        <button class="btn-secondary">Продать</button>
+      <div class="info-card glass-card">
+        <div class="info-card-title">Детальный маршрут арбитража</div>
+        
+        <div class="route-step">
+          <div>
+            <div style="font-weight: 600;">1. Покупка (Ask)</div>
+            <div id="stepBuyEx" class="item-subtitle">OKX (Spot) • Стакан: $14,200</div>
+          </div>
+          <div id="stepBuyPrice" style="font-weight: 700;">$5.20</div>
+        </div>
+
+        <div class="route-step">
+          <div>
+            <div style="font-weight: 600;">2. Сетевой перевод</div>
+            <div id="stepNetworkInfo" class="item-subtitle">Сеть TON • ~2 мин • Ком.: $0.05</div>
+          </div>
+          <div style="font-weight: 700; color: var(--accent-blue);">0.1 TON</div>
+        </div>
+
+        <div class="route-step">
+          <div>
+            <div style="font-weight: 600;">3. Продажа (Bid)</div>
+            <div id="stepSellEx" class="item-subtitle">MEXC (Spot) • Стакан: $8,500</div>
+          </div>
+          <div id="stepSellPrice" style="font-weight: 700; color: var(--accent-green);">$5.327</div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px 20px 16px;">
+        <button class="btn-main" id="btnBuyAction">Перейти на OKX</button>
+        <button class="btn-secondary" id="btnSellAction">Перейти на MEXC</button>
       </div>
     </div>
   </div>
@@ -389,10 +434,9 @@
   <div id="tab-income" class="tab-content"></div>
   <div id="tab-bonuses" class="tab-content"></div>
 
-  <!-- NAVBAR -->
   <div class="navbar">
     <div class="nav-tab active" data-tab="tab-scanner">
-      <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5-1.5z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
       <span>Сканер</span>
     </div>
     <div class="nav-tab" data-tab="tab-market">
@@ -414,36 +458,79 @@
       const tg = window.Telegram?.WebApp;
       if (tg) tg.expand();
 
+      // Данные арбитражных связок
       const deals = [
         {
-          id: 'gram',
-          title: 'Gram (бывш. Toncoin)',
-          ticker: 'GRAM',
+          id: 'ton',
+          title: 'TON / USDT',
           type: 'inter',
           symbol: '💎',
           bgClass: 'ton-bg',
           buyEx: 'OKX Spot',
           sellEx: 'MEXC Spot',
-          basePrice: 117.25,
-          spread: '+2.45%',
-          profit: '+$24.50'
+          buyPrice: 5.20,
+          sellPrice: 5.327,
+          spreadPct: 2.45,
+          network: 'TON Network',
+          netTime: '~2 мин',
+          netFee: 0.05,
+          buyVol: '$14,200',
+          sellVol: '$8,500'
         },
         {
           id: 'btc',
-          title: 'Bitcoin',
-          ticker: 'BTC',
+          title: 'BTC / USDT',
           type: 'spot',
           symbol: '₿',
           bgClass: 'btc-bg',
           buyEx: 'Bybit Spot',
           sellEx: 'KuCoin Spot',
-          basePrice: 6010000,
-          spread: '+1.82%',
-          profit: '+$18.20'
+          buyPrice: 64100,
+          sellPrice: 65266,
+          spreadPct: 1.82,
+          network: 'Bitcoin',
+          netTime: '~15 мин',
+          netFee: 2.50,
+          buyVol: '$180,000',
+          sellVol: '$95,000'
+        },
+        {
+          id: 'eth',
+          title: 'ETH / USDT',
+          type: 'inter',
+          symbol: 'Ξ',
+          bgClass: 'eth-bg',
+          buyEx: 'Binance',
+          sellEx: 'Gate.io',
+          buyPrice: 2640,
+          sellPrice: 2723,
+          spreadPct: 3.15,
+          network: 'Arbitrum One',
+          netTime: '~1 мин',
+          netFee: 0.35,
+          buyVol: '$65,000',
+          sellVol: '$42,000'
+        },
+        {
+          id: 'sol',
+          title: 'SOL / USDT',
+          type: 'inter',
+          symbol: 'S',
+          bgClass: 'sol-bg',
+          buyEx: 'Kraken',
+          sellEx: 'Bybit',
+          buyPrice: 142.10,
+          sellPrice: 145.22,
+          spreadPct: 2.19,
+          network: 'Solana',
+          netTime: '~30 сек',
+          netFee: 0.08,
+          buyVol: '$22,400',
+          sellVol: '$18,900'
         }
       ];
 
-      // --- CANVAS CHART ENGINE WITH GRID, PRICES & DATES ---
+      // --- CANVAS CHART ENGINE ---
       const canvas = document.getElementById('liveCanvas');
       const ctx = canvas.getContext('2d');
       const tooltip = document.getElementById('chartTooltip');
@@ -452,7 +539,7 @@
       let liveInterval = null;
       let isHovering = false;
       let mousePos = { x: 0, y: 0 };
-      let currentBasePrice = 117.25;
+      let currentItem = deals[0];
 
       function resizeCanvas() {
         const rect = canvas.parentElement.getBoundingClientRect();
@@ -462,15 +549,16 @@
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
       }
 
-      function initChartPoints(baseVal) {
+      function initChartPoints(item) {
         chartPoints = [];
-        let cur = baseVal;
+        let cur = item.spreadPct;
         const now = Date.now();
         const oneDay = 24 * 60 * 60 * 1000;
         const startTime = now - oneDay;
 
         for (let i = 40; i >= 0; i--) {
-          cur += (Math.random() - 0.51) * (baseVal * 0.008);
+          cur += (Math.random() - 0.49) * 0.12;
+          if (cur < 0.2) cur = 0.2;
           chartPoints.push({
             time: startTime + ((40 - i) * (oneDay / 40)),
             val: cur
@@ -481,7 +569,7 @@
       function updateLiveChart() {
         if (chartPoints.length === 0) return;
         const lastVal = chartPoints[chartPoints.length - 1].val;
-        const newVal = lastVal + (Math.random() - 0.49) * (currentBasePrice * 0.003);
+        const newVal = Math.max(0.2, lastVal + (Math.random() - 0.48) * 0.08);
         chartPoints.shift();
         chartPoints.push({ time: Date.now(), val: newVal });
         drawChart();
@@ -505,8 +593,7 @@
         ctx.clearRect(0, 0, w, h);
         if (chartPoints.length < 2) return;
 
-        // Отступы для правых цен и нижних дат
-        const paddingRight = 55;
+        const paddingRight = 50;
         const paddingBottom = 26;
         const paddingTop = 15;
         const graphW = w - paddingRight;
@@ -515,17 +602,16 @@
         const vals = chartPoints.map(p => p.val);
         let min = Math.min(...vals);
         let max = Math.max(...vals);
-        if (min === max) { min -= 1; max += 1; }
+        if (min === max) { min -= 0.5; max += 0.5; }
         const range = max - min;
 
         const getX = (idx) => (idx / (chartPoints.length - 1)) * graphW;
         const getY = (val) => paddingTop + graphH - ((val - min) / range) * graphH;
 
-        // Определяем цвет линии (падение = красный, рост = зеленый)
         const isBullish = chartPoints[chartPoints.length - 1].val >= chartPoints[0].val;
         const mainColor = isBullish ? '#31B469' : '#FF4B4B';
 
-        // 1. Рисуем сетку горизонтальных линий и цены справа
+        // 1. Сетка цен (Спред %)
         const gridLevels = 4;
         ctx.lineWidth = 1;
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
@@ -536,25 +622,23 @@
         for (let i = 0; i < gridLevels; i++) {
           const ratio = i / (gridLevels - 1);
           const y = paddingTop + graphH * ratio;
-          const priceVal = max - (ratio * range);
+          const spreadVal = max - (ratio * range);
 
-          // Линия
           ctx.beginPath();
           ctx.moveTo(0, y);
           ctx.lineTo(graphW, y);
           ctx.stroke();
 
-          // Текст цены
-          ctx.fillText(priceVal.toFixed(2), w - 6, y + 4);
+          ctx.fillText(`+${spreadVal.toFixed(2)}%`, w - 6, y + 4);
         }
 
-        // 2. Даты снизу (Начало и конец)
+        // 2. Метки времени
         ctx.textAlign = 'left';
         ctx.fillText(formatDate(chartPoints[0].time), 0, h - 6);
         ctx.textAlign = 'right';
         ctx.fillText(formatDate(chartPoints[chartPoints.length - 1].time), graphW, h - 6);
 
-        // 3. Градиентная заливка под графиком
+        // 3. Заливка
         const grad = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + graphH);
         grad.addColorStop(0, isBullish ? 'rgba(49, 180, 105, 0.25)' : 'rgba(255, 75, 75, 0.25)');
         grad.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
@@ -572,7 +656,7 @@
         ctx.fillStyle = grad;
         ctx.fill();
 
-        // 4. Основная линия графика
+        // 4. Линия
         ctx.beginPath();
         ctx.moveTo(getX(0), getY(chartPoints[0].val));
         for (let i = 1; i < chartPoints.length; i++) {
@@ -584,7 +668,7 @@
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        // 5. Визирная линия и курсор при наведении
+        // 5. Визирная линия
         if (isHovering && mousePos.x <= graphW) {
           const hoverIdx = Math.max(0, Math.min(chartPoints.length - 1, Math.round((mousePos.x / graphW) * (chartPoints.length - 1))));
           const px = getX(hoverIdx);
@@ -607,7 +691,7 @@
 
           tooltip.style.display = 'block';
           tooltip.style.left = `${Math.min(Math.max(10, px - 40), graphW - 90)}px`;
-          tooltip.innerText = `${chartPoints[hoverIdx].val.toFixed(2)} ₽`;
+          tooltip.innerText = `Спред: +${chartPoints[hoverIdx].val.toFixed(2)}%`;
         } else {
           tooltip.style.display = 'none';
         }
@@ -633,11 +717,11 @@
       canvas.addEventListener('mouseleave', handlePointerLeave);
       canvas.addEventListener('touchend', handlePointerLeave);
 
-      function startLiveChart(baseVal) {
-        currentBasePrice = baseVal;
+      function startLiveChart(item) {
+        currentItem = item;
         setTimeout(() => {
           resizeCanvas();
-          initChartPoints(baseVal);
+          initChartPoints(item);
           drawChart();
           if (liveInterval) clearInterval(liveInterval);
           liveInterval = setInterval(updateLiveChart, 1000);
@@ -649,11 +733,33 @@
         drawChart();
       });
 
-      // --- RENDERING & INTERACTION ---
+      // --- ЛОГИКА КАЛЬКУЛЯТОРА ДЕПОЗИТА ---
+      function updateCalculator() {
+        const deposit = parseFloat(document.getElementById('calcDepositInput').value) || 0;
+        const grossProfit = (deposit * (currentItem.spreadPct / 100));
+        const netProfit = Math.max(0, grossProfit - currentItem.netFee);
+        const netPct = deposit > 0 ? (netProfit / deposit) * 100 : 0;
+
+        document.getElementById('calcProfitResult').innerText = `+$${netProfit.toFixed(2)} (+${netPct.toFixed(2)}%)`;
+        document.getElementById('detailProfitText').innerText = `Чистый профит: +$${netProfit.toFixed(2)} с $${deposit.toLocaleString()}`;
+      }
+
+      document.getElementById('calcDepositInput').addEventListener('input', updateCalculator);
+
+      // --- РЕНДЕР И ФИЛЬТРАЦИЯ ---
+      let currentFilter = 'all';
+
       function renderDeals() {
         const container = document.getElementById('dealsList');
         container.innerHTML = '';
-        deals.forEach(item => {
+
+        let filtered = deals.filter(d => {
+          if (currentFilter === 'all') return true;
+          if (currentFilter === 'high') return d.spreadPct >= 2.0;
+          return d.type === currentFilter;
+        });
+
+        filtered.forEach(item => {
           const el = document.createElement('div');
           el.className = 'list-item';
           el.innerHTML = `
@@ -665,8 +771,8 @@
               </div>
             </div>
             <div class="item-right">
-              <div class="val-green">${item.spread}</div>
-              <div class="item-subtitle">${item.profit}</div>
+              <div class="val-green">+${item.spreadPct.toFixed(2)}%</div>
+              <div class="item-subtitle">+$${(1000 * (item.spreadPct / 100) - item.netFee).toFixed(2)}</div>
             </div>
           `;
           el.addEventListener('click', () => openDetailScreen(item));
@@ -676,11 +782,15 @@
 
       function openDetailScreen(item) {
         if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
-        document.getElementById('detailTitle').innerHTML = `${item.title} <span style="font-size: 13px; color: var(--text-secondary); font-weight: 500;">${item.ticker}</span>`;
-        document.getElementById('stepBuyEx').innerText = item.buyEx;
-        document.getElementById('stepSellEx').innerText = item.sellEx;
-        document.getElementById('stepBuyPrice').innerText = `${item.basePrice.toFixed(2)} ₽`;
-        document.getElementById('stepSellPrice').innerText = `${(item.basePrice * 1.0245).toFixed(2)} ₽`;
+        
+        document.getElementById('detailTitle').innerText = item.title;
+        document.getElementById('detailSpread').innerText = `+${item.spreadPct.toFixed(2)}%`;
+        
+        document.getElementById('stepBuyEx').innerText = `${item.buyEx} • Стакан: ${item.buyVol}`;
+        document.getElementById('stepSellEx').innerText = `${item.sellEx} • Стакан: ${item.sellVol}`;
+        document.getElementById('stepBuyPrice').innerText = `$${item.buyPrice.toFixed(2)}`;
+        document.getElementById('stepSellPrice').innerText = `$${item.sellPrice.toFixed(2)}`;
+        document.getElementById('stepNetworkInfo').innerText = `${item.network} • ${item.netTime} • Ком.: $${item.netFee.toFixed(2)}`;
 
         const iconEl = document.getElementById('detailIcon');
         iconEl.innerText = item.symbol;
@@ -689,23 +799,54 @@
         document.getElementById('scannerListScreen').classList.remove('active');
         document.getElementById('scannerDetailScreen').classList.add('active');
 
-        startLiveChart(item.basePrice);
+        updateCalculator();
+        startLiveChart(item);
       }
 
+      // Кнопки быстрых фильтров
+      document.querySelectorAll('.quick-actions .action-card').forEach(card => {
+        card.addEventListener('click', function() {
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+          document.querySelectorAll('.quick-actions .action-card').forEach(c => c.classList.remove('active-filter'));
+          this.classList.add('active-filter');
+
+          if (this.id === 'filterHighSpread') {
+            currentFilter = 'high';
+          } else {
+            currentFilter = this.getAttribute('data-type') || 'all';
+          }
+          renderDeals();
+        });
+      });
+
+      // Возврат назад
       document.getElementById('backBtn').addEventListener('click', () => {
         if (liveInterval) clearInterval(liveInterval);
         document.getElementById('scannerDetailScreen').classList.remove('active');
         document.getElementById('scannerListScreen').classList.add('active');
       });
 
-      // Переключатель таймфреймов (1Д, 7Д, 1М...)
+      // Переключатель таймфреймов графика
       document.querySelectorAll('.chart-tf-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
           document.querySelectorAll('.chart-tf-btn').forEach(b => b.classList.remove('active'));
           this.classList.add('active');
-          initChartPoints(currentBasePrice);
+          initChartPoints(currentItem);
           drawChart();
+        });
+      });
+
+      // Навигация нижнего меню
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+          if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+          document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+          this.classList.add('active');
+          const target = this.getAttribute('data-tab');
+          document.getElementById(target).classList.add('active');
         });
       });
 
