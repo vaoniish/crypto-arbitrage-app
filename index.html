@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wallet UI & Arbitrage Market</title>
+  <title>Wallet UI & Live Chart Arbitrage</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
@@ -36,7 +36,7 @@
       overflow-x: hidden;
     }
 
-    /* Screen Transitions */
+    /* Transition Screens */
     .tab-content { display: none; width: 100%; animation: fadeIn 0.25s ease; }
     .tab-content.active { display: block; }
     .sub-screen { display: none; width: 100%; animation: slideIn 0.25s cubic-bezier(0.1, 0.9, 0.2, 1); }
@@ -219,13 +219,35 @@
     }
     .tf-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
-    /* Detailed View Elements */
+    /* Interactive Live Chart Container */
     .asset-header { padding: 12px 20px; display: flex; align-items: center; gap: 14px; }
-    .price-section { padding: 0 20px 16px 20px; }
+    .price-section { padding: 0 20px 10px 20px; }
     .price-val { font-size: 34px; font-weight: 800; }
 
-    .chart-container { width: 100%; height: 160px; margin-bottom: 16px; }
-    .chart-svg { width: 100%; height: 100%; }
+    .live-chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      margin-bottom: 16px;
+      touch-action: none;
+    }
+    #liveCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .chart-tooltip {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      background: rgba(15, 23, 33, 0.85);
+      border: 1px solid var(--card-border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      pointer-events: none;
+      display: none;
+    }
 
     .info-card { margin: 0 16px 16px 16px; padding: 18px; }
     .info-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; }
@@ -334,7 +356,7 @@
           <div class="action-icon-circle"><svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
           <div class="action-title">Внутрибирж</div>
         </div>
-        <div class="action-card" id="openFilterModal">
+        <div class="action-card">
           <div class="action-icon-circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
           <div class="action-title">Фильтры</div>
         </div>
@@ -348,11 +370,11 @@
       </div>
     </div>
 
-    <!-- Detail Screen -->
+    <!-- Live Detail Screen -->
     <div id="scannerDetailScreen" class="sub-screen">
       <div class="header-bar">
         <div class="back-btn" id="backBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
-        <div style="font-weight: 700; font-size: 16px;">Детали связки</div>
+        <div style="font-weight: 700; font-size: 16px;">Живой график связки</div>
         <div></div>
       </div>
 
@@ -369,17 +391,10 @@
         <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;" id="detailProfit">▲ +$24.50 с $1000</div>
       </div>
 
-      <div class="chart-container">
-        <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#31B469" stop-opacity="0.4"/>
-              <stop offset="100%" stop-color="#31B469" stop-opacity="0.0"/>
-            </linearGradient>
-          </defs>
-          <path id="chartArea" fill="url(#chartGrad)"/>
-          <path id="chartLine" fill="none" stroke="#31B469" stroke-width="3.5"/>
-        </svg>
+      <!-- Live Interactive Canvas Chart Container -->
+      <div class="live-chart-wrapper">
+        <div id="chartTooltip" class="chart-tooltip"></div>
+        <canvas id="liveCanvas"></canvas>
       </div>
 
       <div class="info-card glass-card">
@@ -395,8 +410,8 @@
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px;">
-        <button id="btnBuy" class="btn-main">Купить</button>
-        <button id="btnSell" class="btn-secondary">Продать</button>
+        <button class="btn-main">Купить</button>
+        <button class="btn-secondary">Продать</button>
       </div>
     </div>
   </div>
@@ -423,7 +438,7 @@
     </div>
   </div>
 
-  <!-- TAB 3: INCOME / CALC -->
+  <!-- TAB 3: INCOME -->
   <div id="tab-income" class="tab-content">
     <div class="header-bar">
       <div class="header-title">Калькулятор прибыли</div>
@@ -531,12 +546,9 @@
           bgClass: 'ton-bg',
           buyEx: 'OKX Spot',
           sellEx: 'MEXC Spot',
-          buyPrice: '$5.20',
-          sellPrice: '$5.32',
+          basePrice: 5.20,
           spread: '+2.45%',
-          profit: '+$24.50',
-          line: "M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20",
-          area: "M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20 L400,150 L0,150 Z"
+          profit: '+$24.50'
         },
         {
           id: 'btc',
@@ -546,12 +558,9 @@
           bgClass: 'btc-bg',
           buyEx: 'Bybit Spot',
           sellEx: 'KuCoin Spot',
-          buyPrice: '$64,100',
-          sellPrice: '$65,265',
+          basePrice: 64100,
           spread: '+1.82%',
-          profit: '+$18.20',
-          line: "M0,100 Q50,60 120,110 T240,40 T320,80 T400,30",
-          area: "M0,100 Q50,60 120,110 T240,40 T320,80 T400,30 L400,150 L0,150 Z"
+          profit: '+$18.20'
         },
         {
           id: 'eth',
@@ -561,16 +570,12 @@
           bgClass: 'eth-bg',
           buyEx: 'Binance',
           sellEx: 'Gate.io',
-          buyPrice: '$2,640',
-          sellPrice: '$2,723',
+          basePrice: 2640,
           spread: '+3.15%',
-          profit: '+$31.50',
-          line: "M0,140 Q60,90 120,40 T240,80 T320,10 T400,30",
-          area: "M0,140 Q60,90 120,40 T240,80 T320,10 T400,30 L400,150 L0,150 Z"
+          profit: '+$31.50'
         }
       ];
 
-      // Полная база монеток рынка
       const marketCoins = [
         { id: 'ton', title: 'Toncoin', ticker: 'TON', price: '$5.24', change: '+4.2%', isUp: true, icon: '💎', bg: 'ton-bg', vol: '$142.5M', cap: '$12.8B' },
         { id: 'btc', title: 'Bitcoin', ticker: 'BTC', price: '$64,450.00', change: '+1.8%', isUp: true, icon: '₿', bg: 'btc-bg', vol: '$28.4B', cap: '$1.27T' },
@@ -581,10 +586,153 @@
         { id: 'xrp', title: 'XRP', ticker: 'XRP', price: '$0.58', change: '+3.1%', isUp: true, icon: 'X', bg: 'xrp-bg', vol: '$950M', cap: '$32.4B' }
       ];
 
-      let currentMarketFilter = 'all';
-      let currentSearchQuery = '';
+      // --- ДИНАМИЧЕСКИЙ ЖИВОЙ CANVAS ГРАФИК ---
+      const canvas = document.getElementById('liveCanvas');
+      const ctx = canvas.getContext('2d');
+      const tooltip = document.getElementById('chartTooltip');
 
-      // Рендер Сканера
+      let chartPoints = [];
+      let liveInterval = null;
+      let isHovering = false;
+      let mousePos = { x: 0, y: 0 };
+      let currentBasePrice = 5.20;
+
+      function resizeCanvas() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width * window.devicePixelRatio;
+        canvas.height = rect.height * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      }
+
+      function initChartPoints(baseVal) {
+        chartPoints = [];
+        let cur = baseVal;
+        const now = Date.now();
+        for (let i = 40; i >= 0; i--) {
+          cur += (Math.random() - 0.48) * (baseVal * 0.005);
+          chartPoints.push({ time: now - i * 1500, val: cur });
+        }
+      }
+
+      function updateLiveChart() {
+        if (chartPoints.length === 0) return;
+        const lastVal = chartPoints[chartPoints.length - 1].val;
+        const newVal = lastVal + (Math.random() - 0.48) * (currentBasePrice * 0.004);
+        chartPoints.shift();
+        chartPoints.push({ time: Date.now(), val: newVal });
+        drawChart();
+      }
+
+      function drawChart() {
+        const w = canvas.offsetWidth;
+        const h = canvas.offsetHeight;
+        ctx.clearRect(0, 0, w, h);
+
+        if (chartPoints.length < 2) return;
+
+        const vals = chartPoints.map(p => p.val);
+        const min = Math.min(...vals);
+        const max = Math.max(...vals);
+        const range = (max - min) || 1;
+
+        const getX = (idx) => (idx / (chartPoints.length - 1)) * w;
+        const getY = (val) => h - 20 - ((val - min) / range) * (h - 40);
+
+        // Градиент фона
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, 'rgba(49, 180, 105, 0.35)');
+        grad.addColorStop(1, 'rgba(49, 180, 105, 0.0)');
+
+        // Отрисовка закраски
+        ctx.beginPath();
+        ctx.moveTo(getX(0), getY(chartPoints[0].val));
+        for (let i = 1; i < chartPoints.length; i++) {
+          const xc = (getX(i) + getX(i - 1)) / 2;
+          const yc = (getY(chartPoints[i].val) + getY(chartPoints[i - 1].val)) / 2;
+          ctx.quadraticCurveTo(getX(i - 1), getY(chartPoints[i - 1].val), xc, yc);
+        }
+        ctx.lineTo(w, h);
+        ctx.lineTo(0, h);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Отрисовка основной линии
+        ctx.beginPath();
+        ctx.moveTo(getX(0), getY(chartPoints[0].val));
+        for (let i = 1; i < chartPoints.length; i++) {
+          const xc = (getX(i) + getX(i - 1)) / 2;
+          const yc = (getY(chartPoints[i].val) + getY(chartPoints[i - 1].val)) / 2;
+          ctx.quadraticCurveTo(getX(i - 1), getY(chartPoints[i - 1].val), xc, yc);
+        }
+        ctx.strokeStyle = '#31B469';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Интерактивный hover при проведении пальцем/мышью
+        if (isHovering) {
+          const hoverIdx = Math.max(0, Math.min(chartPoints.length - 1, Math.round((mousePos.x / w) * (chartPoints.length - 1))));
+          const px = getX(hoverIdx);
+          const py = getY(chartPoints[hoverIdx].val);
+
+          // Перекрестие (Crosshair)
+          ctx.beginPath();
+          ctx.setLineDash([4, 4]);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.moveTo(px, 0); ctx.lineTo(px, h);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Точка
+          ctx.beginPath();
+          ctx.arc(px, py, 6, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+          ctx.strokeStyle = '#31B469';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+
+          // Тултип
+          tooltip.style.display = 'block';
+          tooltip.style.left = `${Math.min(Math.max(10, px - 40), w - 100)}px`;
+          tooltip.innerText = `$${chartPoints[hoverIdx].val.toFixed(2)}`;
+        } else {
+          tooltip.style.display = 'none';
+        }
+      }
+
+      function handlePointerMove(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        mousePos.x = clientX - rect.left;
+        mousePos.y = clientY - rect.top;
+        isHovering = true;
+        drawChart();
+      }
+
+      function handlePointerLeave() {
+        isHovering = false;
+        drawChart();
+      }
+
+      canvas.addEventListener('mousemove', handlePointerMove);
+      canvas.addEventListener('touchmove', handlePointerMove);
+      canvas.addEventListener('mouseleave', handlePointerLeave);
+      canvas.addEventListener('touchend', handlePointerLeave);
+
+      function startLiveChart(baseVal) {
+        currentBasePrice = baseVal;
+        resizeCanvas();
+        initChartPoints(baseVal);
+        drawChart();
+        if (liveInterval) clearInterval(liveInterval);
+        liveInterval = setInterval(updateLiveChart, 1000);
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      // --- РЕНДЕР И НАВИГАЦИЯ ---
       function renderDeals(filterType = 'all') {
         const container = document.getElementById('dealsList');
         container.innerHTML = '';
@@ -611,23 +759,12 @@
         });
       }
 
-      // Полный рендер Рынка (клики, поиск, фильтры)
       function renderMarket() {
         const container = document.getElementById('marketList');
         container.innerHTML = '';
-
-        let list = marketCoins.filter(c => 
-          c.title.toLowerCase().includes(currentSearchQuery.toLowerCase()) || 
-          c.ticker.toLowerCase().includes(currentSearchQuery.toLowerCase())
-        );
-
-        if (currentMarketFilter === 'gainers') list = list.filter(c => c.isUp);
-        if (currentMarketFilter === 'losers') list = list.filter(c => !c.isUp);
-
-        if (list.length === 0) {
-          container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">Монеты не найдены</div>';
-          return;
-        }
+        const query = document.getElementById('marketSearch').value.toLowerCase();
+        
+        let list = marketCoins.filter(c => c.title.toLowerCase().includes(query) || c.ticker.toLowerCase().includes(query));
 
         list.forEach(c => {
           const el = document.createElement('div');
@@ -650,7 +787,7 @@
         });
       }
 
-      // Навигация
+      // Табы
       document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.addEventListener('click', function() {
           if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
@@ -663,95 +800,46 @@
         });
       });
 
-      // Переключатели Рынка
-      document.getElementById('filterAll').addEventListener('click', function() { setMarketFilter(this, 'all'); });
-      document.getElementById('filterGainers').addEventListener('click', function() { setMarketFilter(this, 'gainers'); });
-      document.getElementById('filterLosers').addEventListener('click', function() { setMarketFilter(this, 'losers'); });
-
-      function setMarketFilter(btn, filter) {
-        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        document.querySelectorAll('#tab-market .tf-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentMarketFilter = filter;
-        renderMarket();
-      }
-
-      // Поиск
-      document.getElementById('marketSearch').addEventListener('input', (e) => {
-        currentSearchQuery = e.target.value;
-        renderMarket();
-      });
-
-      // Модальное окно
-      function openCoinModal(coin) {
-        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-        document.getElementById('modalCoinTitle').innerText = coin.title;
-        document.getElementById('modalCoinTicker').innerText = coin.ticker;
-        document.getElementById('modalCoinPrice').innerText = coin.price;
-        document.getElementById('modalCoinChange').innerText = `${coin.change} за 24 часа`;
-        document.getElementById('modalCoinChange').className = coin.isUp ? 'val-green' : 'val-red';
-        document.getElementById('modalCoinVol').innerText = coin.vol;
-        document.getElementById('modalCoinCap').innerText = coin.cap;
-
-        const iconEl = document.getElementById('modalCoinIcon');
-        iconEl.innerText = coin.icon;
-        iconEl.className = `crypto-icon ${coin.bg}`;
-
-        document.getElementById('coinModal').classList.add('active');
-      }
-
-      document.getElementById('closeCoinModal').addEventListener('click', () => {
-        document.getElementById('coinModal').classList.remove('active');
-      });
-
-      document.getElementById('modalTradeBtn').addEventListener('click', () => {
-        document.getElementById('coinModal').classList.remove('active');
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelector('[data-tab="tab-scanner"]').classList.add('active');
-        document.getElementById('tab-scanner').classList.add('active');
-      });
-
-      // Подробности связки
+      // Детали экрана
       function openDetailScreen(item) {
         if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
         document.getElementById('detailTitle').innerText = item.title;
         document.getElementById('stepBuyEx').innerText = item.buyEx;
         document.getElementById('stepSellEx').innerText = item.sellEx;
-        document.getElementById('stepBuyPrice').innerText = item.buyPrice;
-        document.getElementById('stepSellPrice').innerText = item.sellPrice;
+        document.getElementById('stepBuyPrice').innerText = `$${item.basePrice.toFixed(2)}`;
+        document.getElementById('stepSellPrice').innerText = `$${(item.basePrice * 1.0245).toFixed(2)}`;
         document.getElementById('detailSpread').innerText = item.spread;
         document.getElementById('detailProfit').innerText = `▲ ${item.profit} с $1000`;
         
-        document.getElementById('chartLine').setAttribute('d', item.line);
-        document.getElementById('chartArea').setAttribute('d', item.area);
-
         document.getElementById('scannerListScreen').classList.remove('active');
         document.getElementById('scannerDetailScreen').classList.add('active');
+
+        startLiveChart(item.basePrice);
       }
 
       document.getElementById('backBtn').addEventListener('click', () => {
+        if (liveInterval) clearInterval(liveInterval);
         document.getElementById('scannerDetailScreen').classList.remove('active');
+        document.getElementById('scannerListScreen').classList.activeScreen = true;
         document.getElementById('scannerListScreen').classList.add('active');
       });
 
-      // Калькулятор
-      function recalculate() {
-        const dep = parseFloat(document.getElementById('calcDeposit').value) || 0;
-        const buy = parseFloat(document.getElementById('calcBuy').value) || 0;
-        const sell = parseFloat(document.getElementById('calcSell').value) || 0;
+      // Поиск рынка
+      document.getElementById('marketSearch').addEventListener('input', renderMarket);
 
-        if (buy > 0 && sell > 0) {
-          const profit = ((dep / buy) * sell) - dep;
-          const percent = (profit / dep) * 100;
-          const res = document.getElementById('calcResult');
-          res.innerText = `${profit >= 0 ? '+' : ''}$${profit.toFixed(2)} (${percent.toFixed(2)}%)`;
-          res.style.color = profit >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
-        }
+      // Модалка
+      function openCoinModal(coin) {
+        document.getElementById('modalCoinTitle').innerText = coin.title;
+        document.getElementById('modalCoinTicker').innerText = coin.ticker;
+        document.getElementById('modalCoinPrice').innerText = coin.price;
+        document.getElementById('modalCoinChange').innerText = `${coin.change} за 24 часа`;
+        document.getElementById('modalCoinVol').innerText = coin.vol;
+        document.getElementById('modalCoinCap').innerText = coin.cap;
+        document.getElementById('coinModal').classList.add('active');
       }
 
-      ['calcDeposit', 'calcBuy', 'calcSell'].forEach(id => {
-        document.getElementById(id).addEventListener('input', recalculate);
+      document.getElementById('closeCoinModal').addEventListener('click', () => {
+        document.getElementById('coinModal').classList.remove('active');
       });
 
       // Старт
