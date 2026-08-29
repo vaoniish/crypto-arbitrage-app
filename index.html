@@ -14,7 +14,6 @@
       --text-secondary: #7f8d99;
       --accent-blue: #3390ec;
       --accent-green: #2bb368;
-      --accent-purple: #7b52ea;
     }
 
     * {
@@ -31,6 +30,17 @@
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
       padding-bottom: 90px;
+      overflow-x: hidden;
+    }
+
+    /* Экраны приложения */
+    .screen {
+      display: none;
+      width: 100%;
+    }
+
+    .screen.active {
+      display: block;
     }
 
     /* Верхняя панель */
@@ -60,7 +70,18 @@
       color: var(--accent-blue);
     }
 
-    /* Главный баланс/спред */
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    /* Главный баланс / спред */
     .balance-section {
       text-align: center;
       padding: 4px 0 18px 0;
@@ -84,7 +105,7 @@
       color: var(--accent-blue);
     }
 
-    /* 4 быстрыe кнопки (Векторные SVG как в Wallet) */
+    /* 4 Векторные кнопки */
     .quick-actions {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -135,7 +156,7 @@
       color: var(--text-main);
     }
 
-    /* Фиолетовый баннер */
+    /* Баннер */
     .banner {
       margin: 0 16px 16px 16px;
       background: linear-gradient(135deg, #7047eb, #8b5cf6);
@@ -158,12 +179,7 @@
       opacity: 0.9;
     }
 
-    .banner-arrow {
-      color: #fff;
-      opacity: 0.7;
-    }
-
-    /* Основной блок с карточками */
+    /* Контейнер списка связок */
     .section-container {
       margin: 0 16px;
       background: var(--card-bg);
@@ -205,6 +221,10 @@
 
     .deal-item:last-child {
       border-bottom: none;
+    }
+
+    .deal-item:active {
+      background: var(--card-pressed);
     }
 
     .deal-left {
@@ -263,7 +283,180 @@
       margin-top: 1px;
     }
 
-    /* Фиксированное нижнее меню Wallet */
+    /* Страница детализации */
+    .asset-header {
+      padding: 8px 16px 16px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .asset-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .asset-title-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .asset-name {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .asset-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .price-section {
+      padding: 0 16px 16px 16px;
+    }
+
+    .price-val {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .spread-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-green);
+      background: rgba(43, 179, 104, 0.12);
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-top: 6px;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 150px;
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .timeframe-picker {
+      display: flex;
+      background: var(--card-bg);
+      border-radius: 12px;
+      margin: 0 16px 20px 16px;
+      padding: 3px;
+    }
+
+    .tf-btn {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-radius: 9px;
+      cursor: pointer;
+    }
+
+    .tf-btn.active {
+      background: #2b394a;
+      color: var(--text-main);
+    }
+
+    .info-card {
+      margin: 0 16px 16px 16px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .info-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .route-step {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .route-step:last-child {
+      border-bottom: none;
+    }
+
+    .step-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .step-action {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .step-exchange {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .step-price {
+      font-size: 14px;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 16px;
+    }
+
+    .btn-main {
+      background: var(--accent-blue);
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    /* Нижняя навигация */
     .navbar {
       position: fixed;
       bottom: 12px;
@@ -291,6 +484,7 @@
       font-size: 10px;
       font-weight: 500;
       gap: 4px;
+      cursor: pointer;
     }
 
     .nav-tab.active {
@@ -307,118 +501,196 @@
 </head>
 <body>
 
-  <!-- Шапка -->
-  <div class="header-bar">
-    <div class="profile-avatar"></div>
-    <div class="icon-btn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-    </div>
-  </div>
-
-  <!-- Главный счетчик -->
-  <div class="balance-section">
-    <div class="balance-label">Максимальный спред 24h</div>
-    <div class="balance-amount">+3,84 <span class="balance-currency">%</span></div>
-  </div>
-
-  <!-- 4 Быстрые кнопки (SVG вектор) -->
-  <div class="quick-actions">
-    <div class="action-card">
-      <div class="action-icon-circle">
-        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+  <!-- ================= ЭКРАН 1: ГЛАВНАЯ (СКАНЕР) ================= -->
+  <div id="mainScreen" class="screen active">
+    <div class="header-bar">
+      <div class="profile-avatar"></div>
+      <div class="icon-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
       </div>
-      <div class="action-title">Все связки</div>
     </div>
-    
-    <div class="action-card">
-      <div class="action-icon-circle">
-        <svg viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+
+    <div class="balance-section">
+      <div class="balance-label">Максимальный спред 24h</div>
+      <div class="balance-amount">+3,84 <span class="balance-currency">%</span></div>
+    </div>
+
+    <div class="quick-actions">
+      <div class="action-card">
+        <div class="action-icon-circle">
+          <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        </div>
+        <div class="action-title">Все связки</div>
       </div>
-      <div class="action-title">Межбиржевой</div>
-    </div>
-
-    <div class="action-card">
-      <div class="action-icon-circle">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
-      </div>
-      <div class="action-title">Спот</div>
-    </div>
-
-    <div class="action-card">
-      <div class="action-icon-circle">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </div>
-      <div class="action-title">Фильтры</div>
-    </div>
-  </div>
-
-  <!-- Инфо-баннер -->
-  <div class="banner">
-    <div>
-      <div class="banner-title">VIP Сигналы в Telegram</div>
-      <div class="banner-subtitle">Получайте уведомления о спреде > 2% 🚀</div>
-    </div>
-    <div class="banner-arrow">➔</div>
-  </div>
-
-  <!-- Основной блок со связками -->
-  <div class="section-container">
-    <div class="section-header">
-      <span class="section-title">Горячие связки</span>
-      <span class="section-stat">LIVE SCAN</span>
-    </div>
-
-    <div id="dealsList">
       
-      <!-- Спот 1 -->
-      <div class="deal-item">
-        <div class="deal-left">
-          <div class="crypto-icon ton-bg">💎</div>
-          <div class="deal-names">
-            <div class="coin-title">TON / USDT</div>
-            <div class="route-subtitle">OKX Spot ➔ MEXC Spot</div>
-          </div>
+      <div class="action-card">
+        <div class="action-icon-circle">
+          <svg viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
         </div>
-        <div class="deal-right">
-          <div class="profit-val">+2.45%</div>
-          <div class="spread-percent">+$24.5</div>
-        </div>
+        <div class="action-title">Межбиржевой</div>
       </div>
 
-      <!-- Спот 2 -->
-      <div class="deal-item">
-        <div class="deal-left">
-          <div class="crypto-icon eth-bg">Ξ</div>
-          <div class="deal-names">
-            <div class="coin-title">ETH / USDT</div>
-            <div class="route-subtitle">Bybit Spot ➔ Gate.io</div>
-          </div>
+      <div class="action-card">
+        <div class="action-icon-circle">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
         </div>
-        <div class="deal-right">
-          <div class="profit-val">+1.80%</div>
-          <div class="spread-percent">+$18.0</div>
-        </div>
+        <div class="action-title">Спот</div>
       </div>
 
-      <!-- Спот 3 -->
-      <div class="deal-item">
-        <div class="deal-left">
-          <div class="crypto-icon btc-bg">₿</div>
-          <div class="deal-names">
-            <div class="coin-title">BTC / USDT</div>
-            <div class="route-subtitle">Binance Spot ➔ KuCoin</div>
-          </div>
+      <div class="action-card">
+        <div class="action-icon-circle">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </div>
-        <div class="deal-right">
-          <div class="profit-val">+1.12%</div>
-          <div class="spread-percent">+$11.2</div>
-        </div>
+        <div class="action-title">Фильтры</div>
+      </div>
+    </div>
+
+    <div class="banner">
+      <div>
+        <div class="banner-title">VIP Сигналы в Telegram</div>
+        <div class="banner-subtitle">Получайте уведомления о спреде > 2% 🚀</div>
+      </div>
+      <div style="opacity: 0.7;">➔</div>
+    </div>
+
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-title">Горячие связки</span>
+        <span class="section-stat">LIVE SCAN</span>
       </div>
 
+      <div id="dealsList">
+        <!-- TON -->
+        <div class="deal-item" onclick="openDetails('TON / USDT', '💎', 'ton-bg', '+2.45%', '+$24.50', 'OKX Spot', 'MEXC Spot', '$5.20', '$5.32')">
+          <div class="deal-left">
+            <div class="crypto-icon ton-bg">💎</div>
+            <div class="deal-names">
+              <div class="coin-title">TON / USDT</div>
+              <div class="route-subtitle">OKX Spot ➔ MEXC Spot</div>
+            </div>
+          </div>
+          <div class="deal-right">
+            <div class="profit-val">+2.45%</div>
+            <div class="spread-percent">+$24.5</div>
+          </div>
+        </div>
+
+        <!-- ETH -->
+        <div class="deal-item" onclick="openDetails('ETH / USDT', 'Ξ', 'eth-bg', '+1.80%', '+$18.00', 'Bybit Spot', 'Gate.io', '$2,640', '$2,687')">
+          <div class="deal-left">
+            <div class="crypto-icon eth-bg">Ξ</div>
+            <div class="deal-names">
+              <div class="coin-title">ETH / USDT</div>
+              <div class="route-subtitle">Bybit Spot ➔ Gate.io</div>
+            </div>
+          </div>
+          <div class="deal-right">
+            <div class="profit-val">+1.80%</div>
+            <div class="spread-percent">+$18.0</div>
+          </div>
+        </div>
+
+        <!-- BTC -->
+        <div class="deal-item" onclick="openDetails('BTC / USDT', '₿', 'btc-bg', '+1.12%', '+$11.20', 'Binance Spot', 'KuCoin', '$64,100', '$64,817')">
+          <div class="deal-left">
+            <div class="crypto-icon btc-bg">₿</div>
+            <div class="deal-names">
+              <div class="coin-title">BTC / USDT</div>
+              <div class="route-subtitle">Binance Spot ➔ KuCoin</div>
+            </div>
+          </div>
+          <div class="deal-right">
+            <div class="profit-val">+1.12%</div>
+            <div class="spread-percent">+$11.2</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Нижнее меню Wallet -->
+  <!-- ================= ЭКРАН 2: ДЕТАЛИ МОНЕТЫ ================= -->
+  <div id="detailsScreen" class="screen">
+    <div class="header-bar">
+      <div class="back-btn" onclick="closeDetails()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </div>
+      <div class="back-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+      </div>
+    </div>
+
+    <div class="asset-header">
+      <div id="detailIcon" class="asset-icon">💎</div>
+      <div class="asset-title-block">
+        <div id="detailTitle" class="asset-name">TON / USDT</div>
+        <div class="asset-sub">Межбиржевой спот</div>
+      </div>
+    </div>
+
+    <div class="price-section">
+      <div id="detailSpread" class="price-val">+2.45%</div>
+      <div class="spread-tag">
+        <span id="detailProfit">▲ +$24.50</span>
+        <span style="color: var(--text-secondary); opacity: 0.7;">(на 1 000$)</span>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <svg class="chart-svg" viewBox="0 0 400 150" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2bb368" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#2bb368" stop-opacity="0.0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20 L400,150 L0,150 Z" fill="url(#chartGradient)" />
+        <path d="M0,130 Q40,120 80,60 T160,70 T240,30 T320,40 T400,20" fill="none" stroke="#2bb368" stroke-width="3" />
+      </svg>
+    </div>
+
+    <div class="timeframe-picker">
+      <div class="tf-btn active">1Д</div>
+      <div class="tf-btn">7Д</div>
+      <div class="tf-btn">1М</div>
+      <div class="tf-btn">1Г</div>
+      <div class="tf-btn">Все</div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title">Маршрут арбитража</div>
+      
+      <div class="route-step">
+        <div class="step-left">
+          <div class="step-action">1. Покупка</div>
+          <div id="detailBuyEx" class="step-exchange">OKX Spot</div>
+        </div>
+        <div id="detailBuyPrice" class="step-price">$5.20</div>
+      </div>
+
+      <div class="route-step">
+        <div class="step-left">
+          <div class="step-action">2. Перевод</div>
+          <div class="step-exchange">Сеть (Комиссия минимальная)</div>
+        </div>
+        <div class="step-price">~2 мин</div>
+      </div>
+
+      <div class="route-step">
+        <div class="step-left">
+          <div class="step-action">3. Продажа</div>
+          <div id="detailSellEx" class="step-exchange">MEXC Spot</div>
+        </div>
+        <div id="detailSellPrice" class="step-price" style="color: var(--accent-green);">$5.32</div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button id="btnBuy" class="btn-main">Купить</button>
+      <button id="btnSell" class="btn-secondary">Продать</button>
+    </div>
+  </div>
+
+  <!-- ================= НИЖНЕЕ МЕНЮ (WALLET NAVBAR) ================= -->
   <div class="navbar">
     <div class="nav-tab active">
       <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
@@ -441,6 +713,36 @@
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+
+    // Функция переключения на детали связки
+    function openDetails(title, icon, bgClass, spread, profit, buyEx, sellEx, buyPrice, sellPrice) {
+      document.getElementById('detailTitle').innerText = title;
+      
+      const iconEl = document.getElementById('detailIcon');
+      iconEl.innerText = icon;
+      iconEl.className = 'asset-icon ' + bgClass;
+
+      document.getElementById('detailSpread').innerText = spread;
+      document.getElementById('detailProfit').innerText = '▲ ' + profit;
+      document.getElementById('detailBuyEx').innerText = buyEx;
+      document.getElementById('detailSellEx').innerText = sellEx;
+      document.getElementById('detailBuyPrice').innerText = buyPrice;
+      document.getElementById('detailSellPrice').innerText = sellPrice;
+
+      document.getElementById('btnBuy').innerText = 'Купить на ' + buyEx.split(' ')[0];
+      document.getElementById('btnSell').innerText = 'Продать на ' + sellEx.split(' ')[0];
+
+      document.getElementById('mainScreen').classList.remove('active');
+      document.getElementById('detailsScreen').classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    // Возврат на главный экран
+    function closeDetails() {
+      document.getElementById('detailsScreen').classList.remove('active');
+      document.getElementById('mainScreen').classList.add('active');
+      window.scrollTo(0, 0);
+    }
   </script>
 </body>
 </html>
