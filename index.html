@@ -148,7 +148,7 @@
     .section-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; }
     .section-title { font-size: 15px; font-weight: 700; }
 
-    /* Card List Styles */
+    /* List Items */
     .list-item {
       display: flex;
       justify-content: space-between;
@@ -196,12 +196,69 @@
       gap: 3px;
     }
 
+    /* Modal Settings Window */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
+      align-items: flex-end;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-overlay.active { display: flex; }
+    
+    .modal-card {
+      width: 100%;
+      background: #17212b;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 20px;
+      border-top: 1px solid var(--card-border);
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: slideUp 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-size: 18px; font-weight: 800; }
+
+    .setting-group { margin-bottom: 18px; }
+    .setting-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block; }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Checkbox & Inputs */
+    .input-field {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
     /* Asset Info Header */
     .asset-header { padding: 12px 20px; display: flex; align-items: center; gap: 14px; }
     .price-section { padding: 0 20px 10px 20px; }
     .price-val { font-size: 34px; font-weight: 800; }
 
-    /* Interactive Live Chart Wrapper */
+    /* Live Chart Wrapper */
     .live-chart-wrapper {
       position: relative;
       width: 100%;
@@ -209,11 +266,7 @@
       margin-bottom: 12px;
       touch-action: none;
     }
-    #liveCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+    #liveCanvas { width: 100%; height: 100%; display: block; }
     .chart-tooltip {
       position: absolute;
       top: 10px;
@@ -228,10 +281,8 @@
       pointer-events: none;
       display: none;
       z-index: 10;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
-    /* Timeframe Selector (1Д 7Д 1М) */
     .chart-tf-picker {
       display: flex;
       background: rgba(0, 0, 0, 0.3);
@@ -251,14 +302,10 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    .chart-tf-btn.active {
-      background: #28374a;
-      color: #ffffff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
+    .chart-tf-btn.active { background: #28374a; color: #ffffff; }
 
     .info-card { margin: 0 16px 16px 16px; padding: 18px; }
-    .info-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-card-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase; }
 
     .route-step {
       display: flex;
@@ -269,7 +316,6 @@
     }
     .route-step:last-child { border-bottom: none; }
 
-    /* Calculator Controls */
     .calc-box {
       display: flex;
       align-items: center;
@@ -310,19 +356,12 @@
       font-weight: 700;
       cursor: pointer;
       text-align: center;
-      text-decoration: none;
-      display: inline-block;
       width: 100%;
       transition: transform 0.1s ease;
     }
     .btn-main { background: var(--accent-blue); color: #fff; }
     .btn-secondary { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--card-border); }
-    .btn-api {
-      background: linear-gradient(135deg, #31B469, #1b8a4c);
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(49, 180, 105, 0.3);
-    }
-    .btn-main:active, .btn-secondary:active, .btn-api:active { transform: scale(0.98); }
+    .btn-api { background: linear-gradient(135deg, #31B469, #1b8a4c); color: #fff; box-shadow: 0 4px 16px rgba(49, 180, 105, 0.3); }
 
     /* Navbar */
     .navbar {
@@ -362,8 +401,8 @@
       <div class="header-bar">
         <div class="profile-avatar">TG</div>
         <div class="header-title">Внутрибиржевой сканер</div>
-        <div class="icon-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <div class="icon-btn" id="openSettingsHeaderBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </div>
       </div>
 
@@ -385,16 +424,19 @@
           <div class="action-icon-circle"><svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
           <div class="action-title">Фандинг</div>
         </div>
-        <div class="action-card" data-filter="high">
-          <div class="action-icon-circle"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          <div class="action-title">> 1.5% спред</div>
+        <!-- Вкладка Настройки взамен прошлых фильтров -->
+        <div class="action-card" id="openSettingsBtn">
+          <div class="action-icon-circle">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+          <div class="action-title">Настройки</div>
         </div>
       </div>
 
       <div class="section-container glass-card">
         <div class="section-header">
           <span class="section-title">Внутрибиржевые связки</span>
-          <span style="font-size: 12px; color: var(--accent-green);">● Live HFT Feed</span>
+          <span style="font-size: 12px; color: var(--accent-green);" id="liveStatusText">● Live HFT Feed</span>
         </div>
         <div id="dealsList"></div>
       </div>
@@ -430,14 +472,13 @@
         <canvas id="liveCanvas"></canvas>
       </div>
 
-      <!-- Timeframe Selector -->
       <div class="chart-tf-picker">
         <div class="chart-tf-btn active" data-tf="1D">1Д</div>
         <div class="chart-tf-btn" data-tf="7D">7Д</div>
         <div class="chart-tf-btn" data-tf="1M">1М</div>
       </div>
 
-      <!-- Calculator Card with Slippage and Fee Levels -->
+      <!-- Calculator Card -->
       <div class="info-card glass-card">
         <div class="info-card-title">Калькулятор объема и проскальзывания</div>
         
@@ -471,10 +512,59 @@
         <div id="routeStepsContainer"></div>
       </div>
 
-      <!-- Auto Execution Button -->
       <div style="padding: 0 16px 20px 16px;">
         <button class="btn-api" id="btn1ClickExec">⚡ Выполнить круг (1-Click API)</button>
       </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК СКАНЕРА -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Настройки сканера</div>
+        <div class="icon-btn" id="closeSettingsBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Минимальный спред (%)</label>
+        <input type="number" step="0.1" class="input-field" id="minSpreadInput" value="0.5">
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Макс. время жизни TTL (сек)</label>
+        <input type="number" step="0.5" class="input-field" id="maxTTLInput" value="10.0">
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Фильтр бирж</label>
+        <div class="toggle-row">
+          <span>Binance</span>
+          <input type="checkbox" id="exBinanceCheck" checked>
+        </div>
+        <div class="toggle-row">
+          <span>Bybit</span>
+          <input type="checkbox" id="exBybitCheck" checked>
+        </div>
+        <div class="toggle-row">
+          <span>OKX</span>
+          <input type="checkbox" id="exOKXCheck" checked>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">API Ключ (Для авто-торговли)</label>
+        <input type="password" class="input-field" placeholder="Введите API Key" value="****************">
+      </div>
+
+      <div class="setting-group">
+        <div class="toggle-row">
+          <span>Авто-обновление потока</span>
+          <input type="checkbox" id="liveFeedToggle" checked>
+        </div>
+      </div>
+
+      <button class="btn-main" id="saveSettingsBtn" style="margin-top: 10px;">Сохранить настройки</button>
     </div>
   </div>
 
@@ -507,7 +597,14 @@
       const tg = window.Telegram?.WebApp;
       if (tg) tg.expand();
 
-      // Данные внутрибиржевых связок
+      // Настройки сканера по умолчанию
+      let userSettings = {
+        minSpread: 0.5,
+        maxTTL: 10.0,
+        exchanges: { Binance: true, Bybit: true, OKX: true },
+        liveFeed: true
+      };
+
       const deals = [
         {
           id: 'tri_btc',
@@ -520,7 +617,7 @@
           bgClass: 'btc-bg',
           spreadPct: 2.15,
           ttl: 1.2,
-          liquidityDepth: 85000, // Глубина стакана в $
+          liquidityDepth: 85000,
           steps: [
             { name: '1. Покупка BTC за USDT', price: '$64,100.00', details: 'Ask-цена • Стакан: $85,000 • Ордер: Market' },
             { name: '2. Обмен BTC на ETH', price: '0.04125 BTC', details: 'Кросс-курс ETH/BTC • Ликвидность: Высокая' },
@@ -583,7 +680,6 @@
         }
       ];
 
-      // Переменные состояния
       let currentFilter = 'all';
       let currentItem = deals[0];
       let chartPoints = [];
@@ -592,7 +688,6 @@
       let isHovering = false;
       let mousePos = { x: 0, y: 0 };
 
-      // Элементы Canvas
       const canvas = document.getElementById('liveCanvas');
       const ctx = canvas.getContext('2d');
       const tooltip = document.getElementById('chartTooltip');
@@ -605,7 +700,6 @@
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
       }
 
-      // Генерация массива точек графика в зависимости от таймфрейма
       function initChartPoints(item, tf = '1D') {
         chartPoints = [];
         let baseVal = item.spreadPct;
@@ -625,7 +719,7 @@
       }
 
       function updateLiveChart() {
-        if (chartPoints.length === 0) return;
+        if (!userSettings.liveFeed || chartPoints.length === 0) return;
         const lastVal = chartPoints[chartPoints.length - 1].val;
         const newVal = Math.max(0.1, lastVal + (Math.random() - 0.48) * 0.05);
         chartPoints.shift();
@@ -666,34 +760,25 @@
         const isBullish = chartPoints[chartPoints.length - 1].val >= chartPoints[0].val;
         const mainColor = isBullish ? '#31B469' : '#FF4B4B';
 
-        // 1. Сетка цен
-        const gridLevels = 4;
         ctx.lineWidth = 1;
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
         ctx.fillStyle = '#8c9ea8';
         ctx.font = '10px -apple-system, SF Pro Display, sans-serif';
         ctx.textAlign = 'right';
 
-        for (let i = 0; i < gridLevels; i++) {
-          const ratio = i / (gridLevels - 1);
+        for (let i = 0; i < 4; i++) {
+          const ratio = i / 3;
           const y = paddingTop + graphH * ratio;
           const spreadVal = max - (ratio * range);
-
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(graphW, y);
-          ctx.stroke();
-
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(graphW, y); ctx.stroke();
           ctx.fillText(`+${spreadVal.toFixed(2)}%`, w - 4, y + 3);
         }
 
-        // 2. Временные метки
         ctx.textAlign = 'left';
         ctx.fillText(formatDate(chartPoints[0].time), 0, h - 4);
         ctx.textAlign = 'right';
         ctx.fillText(formatDate(chartPoints[chartPoints.length - 1].time), graphW, h - 4);
 
-        // 3. Заливка графика
         const grad = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + graphH);
         grad.addColorStop(0, isBullish ? 'rgba(49, 180, 105, 0.25)' : 'rgba(255, 75, 75, 0.25)');
         grad.addColorStop(1, 'rgba(0, 0, 0, 0.0)');
@@ -711,7 +796,6 @@
         ctx.fillStyle = grad;
         ctx.fill();
 
-        // 4. Линия графика
         ctx.beginPath();
         ctx.moveTo(getX(0), getY(chartPoints[0].val));
         for (let i = 1; i < chartPoints.length; i++) {
@@ -723,7 +807,6 @@
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        // 5. Визирная линия и точечный маркер при наведении
         if (isHovering && mousePos.x <= graphW) {
           const hoverIdx = Math.max(0, Math.min(chartPoints.length - 1, Math.round((mousePos.x / graphW) * (chartPoints.length - 1))));
           const px = getX(hoverIdx);
@@ -788,19 +871,15 @@
         drawChart();
       });
 
-      // Логика Калькулятора Обьема, Комиссий и Проскальзывания
       function updateCalculator() {
         const deposit = parseFloat(document.getElementById('calcDepositInput').value) || 0;
         const feeRate = parseFloat(document.getElementById('feeSelect').value) || 0.075;
 
-        // Расчет проскальзывания по стакану (Slippage)
         const ratio = deposit / (currentItem.liquidityDepth || 50000);
         const slippagePct = Math.min(2.5, ratio * 0.35);
 
-        // Чистый спред с учетом проскальзывания и комиссии за 3 шага
         const totalFeePct = feeRate * 3;
         const effectiveSpreadPct = Math.max(0, currentItem.spreadPct - slippagePct - totalFeePct);
-        
         const netProfit = deposit * (effectiveSpreadPct / 100);
 
         document.getElementById('calcSlippage').innerText = `-${slippagePct.toFixed(2)}%`;
@@ -811,20 +890,28 @@
       document.getElementById('calcDepositInput').addEventListener('input', updateCalculator);
       document.getElementById('feeSelect').addEventListener('change', updateCalculator);
 
-      // Отрисовка списка связок
+      // Рендер с учетом фильтров и пользовательских настроек
       function renderDeals() {
         const container = document.getElementById('dealsList');
         container.innerHTML = '';
 
         const filtered = deals.filter(d => {
-          if (currentFilter === 'all') return true;
-          if (currentFilter === 'high') return d.spreadPct >= 1.5;
-          return d.category === currentFilter;
+          // Проверка фильтров категории
+          if (currentFilter !== 'all' && d.category !== currentFilter) return false;
+          // Проверка пользовательских настроек
+          if (d.spreadPct < userSettings.minSpread) return false;
+          if (d.ttl > userSettings.maxTTL) return false;
+          if (!userSettings.exchanges[d.exchange]) return false;
+          return true;
         });
 
         if (filtered.length > 0) {
           const maxSpread = Math.max(...filtered.map(d => d.spreadPct));
           document.getElementById('maxSpreadVal').innerHTML = `+${maxSpread.toFixed(2)} <span style="color: var(--accent-blue)">%</span>`;
+        } else {
+          document.getElementById('maxSpreadVal').innerHTML = `0.00 <span style="color: var(--accent-blue)">%</span>`;
+          container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 13px;">Нет связок, подпадающих под заданные настройки</div>`;
+          return;
         }
 
         filtered.forEach(item => {
@@ -855,10 +942,10 @@
         startTTLSimulation();
       }
 
-      // Анимация живого таймера актуальности (TTL)
       function startTTLSimulation() {
         if (ttlInterval) clearInterval(ttlInterval);
         ttlInterval = setInterval(() => {
+          if (!userSettings.liveFeed) return;
           document.querySelectorAll('.ttl-counter').forEach(el => {
             let val = parseFloat(el.getAttribute('data-ttl'));
             val -= 0.1;
@@ -882,7 +969,6 @@
         iconEl.innerText = item.symbol;
         iconEl.className = `crypto-icon ${item.bgClass}`;
         
-        // Отрисовка шагов маршрута
         const routeContainer = document.getElementById('routeStepsContainer');
         routeContainer.innerHTML = item.steps.map(step => `
           <div class="route-step">
@@ -901,8 +987,41 @@
         startLiveChart(item);
       }
 
-      // Быстрые фильтры
+      // Открытие и закрытие окна Настроек
+      const modal = document.getElementById('settingsModal');
+      const openModal = () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        modal.classList.add('active');
+      };
+      const closeModal = () => {
+        modal.classList.remove('active');
+      };
+
+      document.getElementById('openSettingsBtn').addEventListener('click', openModal);
+      document.getElementById('openSettingsHeaderBtn').addEventListener('click', openModal);
+      document.getElementById('closeSettingsBtn').addEventListener('click', closeModal);
+
+      // Сохранение Настроек
+      document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        
+        userSettings.minSpread = parseFloat(document.getElementById('minSpreadInput').value) || 0;
+        userSettings.maxTTL = parseFloat(document.getElementById('maxTTLInput').value) || 999;
+        userSettings.exchanges.Binance = document.getElementById('exBinanceCheck').checked;
+        userSettings.exchanges.Bybit = document.getElementById('exBybitCheck').checked;
+        userSettings.exchanges.OKX = document.getElementById('exOKXCheck').checked;
+        userSettings.liveFeed = document.getElementById('liveFeedToggle').checked;
+
+        document.getElementById('liveStatusText').innerText = userSettings.liveFeed ? "● Live HFT Feed" : "⏸ Пауза потока";
+        document.getElementById('liveStatusText').style.color = userSettings.liveFeed ? "var(--accent-green)" : "var(--accent-orange)";
+
+        closeModal();
+        renderDeals();
+      });
+
+      // Переключатели быстрых фильтров категории
       document.querySelectorAll('.quick-actions .action-card').forEach(card => {
+        if (card.id === 'openSettingsBtn') return;
         card.addEventListener('click', function() {
           if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
           document.querySelectorAll('.quick-actions .action-card').forEach(c => c.classList.remove('active-filter'));
@@ -912,14 +1031,12 @@
         });
       });
 
-      // Кнопка назад
       document.getElementById('backBtn').addEventListener('click', () => {
         if (liveInterval) clearInterval(liveInterval);
         document.getElementById('scannerDetailScreen').classList.remove('active');
         document.getElementById('scannerListScreen').classList.add('active');
       });
 
-      // Переключатель таймфреймов
       document.querySelectorAll('.chart-tf-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
@@ -931,13 +1048,11 @@
         });
       });
 
-      // Кнопка 1-Click API исполнения
       document.getElementById('btn1ClickExec').addEventListener('click', () => {
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         alert(`⚡ Запрос отправлен по API на ${currentItem.exchange}!\nПараллельные ордера размещены успешно.`);
       });
 
-      // Навигация нижнего меню
       document.querySelectorAll('.nav-tab').forEach(tab => {
         tab.addEventListener('click', function() {
           if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
