@@ -1096,7 +1096,7 @@
           const deposit = depositInput ? depositInput.value : 500;
           
           // ⚠️ ЗАМЕНИ ССЫЛКУ НА СВОЙ URL С RENDER
-          const BACKEND_URL = 'https://arbitrage-backend-z4mq.onrender.com/api/deals';
+          const BACKEND_URL = 'https://arbitrage-backend-z4mq.onrender.com';
           
           const response = await fetch(`${BACKEND_URL}/api/deals?deposit=${deposit}`);
           const data = await response.json();
